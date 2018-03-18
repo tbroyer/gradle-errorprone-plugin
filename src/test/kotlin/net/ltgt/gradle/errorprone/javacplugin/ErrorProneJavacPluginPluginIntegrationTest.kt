@@ -22,6 +22,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
     private val testJavaHome = System.getProperty("test.java-home")
     private val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
     private val pluginVersion = System.getProperty("plugin.version")
+    private val errorproneVersion = "2.2.0"
 
     @Before
     fun setup() {
@@ -55,7 +56,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
                     jcenter()
                 }
                 dependencies {
-                    errorprone("com.google.errorprone:error_prone_core:2.2.0")
+                    errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
                 }
             """.trimIndent())
             testJavaHome?.also {
@@ -134,6 +135,42 @@ class ErrorProneJavacPluginPluginIntegrationTest {
 
             tasks.withType<JavaCompile>() {
                 options.errorprone.isEnabled = false
+            }
+        """.trimIndent())
+        writeFailureSource()
+
+        // when
+        val result = GradleRunner.create()
+            .withGradleVersion(testGradleVersion)
+            .withProjectDir(testProjectDir.root)
+            .withArguments("compileJava")
+            .build()
+
+        // then
+        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    }
+
+    @Test
+    fun `can configure manually`() {
+        // given
+        buildFile.writeText("""
+            import net.ltgt.gradle.errorprone.javacplugin.*
+
+            plugins {
+                java
+                id("${ErrorProneJavacPluginPlugin.PLUGIN_ID}") apply false
+            }
+
+            repositories {
+                jcenter()
+            }
+            dependencies {
+                annotationProcessor("com.google.errorprone:error_prone_core:$errorproneVersion")
+            }
+
+            val compileJava by tasks.getting(JavaCompile::class) {
+                ErrorProneJavacPlugin.apply(options)
+                options.errorprone.check("ArrayEquals", CheckSeverity.OFF)
             }
         """.trimIndent())
         writeFailureSource()
