@@ -10,6 +10,7 @@ import org.gradle.process.CommandLineArgumentProvider
 import java.util.StringJoiner
 
 open class ErrorProneOptions(
+    @get:Input var isEnabled: Boolean = true,
     @get:Input var disableAllChecks: Boolean = false,
     @get:Input var allErrorsAsWarnings: Boolean = false,
     @get:Input var allDisabledChecksAsWarnings: Boolean = false,

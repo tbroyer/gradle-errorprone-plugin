@@ -164,4 +164,38 @@ class ErrorProneJavacPluginPluginIntegrationTest {
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
+
+    @Test
+    fun `can disable errorprone`() {
+        // given
+        buildFile.appendText("""
+
+            tasks.withType<JavaCompile>() {
+                options.errorproneOptions.isEnabled = false
+            }
+        """.trimIndent())
+        File(testProjectDir.newFolder("src", "main", "java", "test"), "Failure.java").apply {
+            createNewFile()
+            writeText("""
+                package test;
+
+                public class Failure {
+                  // See http://errorprone.info/bugpattern/ArrayEquals
+                  public boolean arrayEquals(int[] a, int[] b) {
+                    return a.equals(b);
+                  }
+                }
+            """.trimIndent())
+        }
+
+        // when
+        val result = GradleRunner.create()
+            .withGradleVersion(testGradleVersion)
+            .withProjectDir(testProjectDir.root)
+            .withArguments("compileJava")
+            .build()
+
+        // then
+        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    }
 }

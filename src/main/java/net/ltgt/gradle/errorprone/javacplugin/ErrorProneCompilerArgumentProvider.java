@@ -2,6 +2,7 @@ package net.ltgt.gradle.errorprone.javacplugin;
 
 import java.util.Collections;
 import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.Optional;
 import org.gradle.process.CommandLineArgumentProvider;
 
 class ErrorProneCompilerArgumentProvider implements CommandLineArgumentProvider {
@@ -12,12 +13,15 @@ class ErrorProneCompilerArgumentProvider implements CommandLineArgumentProvider 
   }
 
   @Nested
+  @Optional
   public ErrorProneOptions getErrorproneOptions() {
-    return errorproneOptions;
+    return errorproneOptions.isEnabled() ? errorproneOptions : null;
   }
 
   @Override
   public Iterable<String> asArguments() {
-    return Collections.singleton(errorproneOptions.toString());
+    return errorproneOptions.isEnabled()
+        ? Collections.singletonList(errorproneOptions.toString())
+        : Collections.emptyList();
   }
 }
