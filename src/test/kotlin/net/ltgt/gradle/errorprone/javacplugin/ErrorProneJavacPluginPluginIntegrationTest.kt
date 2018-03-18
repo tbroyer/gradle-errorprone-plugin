@@ -124,7 +124,9 @@ class ErrorProneJavacPluginPluginIntegrationTest {
         buildFile.appendText("""
 
             tasks.withType<JavaCompile>() {
-                options.errorproneArgs.add("-Xep:ArrayEquals:OFF")
+                options.errorproneOptions {
+                    errorproneArgs.add("-Xep:ArrayEquals:OFF")
+                }
             }
         """.trimIndent())
         File(testProjectDir.newFolder("src", "main", "java", "test"), "Failure.java").apply {

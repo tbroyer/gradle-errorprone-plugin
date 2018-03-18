@@ -8,22 +8,22 @@ import org.gradle.api.tasks.Nested;
 import org.gradle.process.CommandLineArgumentProvider;
 
 class ErrorProneCompilerArgumentProvider implements CommandLineArgumentProvider {
-  private final ErrorProneConvention errorproneConvention;
+  private final ErrorProneExtension errorproneExtension;
 
-  public ErrorProneCompilerArgumentProvider(ErrorProneConvention errorproneConvention) {
-    this.errorproneConvention = errorproneConvention;
+  public ErrorProneCompilerArgumentProvider(ErrorProneExtension errorproneExtension) {
+    this.errorproneExtension = errorproneExtension;
   }
 
   @Nested
-  public ErrorProneConvention getErrorproneConvention() {
-    return errorproneConvention;
+  public ErrorProneExtension getErrorproneExtension() {
+    return errorproneExtension;
   }
 
   @Override
   public Iterable<String> asArguments() {
     return Collections.singleton(
         Stream.concat(
-                Stream.of("-Xplugin:ErrorProne"), errorproneConvention.getErrorproneArgs().stream())
+                Stream.of("-Xplugin:ErrorProne"), errorproneExtension.getErrorproneArgs().stream())
             .collect(joining(" ")));
   }
 }
