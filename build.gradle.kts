@@ -79,8 +79,11 @@ val publishPluginsToTestRepository by tasks.creating {
 val test by tasks.getting(Test::class) {
     dependsOn(publishPluginsToTestRepository)
 
-    val testGradleVersion = project.findProperty("test.gradle-version") ?: GradleVersion.current().version
-    systemProperty("test.gradle-version", testGradleVersion)
+    val testJavaHome = project.findProperty("test.java-home")
+    testJavaHome?.also { systemProperty("test.java-home", it) }
+
+    val testGradleVersion = project.findProperty("test.gradle-version")
+    testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
 
     systemProperty("plugin.version", version)
     systemProperty("errorprone.version", errorproneVersion)

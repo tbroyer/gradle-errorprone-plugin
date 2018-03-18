@@ -3,6 +3,7 @@ package net.ltgt.gradle.errorprone.javacplugin
 import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.util.GradleVersion
 import org.gradle.util.TextUtil.normaliseFileSeparators
 import org.junit.Before
 import org.junit.Rule
@@ -18,7 +19,8 @@ class ErrorProneJavacPluginPluginIntegrationTest {
     lateinit var settingsFile: File
     lateinit var buildFile: File
 
-    private val testGradleVersion = System.getProperty("test.gradle-version")
+    private val testJavaHome = System.getProperty("test.java-home")
+    private val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
     private val pluginVersion = System.getProperty("plugin.version")
     private val errorproneVersion = System.getProperty("errorprone.version")
 
@@ -57,6 +59,15 @@ class ErrorProneJavacPluginPluginIntegrationTest {
                     errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
                 }
             """.trimIndent())
+            testJavaHome?.also {
+                appendText("""
+
+                    tasks.withType<JavaCompile>() {
+                      options.isFork = true
+                      options.forkOptions.javaHome = File(""${'"'}${it.replace("\$", "\${'\$'}")}${'"'}"")
+                    }
+                """.trimIndent())
+            }
         }
     }
 
