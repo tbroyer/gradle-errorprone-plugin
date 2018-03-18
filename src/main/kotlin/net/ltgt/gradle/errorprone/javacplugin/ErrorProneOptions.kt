@@ -23,7 +23,7 @@ open class ErrorProneOptions(
     @get:Nested val errorproneArgumentProviders: MutableList<CommandLineArgumentProvider> = arrayListOf()
 ) {
     companion object {
-        const val NAME = "errorproneOptions"
+        const val NAME = "errorprone"
     }
 
     fun check(vararg checkNames: String) = checks.putAll(checkNames.map { it to CheckSeverity.DEFAULT })
@@ -61,7 +61,7 @@ enum class CheckSeverity {
 }
 
 // Extensions
-val CompileOptions.errorproneOptions: ErrorProneOptions
+val CompileOptions.errorprone: ErrorProneOptions
     get() = DslObject(this).extensions.getByName<ErrorProneOptions>(ErrorProneOptions.NAME)
 
 operator fun ErrorProneOptions.invoke(configure: ErrorProneOptions.() -> Unit): ErrorProneOptions =

@@ -110,7 +110,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
         buildFile.appendText("""
 
             tasks.withType<JavaCompile>() {
-                options.errorproneOptions {
+                options.errorprone {
                     check("ArrayEquals", CheckSeverity.OFF)
                 }
             }
@@ -134,7 +134,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
         buildFile.appendText("""
 
             tasks.withType<JavaCompile>() {
-                options.errorproneOptions.isEnabled = false
+                options.errorprone.isEnabled = false
             }
         """.trimIndent())
         writeFailureSource()
