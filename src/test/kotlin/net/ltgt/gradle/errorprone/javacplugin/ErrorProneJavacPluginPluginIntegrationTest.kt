@@ -74,20 +74,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
     @Test
     fun `compilation succeeds`() {
         // given
-        File(testProjectDir.newFolder("src", "main", "java", "test"), "Success.java").apply {
-            createNewFile()
-            writeText("""
-                package test;
-
-                public class Success {
-                  // See http://errorprone.info/bugpattern/ArrayEquals
-                  @SuppressWarnings("ArrayEquals")
-                  public boolean arrayEquals(int[] a, int[] b) {
-                    return a.equals(b);
-                  }
-                }
-            """.trimIndent())
-        }
+        writeSuccessSource()
 
         // when
         val result = GradleRunner.create()
@@ -103,19 +90,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
     @Test
     fun `compilation fails`() {
         // given
-        File(testProjectDir.newFolder("src", "main", "java", "test"), "Failure.java").apply {
-            createNewFile()
-            writeText("""
-                package test;
-
-                public class Failure {
-                  // See http://errorprone.info/bugpattern/ArrayEquals
-                  public boolean arrayEquals(int[] a, int[] b) {
-                    return a.equals(b);
-                  }
-                }
-            """.trimIndent())
-        }
+        writeFailureSource()
 
         // when
         val result = GradleRunner.create()
@@ -140,19 +115,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
                 }
             }
         """.trimIndent())
-        File(testProjectDir.newFolder("src", "main", "java", "test"), "Failure.java").apply {
-            createNewFile()
-            writeText("""
-                package test;
-
-                public class Failure {
-                  // See http://errorprone.info/bugpattern/ArrayEquals
-                  public boolean arrayEquals(int[] a, int[] b) {
-                    return a.equals(b);
-                  }
-                }
-            """.trimIndent())
-        }
+        writeFailureSource()
 
         // when
         val result = GradleRunner.create()
@@ -174,19 +137,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
                 options.errorproneOptions.isEnabled = false
             }
         """.trimIndent())
-        File(testProjectDir.newFolder("src", "main", "java", "test"), "Failure.java").apply {
-            createNewFile()
-            writeText("""
-                package test;
-
-                public class Failure {
-                  // See http://errorprone.info/bugpattern/ArrayEquals
-                  public boolean arrayEquals(int[] a, int[] b) {
-                    return a.equals(b);
-                  }
-                }
-            """.trimIndent())
-        }
+        writeFailureSource()
 
         // when
         val result = GradleRunner.create()
@@ -197,5 +148,38 @@ class ErrorProneJavacPluginPluginIntegrationTest {
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    }
+
+    private fun writeSuccessSource() {
+        File(testProjectDir.newFolder("src", "main", "java", "test"), "Success.java").apply {
+            createNewFile()
+            writeText("""
+                package test;
+
+                public class Success {
+                    // See http://errorprone.info/bugpattern/ArrayEquals
+                    @SuppressWarnings("ArrayEquals")
+                    public boolean arrayEquals(int[] a, int[] b) {
+                        return a.equals(b);
+                    }
+                }
+            """.trimIndent())
+        }
+    }
+
+    private fun writeFailureSource() {
+        File(testProjectDir.newFolder("src", "main", "java", "test"), "Failure.java").apply {
+            createNewFile()
+            writeText("""
+                package test;
+
+                public class Failure {
+                    // See http://errorprone.info/bugpattern/ArrayEquals
+                    public boolean arrayEquals(int[] a, int[] b) {
+                        return a.equals(b);
+                    }
+                }
+            """.trimIndent())
+        }
     }
 }
