@@ -22,7 +22,6 @@ class ErrorProneJavacPluginPluginIntegrationTest {
     private val testJavaHome = System.getProperty("test.java-home")
     private val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
     private val pluginVersion = System.getProperty("plugin.version")
-    private val errorproneVersion = System.getProperty("errorprone.version")
 
     @Before
     fun setup() {
@@ -56,7 +55,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
                     jcenter()
                 }
                 dependencies {
-                    errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
+                    errorprone("com.google.errorprone:error_prone_core:2.2.0")
                 }
             """.trimIndent())
             testJavaHome?.also {

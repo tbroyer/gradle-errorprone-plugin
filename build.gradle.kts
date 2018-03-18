@@ -8,22 +8,11 @@ plugins {
     `kotlin-dsl`
     `maven-publish`
     id("com.gradle.plugin-publish") version "0.9.10"
-    id("com.github.sherter.google-java-format") version "0.6"
-    id("net.ltgt.errorprone") version "0.0.13"
-}
-
-googleJavaFormat {
-    toolVersion = "1.5"
 }
 
 group = "net.ltgt.gradle"
 
 check(JavaVersion.current().isJava9Compatible, { "Tests require a Java 9 compatible JDK" })
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-tasks.withType<JavaCompile> { options.compilerArgs.addAll(arrayOf("--release", "8")) }
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     // This is the version used in Gradle 4.6, for backwards compatibility when we'll upgrade
@@ -40,21 +29,14 @@ gradle.taskGraph.whenReady {
     }
 }
 
-val errorproneVersion = "2.2.0"
-
 repositories {
     jcenter()
 }
 dependencies {
-    errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
-
     testImplementation("junit:junit:4.12")
     testImplementation("com.google.truth:truth:0.39")
 }
 
-tasks.withType<JavaCompile> {
-    options.compilerArgs.addAll(arrayOf("-Xlint:all", "-Werror"))
-}
 tasks.withType<KotlinCompile> {
     kotlinOptions.allWarningsAsErrors = true
 }
@@ -86,7 +68,6 @@ val test by tasks.getting(Test::class) {
     testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
 
     systemProperty("plugin.version", version)
-    systemProperty("errorprone.version", errorproneVersion)
 
     testLogging {
         showExceptions = true
