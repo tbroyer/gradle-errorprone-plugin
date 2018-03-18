@@ -5,12 +5,12 @@ import org.gradle.api.tasks.compile.CompileOptions;
 
 public class ErrorProneJavacPlugin {
   public static void apply(CompileOptions options) {
-    ErrorProneExtension errorproneExtension =
+    ErrorProneOptions errorproneOptions =
         new DslObject(options)
             .getExtensions()
-            .create(ErrorProneExtension.NAME, ErrorProneExtension.class);
+            .create(ErrorProneOptions.NAME, ErrorProneOptions.class);
     options
         .getCompilerArgumentProviders()
-        .add(new ErrorProneCompilerArgumentProvider(errorproneExtension));
+        .add(new ErrorProneCompilerArgumentProvider(errorproneOptions));
   }
 }

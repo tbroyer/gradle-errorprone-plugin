@@ -136,7 +136,7 @@ class ErrorProneJavacPluginPluginIntegrationTest {
 
             tasks.withType<JavaCompile>() {
                 options.errorproneOptions {
-                    errorproneArgs.add("-Xep:ArrayEquals:OFF")
+                    check("ArrayEquals", CheckSeverity.OFF)
                 }
             }
         """.trimIndent())

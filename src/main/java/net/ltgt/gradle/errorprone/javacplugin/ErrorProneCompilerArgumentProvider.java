@@ -1,29 +1,23 @@
 package net.ltgt.gradle.errorprone.javacplugin;
 
-import static java.util.stream.Collectors.joining;
-
 import java.util.Collections;
-import java.util.stream.Stream;
 import org.gradle.api.tasks.Nested;
 import org.gradle.process.CommandLineArgumentProvider;
 
 class ErrorProneCompilerArgumentProvider implements CommandLineArgumentProvider {
-  private final ErrorProneExtension errorproneExtension;
+  private final ErrorProneOptions errorproneOptions;
 
-  public ErrorProneCompilerArgumentProvider(ErrorProneExtension errorproneExtension) {
-    this.errorproneExtension = errorproneExtension;
+  public ErrorProneCompilerArgumentProvider(ErrorProneOptions errorproneOptions) {
+    this.errorproneOptions = errorproneOptions;
   }
 
   @Nested
-  public ErrorProneExtension getErrorproneExtension() {
-    return errorproneExtension;
+  public ErrorProneOptions getErrorproneOptions() {
+    return errorproneOptions;
   }
 
   @Override
   public Iterable<String> asArguments() {
-    return Collections.singleton(
-        Stream.concat(
-                Stream.of("-Xplugin:ErrorProne"), errorproneExtension.getErrorproneArgs().stream())
-            .collect(joining(" ")));
+    return Collections.singleton(errorproneOptions.toString());
   }
 }
