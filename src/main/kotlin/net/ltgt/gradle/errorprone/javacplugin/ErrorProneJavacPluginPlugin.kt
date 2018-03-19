@@ -2,7 +2,7 @@ package net.ltgt.gradle.errorprone.javacplugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.plugins.DslObject
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -51,9 +51,8 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
 object ErrorProneJavacPlugin {
     @JvmStatic
     fun apply(options: CompileOptions) {
-        val errorproneOptions = DslObject(options)
-            .extensions
-            .create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
+        val errorproneOptions =
+            (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
         options
             .compilerArgumentProviders
             .add(ErrorProneCompilerArgumentProvider(errorproneOptions))

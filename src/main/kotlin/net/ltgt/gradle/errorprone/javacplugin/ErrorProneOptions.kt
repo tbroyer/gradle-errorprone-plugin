@@ -1,11 +1,11 @@
 package net.ltgt.gradle.errorprone.javacplugin
 
-import org.gradle.api.internal.plugins.DslObject
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.compile.CompileOptions
-import org.gradle.kotlin.dsl.getByName
+import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 import java.util.StringJoiner
 
@@ -64,7 +64,7 @@ enum class CheckSeverity {
 
 // Extensions
 val CompileOptions.errorprone: ErrorProneOptions
-    get() = DslObject(this).extensions.getByName<ErrorProneOptions>(ErrorProneOptions.NAME)
+    get() = (this as ExtensionAware).extensions.getByName<ErrorProneOptions>(ErrorProneOptions.NAME)
 
 operator fun ErrorProneOptions.invoke(configure: ErrorProneOptions.() -> Unit): ErrorProneOptions =
     apply(configure)
