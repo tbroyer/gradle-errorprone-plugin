@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.plugins.DslObject
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
@@ -39,6 +40,10 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
                 ErrorProneJavacPlugin.apply((project.tasks[compileJavaTaskName] as JavaCompile).options)
             }
+        }
+
+        project.plugins.withType<JavaPlugin> {
+            (project.tasks[JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME] as JavaCompile).options.errorprone.isCompilingTestOnlyCode = true
         }
     }
 }
