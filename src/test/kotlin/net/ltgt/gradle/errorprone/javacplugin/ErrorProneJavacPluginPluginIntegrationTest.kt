@@ -129,6 +129,47 @@ class ErrorProneJavacPluginPluginIntegrationTest {
     }
 
     @Test
+    fun `test all configuration options`() {
+        // given
+        buildFile.appendText("""
+
+            tasks.withType<JavaCompile>() {
+                options.errorprone {
+                    disableAllChecks = true
+                    allErrorsAsWarnings = true
+                    allDisabledChecksAsWarnings = true
+                    disableWarningsInGeneratedCode = true
+                    ignoreUnknownCheckNames = true
+                    isCompilingTestOnlyCode = true
+                    excludedPaths = ".*/Success.*"
+                    checks = hashMapOf("Foo" to CheckSeverity.ERROR)
+                    checkOptions = hashMapOf("Bar:Baz" to "Qux")
+
+                    check("Foo")
+                    check("Foo", CheckSeverity.WARN)
+                    check("Foo" to CheckSeverity.OFF)
+                    option("Bar")
+                    option("Bar:Baz", "Qux")
+
+                    errorproneArgs = arrayListOf("-Xep:Quux")
+                    errorproneArgumentProviders.add(CommandLineArgumentProvider { listOf("-XepDisableAllChecks") })
+                }
+            }
+        """.trimIndent())
+        writeSuccessSource()
+
+        // when
+        val result = GradleRunner.create()
+            .withGradleVersion(testGradleVersion)
+            .withProjectDir(testProjectDir.root)
+            .withArguments("compileJava")
+            .build()
+
+        // then
+        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    }
+
+    @Test
     fun `can disable errorprone`() {
         // given
         buildFile.appendText("""
