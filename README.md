@@ -90,15 +90,34 @@ dependencies {
     annotationProcessor("com.google.guava:guava-beta-checker:$betaCheckerVersion")
 }
 ```
-and can then be enabled on the tasks:
+and can then be configured on the tasks; for example:
 ```gradle
-compileJava {
+tasks.withType(JavaCompile) {
     options.errorprone {
-        check("NullAway", CheckSeverity.ERROR)
         option("NullAway:AnnotatedPackages", "net.ltgt")
     }
 }
+compileJava {
+    // Check defaults to WARNING, bump it up to ERROR for the main sources
+    options.errorprone.check("NullAway", CheckSeverity.ERROR)
+}
 ```
+<details>
+<summary>with Kotlin DSL</summary>
+
+```kotlin
+tasks.withType<JavaCompile> {
+    options.errorprone {
+        option("NullAway:AnnotatedPackages", "net.ltgt")
+    }
+}
+val compileJava by tasks.getting(JavaCompile::class) {
+    // Check defaults to WARNING, bump it up to ERROR for the main sources
+    options.errorprone.check("NullAway", CheckSeverity.ERROR)
+}
+```
+
+</details>
 
 [custom checks]: http://errorprone.info/docs/plugins
 
