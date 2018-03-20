@@ -214,6 +214,15 @@ class ErrorProneJavacPluginPluginIntegrationTest {
                 options.errorprone.check("ArrayEquals", CheckSeverity.OFF)
             }
         """.trimIndent())
+        testJavaHome?.also {
+            buildFile.appendText("""
+
+                tasks.withType<JavaCompile>() {
+                  options.isFork = true
+                  options.forkOptions.javaHome = File(""${'"'}${it.replace("\$", "\${'\$'}")}${'"'}"")
+                }
+            """.trimIndent())
+        }
         writeFailureSource()
 
         // when

@@ -12,7 +12,6 @@ plugins {
 
 group = "net.ltgt.gradle"
 
-check(JavaVersion.current().isJava9Compatible, { "Tests require a Java 9 compatible JDK" })
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     // This is the version used in Gradle 4.6, for backwards compatibility when we'll upgrade
