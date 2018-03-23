@@ -7,7 +7,6 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.compile.CompileOptions
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
-import java.util.StringJoiner
 
 open class ErrorProneOptions(
     @get:Input var isEnabled: Boolean = true,
@@ -39,19 +38,22 @@ open class ErrorProneOptions(
     }
 
     override fun toString(): String {
-        val joiner = StringJoiner(" ")
-        if (disableAllChecks) joiner.add("-XepDisableAllChecks")
-        if (allErrorsAsWarnings) joiner.add("-XepAllErrorsAsWarnings")
-        if (allDisabledChecksAsWarnings) joiner.add("-XepAllDisabledChecksAsWarnings")
-        if (disableWarningsInGeneratedCode) joiner.add("-XepDisableWarningsInGeneratedCode")
-        if (ignoreUnknownCheckNames) joiner.add("-XepIgnoreUnknownCheckNames")
-        if (isCompilingTestOnlyCode) joiner.add("-XepCompilingTestOnlyCode")
-        if (!excludedPaths.isNullOrEmpty()) joiner.add("-XepExcludedPaths:$excludedPaths")
-        checks.forEach { (name, severity) -> joiner.add("-Xep:$name${severity.asArg}") }
-        checkOptions.forEach { name, value -> joiner.add("-XepOpt:$name=$value") }
-        errorproneArgs.forEach { joiner.add(it) }
-        errorproneArgumentProviders.forEach { it.asArguments().forEach { joiner.add(it) } }
-        return joiner.toString()
+        return (
+            listOfNotNull(
+                "-XepDisableAllChecks".takeIf { disableAllChecks },
+                "-XepAllErrorsAsWarnings".takeIf { allErrorsAsWarnings },
+                "-XepAllDisabledChecksAsWarnings".takeIf { allDisabledChecksAsWarnings },
+                "-XepDisableWarningsInGeneratedCode".takeIf { disableWarningsInGeneratedCode },
+                "-XepIgnoreUnknownCheckNames".takeIf { ignoreUnknownCheckNames },
+                "-XepCompilingTestOnlyCode".takeIf { isCompilingTestOnlyCode },
+                "-XepExcludedPaths:$excludedPaths".takeUnless { excludedPaths.isNullOrEmpty() }
+            ).asSequence() +
+                checks.asSequence().map { (name, severity) -> "-Xep:$name${severity.asArg}" } +
+                checkOptions.asSequence().map { (name, value) -> "-XepOpt:$name=$value" } +
+                errorproneArgs +
+                errorproneArgumentProviders.asSequence().flatMap { it.asArguments().asSequence() }
+            )
+            .joinToString(separator = " ")
     }
 }
 
