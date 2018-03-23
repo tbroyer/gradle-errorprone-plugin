@@ -84,8 +84,10 @@ then you'll have to configure them manually:
 task compileCustom(type: JavaCompile) {
     source "src/custom/"
     include "**/*.java"
-    classpath configurations.custom
-    destinationDir "$buildDir/classes/custom"
+    classpath = configurations.custom
+    sourceCompatibility = "8"
+    targetCompatibility = "8"
+    destinationDir = file("$buildDir/classes/custom")
 
     // Enable Error Prone
     ErrorProneJavacPlugin.apply(options)
@@ -102,13 +104,15 @@ task compileCustom(type: JavaCompile) {
 val compileCustom by tasks.creating(JavaCompile::class) {
     source("src/custom/")
     include("**/*.java")
-    classpath(configurations.custom)
-    destinationDir("$buildDir/classes/custom")
+    classpath = configurations["custom"]
+    sourceCompatibility = "8"
+    targetCompatibility = "8"
+    destinationDir = file("$buildDir/classes/custom")
 
     // Enable Error Prone
     ErrorProneJavacPlugin.apply(options)
     // Error Prone must be available in the annotation processor path
-    options.annotationProcessorPath = configurations.errorprone
+    options.annotationProcessorPath = configurations["errorprone"]
     // It can then be configured for the task
     options.errorprone.disableWarningsInGeneratedCode = true
 }
