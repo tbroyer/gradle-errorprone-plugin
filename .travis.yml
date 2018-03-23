@@ -2,7 +2,7 @@ language: java
 jdk: oraclejdk9
 
 install: true
-script: ./gradlew build
+script: ./gradlew build -Ptest.skipAndroid=true
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

@@ -29,11 +29,16 @@ gradle.taskGraph.whenReady {
 }
 
 val errorproneVersion = "2.2.0"
+val androidPluginVersion = "3.0.1"
 
 repositories {
     jcenter()
+    google()
 }
 dependencies {
+    compileOnly("com.android.tools.build:gradle:3.0.1")
+    testImplementation("com.android.tools.build:gradle:$androidPluginVersion")
+
     testImplementation("junit:junit:4.12")
     testImplementation("com.google.truth:truth:0.39")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
@@ -69,8 +74,17 @@ val test by tasks.getting(Test::class) {
     val testGradleVersion = project.findProperty("test.gradle-version")
     testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
 
+    val androidSdkHome = project.findProperty("test.android-sdk-home")
+        ?: System.getenv("ANDROID_SDK_ROOT") ?: System.getenv("ANDROID_HOME")
+    androidSdkHome?.also { systemProperty("test.android-sdk-home", androidSdkHome) }
+
     systemProperty("plugin.version", version)
     systemProperty("errorprone.version", errorproneVersion)
+    systemProperty("android-plugin.version", androidPluginVersion)
+
+    if (project.findProperty("test.skipAndroid")?.toString()?.toBoolean() ?: false) {
+        exclude("**/*Android*")
+    }
 
     testLogging {
         showExceptions = true

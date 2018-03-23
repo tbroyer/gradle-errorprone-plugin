@@ -1,5 +1,13 @@
 package net.ltgt.gradle.errorprone.javacplugin
 
+import com.android.build.gradle.AppExtension
+import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.FeatureExtension
+import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.TestExtension
+import com.android.build.gradle.TestedExtension
+import com.android.build.gradle.api.BaseVariant
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -44,6 +52,25 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
 
         project.plugins.withType<JavaPlugin> {
             (project.tasks[JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME] as JavaCompile).options.errorprone.isCompilingTestOnlyCode = true
+        }
+
+        arrayOf("application", "library", "feature", "test", "instantapp").forEach {
+            project.plugins.withId("com.android.$it") {
+                val configure = Action<BaseVariant> {
+                    annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
+                    (javaCompiler as? JavaCompile)?.options?.also(ErrorProneJavacPlugin::apply)
+                }
+
+                val android = project.extensions.getByName<BaseExtension>("android")
+                if (android is AppExtension) android.applicationVariants.all(configure)
+                if (android is LibraryExtension) android.libraryVariants.all(configure)
+                if (android is FeatureExtension) android.featureVariants.all(configure)
+                if (android is TestExtension) android.applicationVariants.all(configure)
+                if (android is TestedExtension) {
+                    android.testVariants.all(configure)
+                    android.unitTestVariants.all(configure)
+                }
+            }
         }
     }
 }

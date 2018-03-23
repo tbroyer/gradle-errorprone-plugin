@@ -120,21 +120,23 @@ val compileCustom by tasks.creating(JavaCompile::class) {
 
 </details>
 
-This currently also applies to Android projects,
-which do not use the standard `java` plugin and standard source sets:
+In Android projects, tasks cannot be configured until `afterEvaluate`
+due to how the Android Plugin for Gradle works:
 ```gradle
-tasks.withType(JavaCompile) {
-    ErrorProneJavacPlugin.apply(options)
-    options.errorprone.disableWarningsInGeneratedCode = true
+afterEvaluate {
+    tasks.withType(JavaCompile) {
+        options.errorprone.disableWarningsInGeneratedCode = true
+    }
 }
 ```
 <details>
 <summary>with Kotlin DSL</summary>
 
 ```kotlin
-tasks.withType<JavaCompile> {
-    ErrorProneJavacPlugin.apply(options)
-    options.errorprone.disableWarningsInGeneratedCode = true
+afterEvaluate {
+    tasks.withType<JavaCompile> {
+        options.errorprone.disableWarningsInGeneratedCode = true
+    }
 }
 ```
 
