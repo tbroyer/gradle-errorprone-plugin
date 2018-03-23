@@ -21,8 +21,8 @@ class ErrorProneJavacPluginPluginIntegrationTest {
 
     private val testJavaHome = System.getProperty("test.java-home")
     private val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
-    private val pluginVersion = System.getProperty("plugin.version")
-    private val errorproneVersion = "2.2.0"
+    private val pluginVersion = System.getProperty("plugin.version")!!
+    private val errorproneVersion = System.getProperty("errorprone.version")!!
 
     @Before
     fun setup() {
@@ -116,47 +116,6 @@ class ErrorProneJavacPluginPluginIntegrationTest {
             }
         """.trimIndent())
         writeFailureSource()
-
-        // when
-        val result = GradleRunner.create()
-            .withGradleVersion(testGradleVersion)
-            .withProjectDir(testProjectDir.root)
-            .withArguments("compileJava")
-            .build()
-
-        // then
-        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-    }
-
-    @Test
-    fun `test all configuration options`() {
-        // given
-        buildFile.appendText("""
-
-            tasks.withType<JavaCompile>() {
-                options.errorprone {
-                    disableAllChecks = true
-                    allErrorsAsWarnings = true
-                    allDisabledChecksAsWarnings = true
-                    disableWarningsInGeneratedCode = true
-                    ignoreUnknownCheckNames = true
-                    isCompilingTestOnlyCode = true
-                    excludedPaths = ".*/Success.*"
-                    checks = hashMapOf("Foo" to CheckSeverity.ERROR)
-                    checkOptions = hashMapOf("Bar:Baz" to "Qux")
-
-                    check("Foo")
-                    check("Foo", CheckSeverity.WARN)
-                    check("Foo" to CheckSeverity.OFF)
-                    option("Bar")
-                    option("Bar:Baz", "Qux")
-
-                    errorproneArgs = arrayListOf("-Xep:Quux")
-                    errorproneArgumentProviders.add(CommandLineArgumentProvider { listOf("-XepDisableAllChecks") })
-                }
-            }
-        """.trimIndent())
-        writeSuccessSource()
 
         // when
         val result = GradleRunner.create()

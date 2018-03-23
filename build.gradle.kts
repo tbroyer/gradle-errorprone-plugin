@@ -28,12 +28,15 @@ gradle.taskGraph.whenReady {
     }
 }
 
+val errorproneVersion = "2.2.0"
+
 repositories {
     jcenter()
 }
 dependencies {
     testImplementation("junit:junit:4.12")
     testImplementation("com.google.truth:truth:0.39")
+    testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
 tasks.withType<KotlinCompile> {
@@ -67,6 +70,7 @@ val test by tasks.getting(Test::class) {
     testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
 
     systemProperty("plugin.version", version)
+    systemProperty("errorprone.version", errorproneVersion)
 
     testLogging {
         showExceptions = true

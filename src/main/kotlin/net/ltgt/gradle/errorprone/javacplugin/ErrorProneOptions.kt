@@ -39,10 +39,10 @@ open class ErrorProneOptions(
     }
 
     override fun toString(): String {
-        val joiner = StringJoiner(" ").add("-Xplugin:ErrorProne")
+        val joiner = StringJoiner(" ")
         if (disableAllChecks) joiner.add("-XepDisableAllChecks")
         if (allErrorsAsWarnings) joiner.add("-XepAllErrorsAsWarnings")
-        if (allDisabledChecksAsWarnings) joiner.add("-XepDisabledChecksAsWarnings")
+        if (allDisabledChecksAsWarnings) joiner.add("-XepAllDisabledChecksAsWarnings")
         if (disableWarningsInGeneratedCode) joiner.add("-XepDisableWarningsInGeneratedCode")
         if (ignoreUnknownCheckNames) joiner.add("-XepIgnoreUnknownCheckNames")
         if (isCompilingTestOnlyCode) joiner.add("-XepCompilingTestOnlyCode")
