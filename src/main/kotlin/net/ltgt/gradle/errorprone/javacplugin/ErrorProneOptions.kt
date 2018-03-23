@@ -1,5 +1,6 @@
 package net.ltgt.gradle.errorprone.javacplugin
 
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
@@ -24,6 +25,16 @@ open class ErrorProneOptions(
 ) {
     companion object {
         const val NAME = "errorprone"
+
+        private fun validate(arg: String) {
+            if (arg.contains("""\p{IsWhite_Space}""".toRegex()))
+                throw InvalidUserDataException("""Error Prone options cannot contain white space: "$arg".""")
+        }
+
+        private fun validateName(arg: Map.Entry<String, Any>) {
+            if (arg.key.contains(':'))
+                throw InvalidUserDataException("""Error Prone check name cannot contain a colon (":"): "${arg.key}".""")
+        }
     }
 
     fun check(vararg checkNames: String) = checks.putAll(checkNames.map { it to CheckSeverity.DEFAULT })
@@ -48,11 +59,11 @@ open class ErrorProneOptions(
                 "-XepCompilingTestOnlyCode".takeIf { isCompilingTestOnlyCode },
                 "-XepExcludedPaths:$excludedPaths".takeUnless { excludedPaths.isNullOrEmpty() }
             ).asSequence() +
-                checks.asSequence().map { (name, severity) -> "-Xep:$name${severity.asArg}" } +
+                checks.asSequence().onEach(::validateName).map { (name, severity) -> "-Xep:$name${severity.asArg}" } +
                 checkOptions.asSequence().map { (name, value) -> "-XepOpt:$name=$value" } +
                 errorproneArgs +
                 errorproneArgumentProviders.asSequence().flatMap { it.asArguments().asSequence() }
-            )
+            ).onEach(::validate)
             .joinToString(separator = " ")
     }
 }

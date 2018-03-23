@@ -2,7 +2,10 @@ package net.ltgt.gradle.errorprone.javacplugin
 
 import com.google.common.truth.Truth.assertThat
 import com.google.errorprone.ErrorProneOptions.Severity
+import com.google.errorprone.InvalidCommandLineOptionException
+import org.gradle.api.InvalidUserDataException
 import org.gradle.process.CommandLineArgumentProvider
+import org.junit.Assert.fail
 import org.junit.Test
 
 class ErrorProneOptionsTest {
@@ -74,6 +77,50 @@ class ErrorProneOptionsTest {
         val options = ErrorProneOptions().apply(reference)
         val parsedOptions = parseOptions(ErrorProneOptions().apply(configure))
         assertOptionsEqual(options, parsedOptions)
+    }
+
+    @Test
+    fun `rejects spaces`() {
+        doTestSpaces("-XepExcludedPaths:") {
+            excludedPaths = "/home/user/My Projects/project-name/build/generated sources/.*"
+        }
+        doTestSpaces("-Xep:") { check("Foo Bar") }
+        doTestSpaces("-XepOpt:") { option("Foo Bar") }
+        doTestSpaces("-XepOpt:") { option("Foo", "Bar Baz") }
+        doTestSpaces("-Xep:Foo -Xep:Bar") { errorproneArgs.add("-Xep:Foo -Xep:Bar") }
+        doTestSpaces("-Xep:Foo -Xep:Bar") {
+            errorproneArgumentProviders.add(CommandLineArgumentProvider { listOf("-Xep:Foo -Xep:Bar") })
+        }
+    }
+
+    private fun doTestSpaces(argPrefix: String, configure: ErrorProneOptions.() -> Unit) {
+        try {
+            ErrorProneOptions().apply(configure).toString()
+            fail("Should have thrown")
+        } catch (e: InvalidUserDataException) {
+            assertThat(e).hasMessageThat().startsWith("""Error Prone options cannot contain white space: "$argPrefix""")
+        }
+    }
+
+    @Test
+    fun `rejects colon in check name`() {
+        try {
+            ErrorProneOptions().apply({ check("ArrayEquals:OFF") }).toString()
+            fail("Should have thrown")
+        } catch (e: InvalidUserDataException) {
+            assertThat(e).hasMessageThat()
+                .isEqualTo("""Error Prone check name cannot contain a colon (":"): "ArrayEquals:OFF".""")
+        }
+
+        // Won't analyze free-form arguments, but those should be caught (later) by argument parsing
+        // This test asserts that we're not being too restrictive, and only try to fail early.
+        try {
+            parseOptions(ErrorProneOptions().apply {
+                ignoreUnknownCheckNames = true
+                errorproneArgs.add("-Xep:Foo:Bar")
+            })
+            fail("Should have thrown")
+        } catch (ignore: InvalidCommandLineOptionException) {}
     }
 
     private fun parseOptions(options: ErrorProneOptions) =
