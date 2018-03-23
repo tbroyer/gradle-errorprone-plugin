@@ -75,6 +75,67 @@ val compileTestJava by tasks.getting(JavaCompile::class) {
 
 </details>
 
+Note that this plugin only configures tasks for source sets
+(i.e. `compileJava` for the `main` source set, `compileTestJava` for the `test` source set,
+and `compileIntegTestJava` for a custom `integTest` source set).
+If you're creating custom `JavaCompile` tasks,
+then you'll have to configure them manually:
+```gradle
+task compileCustom(type: JavaCompile) {
+    source "src/custom/"
+    include "**/*.java"
+    classpath configurations.custom
+    destinationDir "$buildDir/classes/custom"
+
+    // Enable Error Prone
+    ErrorProneJavacPlugin.apply(options)
+    // Error Prone must be available in the annotation processor path
+    options.annotationProcessorPath = configurations.errorprone
+    // It can then be configured for the task
+    options.errorprone.disableWarningsInGeneratedCode = true
+}
+```
+<details>
+<summary>with Kotlin DSL</summary>
+
+```kotlin
+val compileCustom by tasks.creating(JavaCompile::class) {
+    source("src/custom/")
+    include("**/*.java")
+    classpath(configurations.custom)
+    destinationDir("$buildDir/classes/custom")
+
+    // Enable Error Prone
+    ErrorProneJavacPlugin.apply(options)
+    // Error Prone must be available in the annotation processor path
+    options.annotationProcessorPath = configurations.errorprone
+    // It can then be configured for the task
+    options.errorprone.disableWarningsInGeneratedCode = true
+}
+```
+
+</details>
+
+This currently also applies to Android projects,
+which do not use the standard `java` plugin and standard source sets:
+```gradle
+tasks.withType(JavaCompile) {
+    ErrorProneJavacPlugin.apply(options)
+    options.errorprone.disableWarningsInGeneratedCode = true
+}
+```
+<details>
+<summary>with Kotlin DSL</summary>
+
+```kotlin
+tasks.withType<JavaCompile> {
+    ErrorProneJavacPlugin.apply(options)
+    options.errorprone.disableWarningsInGeneratedCode = true
+}
+```
+
+</details>
+
 ## Custom Error Prone checks
 
 [Custom Error Prone checks][custom checks] can be added to the `errorprone` configuration too:
