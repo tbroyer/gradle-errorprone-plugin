@@ -85,36 +85,4 @@ class ErrorProneJavacPluginPluginIntegrationTest : AbstractPluginIntegrationTest
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
-
-    @Test
-    fun `can configure manually`() {
-        // given
-        buildFile.writeText("""
-            import net.ltgt.gradle.errorprone.javacplugin.*
-
-            plugins {
-                java
-                id("${ErrorProneJavacPluginPlugin.PLUGIN_ID}") apply false
-            }
-
-            repositories {
-                jcenter()
-            }
-            dependencies {
-                annotationProcessor("com.google.errorprone:error_prone_core:$errorproneVersion")
-            }
-
-            val compileJava by tasks.getting(JavaCompile::class) {
-                ErrorProneJavacPlugin.apply(options)
-                options.errorprone.check("ArrayEquals", CheckSeverity.OFF)
-            }
-        """.trimIndent())
-        writeFailureSource()
-
-        // when
-        val result = buildWithArgs("compileJava")
-
-        // then
-        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-    }
 }
