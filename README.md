@@ -144,10 +144,7 @@ afterEvaluate {
 
 ## Custom Error Prone checks
 
-**This currently does not work; see https://github.com/google/error-prone/issues/974**
-
-<details>
-<summary>See details anyway</summary>
+**This requires Error Prone 2.3.0 or later.**
 
 [Custom Error Prone checks][custom checks] can be added to the `errorprone` configuration too:
 ```gradle
@@ -192,8 +189,6 @@ val compileJava by tasks.getting(JavaCompile::class) {
 </details>
 
 [custom checks]: http://errorprone.info/docs/plugins
-
-</details>
 
 ## Configuration
 

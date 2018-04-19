@@ -3,7 +3,6 @@ package net.ltgt.gradle.errorprone.javacplugin
 import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import java.io.File
 
@@ -88,7 +87,6 @@ class ErrorProneJavacPluginPluginIntegrationTest : AbstractPluginIntegrationTest
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
 
-    @Ignore("https://github.com/google/error-prone/issues/974")
     @Test
     fun `with a custom check`() {
         // given
@@ -105,36 +103,19 @@ class ErrorProneJavacPluginPluginIntegrationTest : AbstractPluginIntegrationTest
                 }
                 dependencies {
                     compileOnly("com.google.errorprone:error_prone_check_api:$errorproneVersion")
+
+                    compileOnly("com.google.auto.service:auto-service:1.0-rc4")
+                    annotationProcessor("com.google.auto.service:auto-service:1.0-rc4")
                 }
             """.trimIndent())
-        File(testProjectDir.newFolder("customCheck", "src", "main", "resources", "META-INF", "services"),
-            "com.google.errorprone.bugpatterns.BugChecker").writeText("""
-                customCheck.CustomCheck
-            """.trimIndent())
-        File(testProjectDir.newFolder("customCheck", "src", "main", "java", "customCheck"),
-            "CustomCheck.java").writeText("""
-                package customCheck;
-
-                import com.google.errorprone.BugPattern;
-                import com.google.errorprone.ErrorProneFlags;
-                import com.google.errorprone.bugpatterns.BugChecker;
-
-                @BugPattern(
-                    name = "Custom",
-                    summary = "Custom check",
-                    severity = BugPattern.SeverityLevel.WARNING
-                )
-                public class CustomCheck extends BugChecker {
-                    public CustomCheck() {
-                        // required for ServiceLoader discovery
-                    }
-
-                    public CustomCheck(ErrorProneFlags flags) {
-                        flags.getBoolean("CustomFlag").orElseThrow(() ->
-                            new IllegalArgumentException("Missing flag CustomFlag"));
-                    }
-                }
-            """.trimIndent())
+        File(
+            testProjectDir.newFolder("customCheck", "src", "main", "resources", "META-INF", "services"),
+            "com.google.errorprone.bugpatterns.BugChecker"
+        ).writeText("com.google.errorprone.sample.MyCustomCheck")
+        File(
+            testProjectDir.newFolder("customCheck", "src", "main", "java", "com", "google", "errorprone", "sample"),
+            "MyCustomCheck.java"
+        ).writeText(javaClass.getResource("/com/google/errorprone/sample/MyCustomCheck.java").readText())
 
         buildFile.appendText("""
 
@@ -142,17 +123,20 @@ class ErrorProneJavacPluginPluginIntegrationTest : AbstractPluginIntegrationTest
                 errorprone(project(":customCheck"))
             }
             tasks.withType<JavaCompile> {
-                options.errorprone.check("Custom", CheckSeverity.ERROR)
+                options.errorprone.check("MyCustomCheck", CheckSeverity.ERROR)
             }
         """.trimIndent())
 
-        writeSuccessSource()
+        File(
+            testProjectDir.newFolder("src", "main", "java", "com", "google", "errorprone", "sample"),
+            "Hello.java"
+        ).writeText(javaClass.getResource("/com/google/errorprone/sample/Hello.java").readText())
 
         // when
-        var result = buildWithArgsAndFail("compileJava")
+        val result = buildWithArgsAndFail("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        assertThat(result.output).contains("Missing flag CustomFlag")
+        assertThat(result.output).contains("[MyCustomCheck] String formatting inside print method")
     }
 }
