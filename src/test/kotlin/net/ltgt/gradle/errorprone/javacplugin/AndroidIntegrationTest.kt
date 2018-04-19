@@ -10,27 +10,24 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     private val androidSdkHome = System.getProperty("test.android-sdk-home")
     private val androidPluginVersion = System.getProperty("android-plugin.version")!!
 
+    override val additionalPluginManagementRepositories: String
+        get() = """
+            google()
+            jcenter()
+        """
+
+    override val additionalPluginManagementResolutionStrategyEachPlugin: String
+        get() = """
+            if (requested.id.namespace == "com.android") {
+                useModule("com.android.tools.build:gradle:${'$'}{requested.version}")
+            }
+        """
+
     @Before
     fun setupAndroid() {
         assertThat(androidSdkHome).isNotEmpty()
 
         testProjectDir.newFile("local.properties").writeText("sdk.dir=$androidSdkHome")
-
-        settingsFile.appendText("""
-            pluginManagement {
-                repositories {
-                    google()
-                    jcenter()
-                }
-                resolutionStrategy {
-                    eachPlugin {
-                        if (requested.id.namespace == "com.android") {
-                            useModule("com.android.tools.build:gradle:${'$'}{requested.version}")
-                        }
-                    }
-                }
-            }
-        """.trimIndent())
 
         buildFile.appendText("""
             plugins {

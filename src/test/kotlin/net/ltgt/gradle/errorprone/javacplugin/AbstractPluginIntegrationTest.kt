@@ -23,6 +23,10 @@ abstract class AbstractPluginIntegrationTest {
 
     protected val errorproneVersion = System.getProperty("errorprone.version")!!
 
+    protected open val additionalPluginManagementRepositories: String = ""
+
+    protected open val additionalPluginManagementResolutionStrategyEachPlugin: String = ""
+
     @Before
     fun setupProject() {
         // See https://github.com/gradle/kotlin-dsl/issues/492
@@ -32,12 +36,14 @@ abstract class AbstractPluginIntegrationTest {
                 pluginManagement {
                     repositories {
                         maven { url = uri("$testRepository") }
+                        $additionalPluginManagementRepositories
                     }
                     resolutionStrategy {
                         eachPlugin {
                             if (requested.id.id == "${ErrorProneJavacPluginPlugin.PLUGIN_ID}") {
                                 useVersion("$pluginVersion")
                             }
+                            $additionalPluginManagementResolutionStrategyEachPlugin
                         }
                     }
                 }
