@@ -29,14 +29,14 @@ gradle.taskGraph.whenReady {
 }
 
 val errorproneVersion = "2.3.1"
-val androidPluginVersion = "3.0.1"
+val androidPluginVersion = "3.1.1"
 
 repositories {
     jcenter()
     google()
 }
 dependencies {
-    compileOnly("com.android.tools.build:gradle:3.0.1")
+    compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
     testImplementation("com.android.tools.build:gradle:$androidPluginVersion")
 
     testImplementation("junit:junit:4.12")
