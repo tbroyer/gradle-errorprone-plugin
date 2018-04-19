@@ -97,7 +97,7 @@ internal class ErrorProneCompilerArgumentProvider(private val errorproneOptions:
 
     override fun asArguments(): Iterable<String> {
         return when {
-            errorproneOptions.isEnabled -> listOf("-Xplugin:ErrorProne $errorproneOptions")
+            errorproneOptions.isEnabled -> listOf("-Xplugin:ErrorProne $errorproneOptions", "-XDcompilePolicy=byfile")
             else -> emptyList()
         }
     }
