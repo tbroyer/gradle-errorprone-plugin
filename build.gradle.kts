@@ -82,7 +82,7 @@ val test by tasks.getting(Test::class) {
     systemProperty("errorprone.version", errorproneVersion)
     systemProperty("android-plugin.version", androidPluginVersion)
 
-    if (project.findProperty("test.skipAndroid")?.toString()?.toBoolean() ?: false) {
+    if (project.findProperty("test.skipAndroid")?.toString()?.toBoolean() == true) {
         exclude("**/*Android*")
     }
 

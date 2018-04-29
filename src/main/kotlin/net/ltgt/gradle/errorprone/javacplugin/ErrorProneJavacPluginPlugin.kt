@@ -62,10 +62,10 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
                 }
 
                 val android = project.extensions.getByName<BaseExtension>("android")
-                if (android is AppExtension) android.applicationVariants.all(configure)
-                if (android is LibraryExtension) android.libraryVariants.all(configure)
-                if (android is FeatureExtension) android.featureVariants.all(configure)
-                if (android is TestExtension) android.applicationVariants.all(configure)
+                (android as? AppExtension)?.applicationVariants?.all(configure)
+                (android as? LibraryExtension)?.libraryVariants?.all(configure)
+                (android as? FeatureExtension)?.featureVariants?.all(configure)
+                (android as? TestExtension)?.applicationVariants?.all(configure)
                 if (android is TestedExtension) {
                     android.testVariants.all(configure)
                     android.unitTestVariants.all(configure)
@@ -89,6 +89,7 @@ object ErrorProneJavacPlugin {
 internal class ErrorProneCompilerArgumentProvider(private val errorproneOptions: ErrorProneOptions) :
     CommandLineArgumentProvider {
 
+    @Suppress("unused")
     @Nested
     @Optional
     fun getErrorproneOptions(): ErrorProneOptions? {
