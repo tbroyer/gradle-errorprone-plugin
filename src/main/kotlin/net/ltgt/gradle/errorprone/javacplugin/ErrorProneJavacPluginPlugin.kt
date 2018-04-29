@@ -8,6 +8,7 @@ import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.Action
+import org.gradle.api.Named
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -87,7 +88,9 @@ object ErrorProneJavacPlugin {
 }
 
 internal class ErrorProneCompilerArgumentProvider(private val errorproneOptions: ErrorProneOptions) :
-    CommandLineArgumentProvider {
+    CommandLineArgumentProvider, Named {
+
+    override fun getName(): String = "errorprone"
 
     @Suppress("unused")
     @Nested
