@@ -40,7 +40,7 @@ dependencies {
     testImplementation("com.android.tools.build:gradle:$androidPluginVersion")
 
     testImplementation("junit:junit:4.12")
-    testImplementation("com.google.truth:truth:0.39")
+    testImplementation("com.google.truth:truth:0.40")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
@@ -124,7 +124,7 @@ pluginBundle {
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.github.shyiko:ktlint:0.19.0")
+    ktlint("com.github.shyiko:ktlint:0.22.0")
 }
 
 val verifyKtlint by tasks.creating(JavaExec::class) {
