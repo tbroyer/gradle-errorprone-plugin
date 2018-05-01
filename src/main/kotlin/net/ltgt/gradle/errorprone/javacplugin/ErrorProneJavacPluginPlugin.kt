@@ -40,6 +40,7 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
 
         val errorproneConfiguration = project.configurations.create(CONFIGURATION_NAME) {
             isVisible = false
+            exclude(group = "com.google.errorprone", module = "javac")
             defaultDependencies { add(project.dependencies.create(DEFAULT_DEPENDENCY)) }
         }
 
