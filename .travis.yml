@@ -1,10 +1,17 @@
 language: java
-jdk: oraclejdk9
+jdk:
+  - oraclejdk9
+  - oraclejdk10
 
 env:
   - GRADLE_VERSION=4.6
   - GRADLE_VERSION=4.7
   - GRADLE_VERSION=4.8
+
+matrix:
+  exclude:
+    - jdk: oraclejdk10
+      env: GRADLE_VERSION=4.6
 
 install: true
 script: ./gradlew build -Ptest.skipAndroid=true -Ptest.gradle-version=$GRADLE_VERSION
