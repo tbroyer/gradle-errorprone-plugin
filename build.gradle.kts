@@ -29,7 +29,7 @@ gradle.taskGraph.whenReady {
 }
 
 val errorproneVersion = "2.3.1"
-val androidPluginVersion = "3.1.1"
+val androidPluginVersion = "3.1.3"
 
 repositories {
     jcenter()
