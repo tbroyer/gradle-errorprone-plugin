@@ -1,6 +1,4 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.util.GradleVersion
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -136,7 +134,7 @@ val verifyKtlint by tasks.creating(JavaExec::class) {
     description = "Check Kotlin code style."
     classpath = ktlint
     main = "com.github.shyiko.ktlint.Main"
-    args("**./*.gradle.kts", "**/*.kt")
+    args("**/*.gradle.kts", "**/*.kt")
 }
 tasks["check"].dependsOn(verifyKtlint)
 
