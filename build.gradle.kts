@@ -51,10 +51,6 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.allWarningsAsErrors = true
 }
 
-val compileKotlin by tasks.getting(KotlinCompile::class) {
-    kotlinOptions.allWarningsAsErrors = true
-}
-
 // See https://github.com/gradle/kotlin-dsl/issues/492
 publishing {
     repositories {
