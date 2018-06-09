@@ -36,8 +36,13 @@ repositories {
     google()
 }
 dependencies {
-    compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
-    testImplementation("com.android.tools.build:gradle:$androidPluginVersion")
+    compileOnly("com.android.tools.build:gradle:$androidPluginVersion") {
+        exclude(module = "kotlin-stdlib-jre8").because(
+            "kotlin-stdlib-jreN is deprecated, " +
+                "it's safe to exclude because we have kotlin-stdlib-jdk8 in the classpath through the `embedded-kotlin` plugin"
+        )
+    }
+    testRuntimeOnly("com.android.tools.build:gradle:$androidPluginVersion")
 
     testImplementation("junit:junit:4.12")
     testImplementation("com.google.truth:truth:0.40")

@@ -4,6 +4,7 @@ jdk: oraclejdk9
 env:
   - GRADLE_VERSION=4.6
   - GRADLE_VERSION=4.7
+  - GRADLE_VERSION=4.8
 
 install: true
 script: ./gradlew build -Ptest.skipAndroid=true -Ptest.gradle-version=$GRADLE_VERSION
