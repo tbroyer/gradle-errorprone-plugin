@@ -129,7 +129,7 @@ pluginBundle {
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.github.shyiko:ktlint:0.22.0")
+    ktlint("com.github.shyiko:ktlint:0.23.1")
 }
 
 val verifyKtlint by tasks.creating(JavaExec::class) {
