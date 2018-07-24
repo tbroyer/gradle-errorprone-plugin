@@ -7,10 +7,11 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.BaseVariant
-import org.gradle.api.Action
+import org.gradle.api.DomainObjectSet
 import org.gradle.api.Named
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
@@ -31,6 +32,8 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
         const val CONFIGURATION_NAME = "errorprone"
 
         const val DEFAULT_DEPENDENCY = "com.google.errorprone:error_prone_core:latest.release"
+
+        private val SUPPORTS_LAZY_TASKS = GradleVersion.current() >= GradleVersion.version("4.9")
     }
 
     override fun apply(project: Project) {
@@ -48,31 +51,51 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
             val java = project.convention.getPlugin<JavaPluginConvention>()
             java.sourceSets.all {
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
-                ErrorProneJavacPlugin.apply((project.tasks[compileJavaTaskName] as JavaCompile).options)
+                project.configureTask<JavaCompile>(compileJavaTaskName) {
+                    ErrorProneJavacPlugin.apply(it.options)
+                }
             }
         }
 
         project.plugins.withType<JavaPlugin> {
-            (project.tasks[JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME] as JavaCompile).options.errorprone.isCompilingTestOnlyCode = true
+            project.configureTask<JavaCompile>(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME) {
+                it.options.errorprone.isCompilingTestOnlyCode = true
+            }
         }
 
         arrayOf("application", "library", "feature", "test", "instantapp").forEach {
             project.plugins.withId("com.android.$it") {
-                val configure = Action<BaseVariant> {
+                val configure: BaseVariant.() -> Unit = {
                     annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
                     (javaCompiler as? JavaCompile)?.options?.also(ErrorProneJavacPlugin::apply)
                 }
 
                 val android = project.extensions.getByName<BaseExtension>("android")
-                (android as? AppExtension)?.applicationVariants?.all(configure)
-                (android as? LibraryExtension)?.libraryVariants?.all(configure)
-                (android as? FeatureExtension)?.featureVariants?.all(configure)
-                (android as? TestExtension)?.applicationVariants?.all(configure)
+                (android as? AppExtension)?.applicationVariants?.configureVariant(configure)
+                (android as? LibraryExtension)?.libraryVariants?.configureVariant(configure)
+                (android as? FeatureExtension)?.featureVariants?.configureVariant(configure)
+                (android as? TestExtension)?.applicationVariants?.configureVariant(configure)
                 if (android is TestedExtension) {
-                    android.testVariants.all(configure)
-                    android.unitTestVariants.all(configure)
+                    android.testVariants.configureVariant(configure)
+                    android.unitTestVariants.configureVariant(configure)
                 }
             }
+        }
+    }
+
+    private inline fun <reified T : Task> Project.configureTask(taskName: String, noinline action: (T) -> Unit) {
+        if (SUPPORTS_LAZY_TASKS) {
+            tasks.withType(T::class.java).named(taskName).configure(action)
+        } else {
+            tasks.withType(T::class.java).getByName(taskName, action)
+        }
+    }
+
+    private fun DomainObjectSet<out BaseVariant>.configureVariant(action: BaseVariant.() -> Unit) {
+        if (SUPPORTS_LAZY_TASKS) {
+            this.configureEach(action)
+        } else {
+            this.all(action)
         }
     }
 }
