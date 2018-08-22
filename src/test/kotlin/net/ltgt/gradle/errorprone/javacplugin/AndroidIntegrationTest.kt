@@ -91,7 +91,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText("""
 
             afterEvaluate {
-                tasks.withType<JavaCompile>() {
+                tasks.withType<JavaCompile>()$configureEachIfSupported {
                     options.errorprone {
                         check("ArrayEquals", CheckSeverity.OFF)
                     }
@@ -113,7 +113,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText("""
 
             afterEvaluate {
-                tasks.withType<JavaCompile>() {
+                tasks.withType<JavaCompile>()$configureEachIfSupported {
                     options.errorprone.isEnabled = false
                 }
             }

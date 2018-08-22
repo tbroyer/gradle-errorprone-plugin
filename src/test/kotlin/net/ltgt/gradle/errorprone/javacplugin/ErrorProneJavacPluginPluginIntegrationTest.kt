@@ -54,7 +54,7 @@ class ErrorProneJavacPluginPluginIntegrationTest : AbstractPluginIntegrationTest
         // given
         buildFile.appendText("""
 
-            tasks.withType<JavaCompile>() {
+            tasks.withType<JavaCompile>()$configureEachIfSupported {
                 options.errorprone {
                     check("ArrayEquals", CheckSeverity.OFF)
                 }
@@ -74,7 +74,7 @@ class ErrorProneJavacPluginPluginIntegrationTest : AbstractPluginIntegrationTest
         // given
         buildFile.appendText("""
 
-            tasks.withType<JavaCompile>() {
+            tasks.withType<JavaCompile>()$configureEachIfSupported {
                 options.errorprone.isEnabled = false
             }
         """.trimIndent())
@@ -122,7 +122,7 @@ class ErrorProneJavacPluginPluginIntegrationTest : AbstractPluginIntegrationTest
             dependencies {
                 errorprone(project(":customCheck"))
             }
-            tasks.withType<JavaCompile> {
+            tasks.withType<JavaCompile>()$configureEachIfSupported {
                 options.errorprone.check("MyCustomCheck", CheckSeverity.ERROR)
             }
         """.trimIndent())

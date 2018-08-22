@@ -33,7 +33,11 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
 
         const val DEFAULT_DEPENDENCY = "com.google.errorprone:error_prone_core:latest.release"
 
-        private val SUPPORTS_LAZY_TASKS = GradleVersion.current() >= GradleVersion.version("4.9")
+        private val MIN_GRADLE_VERSION_WITH_LAZY_TASKS = GradleVersion.version("4.9")
+
+        internal fun supportsLazyTasks(version: GradleVersion) = version >= MIN_GRADLE_VERSION_WITH_LAZY_TASKS
+
+        private val SUPPORTS_LAZY_TASKS = supportsLazyTasks(GradleVersion.current())
     }
 
     override fun apply(project: Project) {

@@ -23,6 +23,9 @@ abstract class AbstractPluginIntegrationTest {
 
     protected val errorproneVersion = System.getProperty("errorprone.version")!!
 
+    protected val supportsLazyTasks = ErrorProneJavacPluginPlugin.supportsLazyTasks(GradleVersion.version(testGradleVersion))
+    protected val configureEachIfSupported = ".configureEach".takeIf { supportsLazyTasks }.orEmpty()
+
     protected open val additionalPluginManagementRepositories: String = ""
 
     protected open val additionalPluginManagementResolutionStrategyEachPlugin: String = ""
@@ -105,7 +108,7 @@ abstract class AbstractPluginIntegrationTest {
         testJavaHome?.also {
             buildFile.appendText("""
 
-                tasks.withType<JavaCompile>() {
+                tasks.withType<JavaCompile>()$configureEachIfSupported {
                   options.isFork = true
                   options.forkOptions.javaHome = File(""${'"'}${it.replace("\$", "\${'\$'}")}${'"'}"")
                 }
