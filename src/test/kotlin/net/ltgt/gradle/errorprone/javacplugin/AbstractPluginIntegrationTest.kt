@@ -12,6 +12,16 @@ import java.io.File
 abstract class AbstractPluginIntegrationTest {
 
     companion object {
+        internal val testJavaHome: String? = System.getProperty("test.java-home")
+        private val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
+        private val pluginVersion = System.getProperty("plugin.version")!!
+
+        internal val errorproneVersion = System.getProperty("errorprone.version")!!
+        internal val errorproneJavacVersion = System.getProperty("errorprone-javac.version")!!
+
+        internal val supportsLazyTasks = ErrorProneJavacPluginPlugin.supportsLazyTasks(GradleVersion.version(testGradleVersion))
+        internal val configureEachIfSupported = ".configureEach".takeIf { supportsLazyTasks }.orEmpty()
+
         internal const val FAILURE_SOURCE_COMPILATION_ERROR = "Failure.java:6: error: [ArrayEquals]"
     }
 
@@ -21,16 +31,6 @@ abstract class AbstractPluginIntegrationTest {
 
     lateinit var settingsFile: File
     lateinit var buildFile: File
-
-    private val testJavaHome = System.getProperty("test.java-home")
-    private val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
-    private val pluginVersion = System.getProperty("plugin.version")!!
-
-    protected val errorproneVersion = System.getProperty("errorprone.version")!!
-    private val errorproneJavacVersion = System.getProperty("errorprone-javac.version")!!
-
-    protected val supportsLazyTasks = ErrorProneJavacPluginPlugin.supportsLazyTasks(GradleVersion.version(testGradleVersion))
-    protected val configureEachIfSupported = ".configureEach".takeIf { supportsLazyTasks }.orEmpty()
 
     protected open val additionalPluginManagementRepositories: String = ""
 
@@ -120,27 +120,6 @@ abstract class AbstractPluginIntegrationTest {
                 }
             """.trimIndent())
         }
-        buildFile.appendText("""
-
-            // XXX: cannot use JavaVersion#isJava8 in Gradle 4.6
-            if (JavaVersion.current() == JavaVersion.VERSION_1_8
-                // This needs to be idempotent, in case the method is called multiple times
-                && "errorproneJavac" !in configurations.names) {
-                val errorproneJavac by configurations.creating
-                dependencies {
-                    errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
-                }
-                tasks.withType<JavaCompile>()$configureEachIfSupported {
-                    if (options.forkOptions.javaHome == null) {
-                        inputs.files(errorproneJavac)
-                        options.isFork = true
-                        doFirst {
-                            options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:${'$'}{errorproneJavac.asPath}")
-                        }
-                    }
-                }
-            }
-        """.trimIndent())
 
         return GradleRunner.create()
             .withGradleVersion(testGradleVersion)

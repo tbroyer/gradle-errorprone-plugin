@@ -9,67 +9,8 @@ This plugin configures `JavaCompile` tasks to use the [Error Prone compiler] as 
 
 This plugin requires using at least Gradle 4.6.
 
-Error Prone also requires at least a JDK 9 compiler to be used as a javac plugin.
-This means either running Gradle with
-or [configuring `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK,
-or overriding the JDK compiler by prepending Error Prone javac to the bootstrap classpath.
-
-<details>
-<summary>Running with JDK 8, prepending Error Prone javac to the bootstrap classpath</summary>
-
-```gradle
-// Only when running with JDK 8
-if (JavaVersion.current().java8) {
-    // Create a new configuration for Error Prone javac
-    configurations {
-        errorproneJavac
-    }
-    // Add Error Prone javac dependency
-    dependencies {
-        errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
-    }
-    tasks.withType(JavaCompile).configureEach {
-        // Tell Gradle to rerun the task if Error Prone javac changes (needed because of doFirst below)
-        inputs.files(configurations.errorproneJavac)
-        // Fork a compiler daemon, there will be only one per build (not per task)
-        options.fork = true
-        // Defer adding Error Prone javac to only resolve the dependencies when needed
-        doFirst {
-            options.forkOptions.jvmArgs << "-Xbootclasspath/p:${configurations.errorproneJavac.asPath}"
-        }
-    }
-}
-```
-
-<details>
-<summary>with Kotlin DSL</summary>
-
-```kotlin
-// Only when running with JDK 8
-if (JavaVersion.current().isJava8) {
-    // Create a new configuration for Error Prone javac
-    val errorproneJavac by configurations
-    // Add Error Prone javac dependency
-    dependencies {
-        errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
-    }
-    tasks.withType<JavaCompile>().configureEach {
-        // Tell Gradle to rerun the task if Error Prone javac changes (needed because of doFirst below)
-        inputs.files(errorproneJavac)
-        // Fork a compiler daemon, there will be only one per build (not per task)
-        options.isFork = true
-        // Defer adding Error Prone javac to only resolve the dependencies when needed
-        doFirst {
-            options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:${errorproneJavac.asPath}")
-        }
-    }
-}
-```
-
-</details>
-</details>
-
-[ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
+While JDK 8 is supported, it is recommended to use at least a JDK 9 compiler.
+See note below about JDK 8 support.
 
 ## Usage
 
@@ -202,6 +143,59 @@ afterEvaluate {
 ```
 
 </details>
+
+## JDK 8 support
+
+Error Prone requires at least a JDK 9 compiler.
+When using JDK 8, you can configure a dependency on the Error Prone javac in the `errorproneJavac` configuration:
+```gradle
+dependencies {
+    errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
+}
+```
+and the plugin will configure the `JavaCompile` tasks to [use a forking compiler][CompileOptions.fork]
+and will override the compiler by prepending the dependencies to the bootstrap classpath
+(using a `-Xbootclasspath/p:` [JVM argument][BaseForkOptions.getJvmArgs]).
+
+Alternatively, you can [configure `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK while still using JDK 8 for running Gradle:
+```gradle
+tasks.withType(JavaCompile).configureEach {
+    options.fork(javaHome: project.getProperty("jdk11home"))
+}
+```
+<details>
+<summary>with Kotlin DSL</summary>
+
+```kotlin
+tasks.withType<JavaCompile>().configureEach {
+    options.fork = true
+    options.forkOptions.javaHome = project.getProperty("jdk11home")
+}
+```
+
+</details>
+
+The plugin will try to detect those cases and won't configure the bootstrap classpath in this case,
+but to play safe it will actually ignore any task that forks and defines either a `javaHome` or an `executable`
+(this also means that it won't configure the bootstrap classpath if you're e.g. running Gradle with a more recent JDK and forking the compilation tasks to use JDK 8).
+
+If you need it, you can configure the bootstrap classpath manually for those tasks that the plugin would have skipped:
+```gradle
+someTask.configure {
+    // …
+
+    inputs.files(configurations.errorproneJavac)
+    doFirst {
+        options.forkOptions.jvmArgs.add("-Xbootclasspath/p:${configurations.errorproneJavac.asPath}")
+    }
+}
+```
+(if you're using `forkOptions.executable`, then use `-J-Xbootclasspath/p:` instead.)
+
+[CompileOptions.fork]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:fork
+[BaseForkOptions.getJvmArgs]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/BaseForkOptions.html#getJvmArgs--
+[ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
+
 
 ## Custom Error Prone checks
 

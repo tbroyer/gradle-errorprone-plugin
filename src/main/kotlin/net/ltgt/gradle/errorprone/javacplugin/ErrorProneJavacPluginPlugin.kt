@@ -8,16 +8,19 @@ import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.BaseVariant
 import org.gradle.api.DomainObjectCollection
+import org.gradle.api.JavaVersion
 import org.gradle.api.Named
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.compile.ForkOptions
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
@@ -30,11 +33,24 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
 
         const val CONFIGURATION_NAME = "errorprone"
 
+        const val JAVAC_CONFIGURATION_NAME = "errorproneJavac"
+
         private val MIN_GRADLE_VERSION_WITH_LAZY_TASKS = GradleVersion.version("4.9")
 
         internal fun supportsLazyTasks(version: GradleVersion) = version >= MIN_GRADLE_VERSION_WITH_LAZY_TASKS
 
         private val SUPPORTS_LAZY_TASKS = supportsLazyTasks(GradleVersion.current())
+
+        private val LOGGER = Logging.getLogger(ErrorProneJavacPluginPlugin::class.java)
+
+        internal const val NO_JAVAC_DEPENDENCY_WARNING_MESSAGE =
+"""No dependency was configured in configuration $JAVAC_CONFIGURATION_NAME, compilation with Error Prone will likely fail as a result.
+Add a dependency to com.google.errorprone:javac with the appropriate version corresponding to the version of Error Prone you're using:
+
+    dependencies {
+        $JAVAC_CONFIGURATION_NAME("com.google.errorprone:javac:${'$'}errorproneJavacVersion")
+    }
+"""
     }
 
     override fun apply(project: Project) {
@@ -46,6 +62,12 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
             isVisible = false
             exclude(group = "com.google.errorprone", module = "javac")
         }
+        val javacConfiguration = project.configurations.create(JAVAC_CONFIGURATION_NAME) {
+            isVisible = false
+            defaultDependencies {
+                LOGGER.warn(NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
+            }
+        }
 
         project.tasks.withType<JavaCompile>().configureElement {
             val errorproneOptions =
@@ -53,6 +75,29 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
             options
                 .compilerArgumentProviders
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
+
+            // XXX: isJava8 isn't available in Gradle 4.6
+            if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
+                // We don't know yet whether the task will use the same JVM (and need the Error Prone javac),
+                // but chances are really high that this will be the case, so configure task inputs anyway.
+                inputs.files(javacConfiguration)
+                doFirst("configure errorprone in bootclasspath") {
+                    if (options.errorprone.isEnabled &&
+                        (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null))) {
+                        // We now know that we need the Error Prone javac
+                        if (!options.isFork) {
+                            options.isFork = true
+                            // reset forkOptions in case they were configured
+                            options.forkOptions = ForkOptions()
+                        }
+                        javacConfiguration.asPath.also {
+                            if (it.isNotBlank()) {
+                                options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:$it")
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         project.plugins.withType<JavaBasePlugin> {

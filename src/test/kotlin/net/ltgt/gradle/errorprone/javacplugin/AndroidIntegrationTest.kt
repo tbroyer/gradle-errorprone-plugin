@@ -56,6 +56,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
+                errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
             }
         """.trimIndent())
 

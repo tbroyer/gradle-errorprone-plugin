@@ -19,6 +19,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
+                errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
             }
 
             val compileJava by tasks.creating(JavaCompile::class) {
@@ -62,6 +63,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
+                errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
             }
 
             val customCompileJava by tasks.creating(JavaCompile::class) {
