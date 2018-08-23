@@ -7,13 +7,13 @@ This plugin configures `JavaCompile` tasks to use the [Error Prone compiler] as 
 
 ## Requirements
 
-Error Prone requires at least a JDK 9 compiler to be used as a javac plugin.
+This plugin requires using at least Gradle 4.6.
+
+Error Prone also requires at least a JDK 9 compiler to be used as a javac plugin.
 This means either running Gradle with,
 or [configuring `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK.
 
 [ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
-
-Applying this plugin also requires using at least Gradle 4.6.
 
 ## Usage
 
@@ -89,10 +89,10 @@ task compileCustom(type: JavaCompile) {
     targetCompatibility = "8"
     destinationDir = file("$buildDir/classes/custom")
 
-    // Enable Error Prone
-    ErrorProneJavacPlugin.apply(options)
     // Error Prone must be available in the annotation processor path
     options.annotationProcessorPath = configurations.errorprone
+    // Enable Error Prone
+    options.errorprone.enabled = true
     // It can then be configured for the task
     options.errorprone.disableWarningsInGeneratedCode = true
 }
@@ -109,10 +109,10 @@ val compileCustom by tasks.creating(JavaCompile::class) {
     targetCompatibility = "8"
     destinationDir = file("$buildDir/classes/custom")
 
-    // Enable Error Prone
-    ErrorProneJavacPlugin.apply(options)
     // Error Prone must be available in the annotation processor path
     options.annotationProcessorPath = configurations["errorprone"]
+    // Enable Error Prone
+    options.errorprone.isEnabled = true
     // It can then be configured for the task
     options.errorprone.disableWarningsInGeneratedCode = true
 }

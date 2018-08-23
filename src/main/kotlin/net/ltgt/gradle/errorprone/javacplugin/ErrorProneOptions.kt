@@ -10,7 +10,7 @@ import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 
 open class ErrorProneOptions(
-    @get:Input var isEnabled: Boolean = true,
+    @get:Input var isEnabled: Boolean = false,
     @get:Input var disableAllChecks: Boolean = false,
     @get:Input var allErrorsAsWarnings: Boolean = false,
     @get:Input var allDisabledChecksAsWarnings: Boolean = false,

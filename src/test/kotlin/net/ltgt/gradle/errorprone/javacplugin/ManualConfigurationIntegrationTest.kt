@@ -29,8 +29,8 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 targetCompatibility = "8"
                 options.annotationProcessorPath = configurations["errorprone"]
 
-                ErrorProneJavacPlugin.apply(options)
                 options.errorprone {
+                    isEnabled = true
                     disableAllChecks = true
                     check("ArrayEquals", CheckSeverity.ERROR)
                 }
@@ -47,23 +47,29 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
-    fun `in java project with non-applied plugin`() {
+    fun `in java project`() {
+        // This is similar to what the me.champeau.gradle.jmh plugin does
+
         // given
         buildFile.appendText("""
             plugins {
                 java
-                id("${ErrorProneJavacPluginPlugin.PLUGIN_ID}") apply false
+                id("${ErrorProneJavacPluginPlugin.PLUGIN_ID}")
             }
 
             repositories {
                 jcenter()
             }
             dependencies {
-                annotationProcessor("com.google.errorprone:error_prone_core:$errorproneVersion")
+                errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
             }
 
-            val compileJava by tasks.getting(JavaCompile::class) {
-                ErrorProneJavacPlugin.apply(options)
+            val customCompileJava by tasks.creating(JavaCompile::class) {
+                source("src/main/java")
+                classpath = files()
+                destinationDir = file("${'$'}buildDir/classes/custom")
+                options.annotationProcessorPath = configurations["errorprone"]
+
                 options.errorprone {
                     disableAllChecks = true
                     check("ArrayEquals", CheckSeverity.ERROR)
@@ -72,11 +78,27 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
         """.trimIndent())
         writeFailureSource()
 
+        // Error Prone is disabled by default, so compilation should succeed.
+
         // when
-        val result = buildWithArgsAndFail("compileJava")
+        val result = buildWithArgs("customCompileJava")
 
         // then
-        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        assertThat(result.output).contains("Failure.java:6: error: [ArrayEquals]")
+        assertThat(result.task(":customCompileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+
+        // Now enable Error Prone and check that compilation fails.
+
+        // given
+        buildFile.appendText("""
+
+            customCompileJava.options.errorprone.isEnabled = true
+        """.trimIndent())
+
+        // when
+        val result2 = buildWithArgsAndFail("customCompileJava")
+
+        // then
+        assertThat(result2.task(":customCompileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
+        assertThat(result2.output).contains("Failure.java:6: error: [ArrayEquals]")
     }
 }
