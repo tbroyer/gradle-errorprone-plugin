@@ -1,7 +1,12 @@
-language: java
+language: android
+android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-27.0.3
+    - android-27
 jdk:
   - openjdk8
-  - oraclejdk9
   - oraclejdk10
 
 env:
@@ -16,7 +21,7 @@ matrix:
       env: GRADLE_VERSION=4.6
 
 install: true
-script: ./gradlew build -Ptest.skipAndroid=true -Ptest.gradle-version=$GRADLE_VERSION
+script: ./gradlew build -Ptest.gradle-version=$GRADLE_VERSION
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
