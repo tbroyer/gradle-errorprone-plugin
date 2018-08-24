@@ -10,8 +10,64 @@ This plugin configures `JavaCompile` tasks to use the [Error Prone compiler] as 
 This plugin requires using at least Gradle 4.6.
 
 Error Prone also requires at least a JDK 9 compiler to be used as a javac plugin.
-This means either running Gradle with,
-or [configuring `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK.
+This means either running Gradle with
+or [configuring `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK,
+or overriding the JDK compiler by prepending Error Prone javac to the bootstrap classpath.
+
+<details>
+<summary>Running with JDK 8, prepending Error Prone javac to the bootstrap classpath</summary>
+
+```gradle
+// Only when running with JDK 8
+if (JavaVersion.current().java8) {
+    // Create a new configuration for Error Prone javac
+    configurations {
+        errorproneJavac
+    }
+    // Add Error Prone javac dependency
+    dependencies {
+        errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
+    }
+    tasks.withType(JavaCompile) {
+        // Tell Gradle to rerun the task if Error Prone javac changes (needed because of doFirst below)
+        inputs.files(configurations.errorproneJavac)
+        // Fork a compiler daemon, there will be only one per build (not per task)
+        options.fork = true
+        // Defer adding Error Prone javac to only resolve the dependencies when needed
+        doFirst {
+            options.forkOptions.jvmArgs << "-Xbootclasspath/p:${configurations.errorproneJavac.asPath}"
+        }
+    }
+}
+```
+
+<details>
+<summary>with Kotlin DSL</summary>
+
+```kotlin
+// Only when running with JDK 8
+if (JavaVersion.current().isJava8) {
+    // Create a new configuration for Error Prone javac
+    val errorproneJavac by configurations.creating
+    // Add Error Prone javac dependency
+    dependencies {
+        errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
+    }
+    tasks.withType<JavaCompile>() {
+        // Tell Gradle to rerun the task if Error Prone javac changes (needed because of doFirst below)
+        inputs.files(errorproneJavac)
+        // Fork a compiler daemon, there will be only one per build (not per task)
+        options.isFork = true
+        // Defer adding Error Prone javac to only resolve the dependencies when needed
+        doFirst {
+            options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:${errorproneJavac.asPath}")
+        }
+    }
+}
+```
+
+</details>
+</details>
 
 [ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
 
