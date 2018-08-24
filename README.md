@@ -28,7 +28,7 @@ if (JavaVersion.current().java8) {
     dependencies {
         errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
     }
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         // Tell Gradle to rerun the task if Error Prone javac changes (needed because of doFirst below)
         inputs.files(configurations.errorproneJavac)
         // Fork a compiler daemon, there will be only one per build (not per task)
@@ -48,12 +48,12 @@ if (JavaVersion.current().java8) {
 // Only when running with JDK 8
 if (JavaVersion.current().isJava8) {
     // Create a new configuration for Error Prone javac
-    val errorproneJavac by configurations.creating
+    val errorproneJavac by configurations
     // Add Error Prone javac dependency
     dependencies {
         errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
     }
-    tasks.withType<JavaCompile>() {
+    tasks.withType<JavaCompile>().configureEach {
         // Tell Gradle to rerun the task if Error Prone javac changes (needed because of doFirst below)
         inputs.files(errorproneJavac)
         // Fork a compiler daemon, there will be only one per build (not per task)
@@ -79,6 +79,8 @@ plugins {
 }
 ```
 
+_Note: snippets in this guide use features from the latest Gradle version, so beware if copy/pasting._
+
 This plugin creates a configuration named `errorprone`,
 and configures the `<sourceSet>AnnotationProcessor` configuration for each source set to extend it.
 This allows configuring Error Prone dependencies from a single place.
@@ -97,7 +99,7 @@ or it will default to using the `latest.release` version
 
 It can then be configured on the `JavaCompile` tasks:
 ```gradle
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.errorprone.disableWarningsInGeneratedCode = true
 }
 ```
@@ -107,7 +109,7 @@ tasks.withType(JavaCompile) {
 ```kotlin
 import net.ltgt.gradle.errorprone.javacplugin.*
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
     options.errorprone.disableWarningsInGeneratedCode = true
 }
 ```
@@ -116,7 +118,7 @@ tasks.withType<JavaCompile> {
 
 and can also be disabled altogether:
 ```gradle
-compileTestJava {
+tasks.named("compileTestJava").configure {
     options.errorprone.enabled = false
 }
 ```
@@ -124,7 +126,7 @@ compileTestJava {
 <summary>with Kotlin DSL</summary>
 
 ```kotlin
-val compileTestJava by tasks.getting(JavaCompile::class) {
+tasks.named("compileTestJava", JavaCompile::class) {
     options.errorprone.isEnabled = false
 }
 ```
@@ -137,7 +139,7 @@ and `compileIntegTestJava` for a custom `integTest` source set).
 If you're creating custom `JavaCompile` tasks,
 then you'll have to configure them manually:
 ```gradle
-task compileCustom(type: JavaCompile) {
+tasks.register("compileCustom", JavaCompile) {
     source "src/custom/"
     include "**/*.java"
     classpath = configurations.custom
@@ -157,7 +159,7 @@ task compileCustom(type: JavaCompile) {
 <summary>with Kotlin DSL</summary>
 
 ```kotlin
-val compileCustom by tasks.creating(JavaCompile::class) {
+tasks.register<JavaCompile>("compileCustom") {
     source("src/custom/")
     include("**/*.java")
     classpath = configurations["custom"]
@@ -180,7 +182,7 @@ In Android projects, tasks cannot be configured until `afterEvaluate`
 due to how the Android Plugin for Gradle works:
 ```gradle
 afterEvaluate {
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         options.errorprone.disableWarningsInGeneratedCode = true
     }
 }
@@ -190,7 +192,7 @@ afterEvaluate {
 
 ```kotlin
 afterEvaluate {
-    tasks.withType<JavaCompile> {
+    tasks.withType<JavaCompile>().configureEach {
         options.errorprone.disableWarningsInGeneratedCode = true
     }
 }
@@ -217,12 +219,12 @@ dependencies {
 ```
 and can then be configured on the tasks; for example:
 ```gradle
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.errorprone {
         option("NullAway:AnnotatedPackages", "net.ltgt")
     }
 }
-compileJava {
+tasks.named("compileJava").configure {
     // Check defaults to WARNING, bump it up to ERROR for the main sources
     options.errorprone.check("NullAway", CheckSeverity.ERROR)
 }
@@ -231,12 +233,12 @@ compileJava {
 <summary>with Kotlin DSL</summary>
 
 ```kotlin
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
     options.errorprone {
         option("NullAway:AnnotatedPackages", "net.ltgt")
     }
 }
-val compileJava by tasks.getting(JavaCompile::class) {
+tasks.named("compileJava", JavaCompile::class) {
     // Check defaults to WARNING, bump it up to ERROR for the main sources
     options.errorprone.check("NullAway", CheckSeverity.ERROR)
 }
