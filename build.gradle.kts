@@ -27,6 +27,7 @@ gradle.taskGraph.whenReady {
 }
 
 val errorproneVersion = "2.3.1"
+val errorproneJavacVersion = "9+181-r4173-1"
 val androidPluginVersion = "3.1.3"
 
 repositories {
@@ -79,6 +80,7 @@ val test by tasks.getting(Test::class) {
 
     systemProperty("plugin.version", version)
     systemProperty("errorprone.version", errorproneVersion)
+    systemProperty("errorprone-javac.version", errorproneJavacVersion)
     systemProperty("android-plugin.version", androidPluginVersion)
 
     if (project.findProperty("test.skipAndroid")?.toString()?.toBoolean() == true) {
