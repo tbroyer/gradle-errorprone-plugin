@@ -97,7 +97,12 @@ dependencies {
 or it will default to using the `latest.release` version
 (but will still require a repository to be configured to find the dependency).
 
-It can then be configured on the `JavaCompile` tasks:
+**CAUTION:** Using a dynamic or changing version for Error Prone,
+such as the default configuration using `latest.release`,
+means that your build could fail at any time,
+if a new version of Error Prone adds or enables new checks that your code would trigger.
+
+Error Prone can then be configured on the `JavaCompile` tasks:
 ```gradle
 tasks.withType(JavaCompile).configureEach {
     options.errorprone.disableWarningsInGeneratedCode = true
