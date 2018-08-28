@@ -43,7 +43,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        assertThat(result.output).contains("Failure.java:6: error: [ArrayEquals]")
+        assertThat(result.output).contains(FAILURE_SOURCE_COMPILATION_ERROR)
     }
 
     @Test
@@ -99,6 +99,6 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
 
         // then
         assertThat(result2.task(":customCompileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        assertThat(result2.output).contains("Failure.java:6: error: [ArrayEquals]")
+        assertThat(result2.output).contains(FAILURE_SOURCE_COMPILATION_ERROR)
     }
 }

@@ -10,6 +10,11 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 abstract class AbstractPluginIntegrationTest {
+
+    companion object {
+        internal const val FAILURE_SOURCE_COMPILATION_ERROR = "Failure.java:6: error: [ArrayEquals]"
+    }
+
     @JvmField
     @Rule
     val testProjectDir = TemporaryFolder()
