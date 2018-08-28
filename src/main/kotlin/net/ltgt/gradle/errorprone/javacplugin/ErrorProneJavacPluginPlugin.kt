@@ -30,8 +30,6 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
 
         const val CONFIGURATION_NAME = "errorprone"
 
-        const val DEFAULT_DEPENDENCY = "com.google.errorprone:error_prone_core:latest.release"
-
         private val MIN_GRADLE_VERSION_WITH_LAZY_TASKS = GradleVersion.version("4.9")
 
         internal fun supportsLazyTasks(version: GradleVersion) = version >= MIN_GRADLE_VERSION_WITH_LAZY_TASKS
@@ -47,7 +45,6 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
         val errorproneConfiguration = project.configurations.create(CONFIGURATION_NAME) {
             isVisible = false
             exclude(group = "com.google.errorprone", module = "javac")
-            defaultDependencies { add(project.dependencies.create(DEFAULT_DEPENDENCY)) }
         }
 
         project.tasks.withType<JavaCompile>().configureElement {
