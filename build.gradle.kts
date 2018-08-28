@@ -10,8 +10,11 @@ plugins {
 
 group = "net.ltgt.gradle"
 
+kotlinDslPluginOptions {
+    experimentalWarning.set(false)
+}
+
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
     // This is the version used in Gradle 4.6, for backwards compatibility when we'll upgrade
     kotlinOptions.apiVersion = "1.2"
 }
@@ -96,8 +99,9 @@ val test by tasks.getting(Test::class) {
 
 gradlePlugin {
     (plugins) {
-        "errorprone-javacplugin" {
+        create("errorprone-javacplugin") {
             id = "net.ltgt.errorprone-javacplugin"
+            displayName = "Gradle error-prone plugin (as a javac plugin)"
             implementationClass = "net.ltgt.gradle.errorprone.javacplugin.ErrorProneJavacPluginPlugin"
         }
     }
@@ -108,13 +112,6 @@ pluginBundle {
     vcsUrl = "https://github.com/tbroyer/gradle-errorprone-javacplugin-plugin"
     description = "Gradle plugin to use the error-prone compiler for Java (as a javac plugin)"
     tags = listOf("javac", "error-prone")
-
-    (plugins) {
-        "errorprone-javacplugin" {
-            id = "net.ltgt.errorprone-javacplugin"
-            displayName = "Gradle error-prone plugin (as a javac plugin)"
-        }
-    }
 
     mavenCoordinates {
         groupId = project.group.toString()

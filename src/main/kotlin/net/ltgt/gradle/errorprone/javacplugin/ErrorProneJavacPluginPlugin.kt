@@ -59,6 +59,7 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
         }
 
         project.plugins.withType<JavaBasePlugin> {
+            // XXX: move to project.extensions.getByName<SourceSetContainer>("sourceSets") when changing min version to 4.10+
             val java = project.convention.getPlugin<JavaPluginConvention>()
             java.sourceSets.configureElement {
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
