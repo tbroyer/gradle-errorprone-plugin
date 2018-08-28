@@ -5,7 +5,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     `maven-publish`
-    id("com.gradle.plugin-publish") version "0.9.10"
+    id("com.gradle.plugin-publish") version "0.10.0"
 }
 
 group = "net.ltgt.gradle"
@@ -14,17 +14,16 @@ kotlinDslPluginOptions {
     experimentalWarning.set(false)
 }
 
-tasks.withType<KotlinCompile> {
+tasks.withType<KotlinCompile>().configureEach {
     // This is the version used in Gradle 4.6, for backwards compatibility when we'll upgrade
     kotlinOptions.apiVersion = "1.2"
 }
 
 gradle.taskGraph.whenReady {
-    val publishPlugins by tasks.getting
-    if (hasTask(publishPlugins)) {
-        check("git diff --quiet --exit-code".execute(null, rootDir).waitFor() == 0, { "Working tree is dirty" })
+    if (hasTask(":publishPlugins")) {
+        check("git diff --quiet --exit-code".execute(null, rootDir).waitFor() == 0) { "Working tree is dirty" }
         val process = "git describe --exact-match".execute(null, rootDir)
-        check(process.waitFor() == 0, { "Version is not tagged" })
+        check(process.waitFor() == 0) { "Version is not tagged" }
         version = process.text.trim().removePrefix("v")
     }
 }
@@ -51,7 +50,7 @@ dependencies {
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
-tasks.withType<KotlinCompile> {
+tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions.allWarningsAsErrors = true
 }
 
@@ -63,12 +62,12 @@ publishing {
         }
     }
 }
-val publishPluginsToTestRepository by tasks.creating {
+val publishPluginsToTestRepository by tasks.registering {
     dependsOn("publishPluginMavenPublicationToTestRepository")
     dependsOn("publishErrorprone-javacpluginPluginMarkerMavenPublicationToTestRepository")
 }
 
-val test by tasks.getting(Test::class) {
+val test by tasks.existing(Test::class) {
     dependsOn(publishPluginsToTestRepository)
 
     val testJavaHome = project.findProperty("test.java-home")
@@ -98,8 +97,8 @@ val test by tasks.getting(Test::class) {
 }
 
 gradlePlugin {
-    (plugins) {
-        create("errorprone-javacplugin") {
+    plugins {
+        register("errorprone-javacplugin") {
             id = "net.ltgt.errorprone-javacplugin"
             displayName = "Gradle error-prone plugin (as a javac plugin)"
             implementationClass = "net.ltgt.gradle.errorprone.javacplugin.ErrorProneJavacPluginPlugin"
@@ -125,20 +124,19 @@ dependencies {
     ktlint("com.github.shyiko:ktlint:0.24.0")
 }
 
-val verifyKtlint by tasks.creating(JavaExec::class) {
+val verifyKtlint by tasks.registering(JavaExec::class) {
     description = "Check Kotlin code style."
     classpath = ktlint
     main = "com.github.shyiko.ktlint.Main"
     args("**/*.gradle.kts", "**/*.kt")
 }
-tasks["check"].dependsOn(verifyKtlint)
+tasks.named("check").configure { dependsOn(verifyKtlint) }
 
-task("ktlint", JavaExec::class) {
+tasks.register("ktlint", JavaExec::class.java) {
     description = "Fix Kotlin code style violations."
-    classpath = verifyKtlint.classpath
-    main = verifyKtlint.main
-    args("-F")
-    args(verifyKtlint.args)
+    classpath = ktlint
+    main = "com.github.shyiko.ktlint.Main"
+    args("-F", "**/*.gradle.kts", "**/*.kt")
 }
 
 fun String.execute(envp: Array<String>?, workingDir: File?) =
