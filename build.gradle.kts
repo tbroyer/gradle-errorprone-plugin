@@ -32,7 +32,7 @@ gradle.taskGraph.whenReady {
 
 val errorproneVersion = "2.3.1"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.1.3"
+val androidPluginVersion = "3.1.4"
 
 repositories {
     jcenter()
@@ -48,7 +48,7 @@ dependencies {
     testRuntimeOnly("com.android.tools.build:gradle:$androidPluginVersion")
 
     testImplementation("junit:junit:4.12")
-    testImplementation("com.google.truth:truth:0.40")
+    testImplementation("com.google.truth:truth:0.42")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
@@ -122,7 +122,7 @@ pluginBundle {
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.github.shyiko:ktlint:0.24.0")
+    ktlint("com.github.shyiko:ktlint:0.27.0")
 }
 
 tasks {
