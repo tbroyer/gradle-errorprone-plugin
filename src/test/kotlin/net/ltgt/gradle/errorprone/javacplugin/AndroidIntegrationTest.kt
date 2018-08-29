@@ -5,6 +5,7 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Before
 import org.junit.Test
 import java.io.File
+import java.util.Properties
 
 class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     private val androidSdkHome = System.getProperty("test.android-sdk-home")
@@ -27,7 +28,12 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     fun setupAndroid() {
         assertThat(androidSdkHome).isNotEmpty()
 
-        testProjectDir.newFile("local.properties").writeText("sdk.dir=$androidSdkHome")
+        Properties().apply {
+            set("sdk.dir", androidSdkHome)
+            testProjectDir.newFile("local.properties").outputStream().use {
+                store(it, null)
+            }
+        }
 
         buildFile.appendText("""
             plugins {
