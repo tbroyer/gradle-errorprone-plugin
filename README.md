@@ -197,6 +197,37 @@ someTask.configure {
 [ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
 
 
+## Migration from `net.ltgt.errorprone`
+
+Contrary to `net.ltgt.errorprone`,
+this plugins uses a DSL to configure Error Prone,
+and passing Error Prone-specific arguments to `options.compilerArgs` won't work.
+As an easy migration step,
+you can pass those arguments to `options.errorprone.errorproneArgs` instead:
+```diff
+  tasks.withTask(JavaCompile).configureEach {
+-     options.compilerArgs << "-Xlint:all" << "-Werror" << "-XepDisableWarningsInGeneratedCode"
+-     options.compilerArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=net.ltgt"
++     options.compilerArgs << "-Xlint:all" << "-Werror"
++     options.errorprone.errorproneArgs << "-XepDisableWarningsInGeneratedCode"
++     options.errorprone.errorproneArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=com.uber"
+  }
+```
+
+The next (optional) step would be to move to using the DSL:
+```diff
+  tasks.withTask(JavaCompile).configureEach {
+      options.compilerArgs << "-Xlint:all" << "-Werror"
+-     options.errorprone.errorproneArgs << "-XepDisableWarningsInGeneratedCode"
+-     options.errorprone.errorproneArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=com.uber"
++     options.errorprone {
++         disableWarningsInGeneratedCode = true
++         check("NullAway", CheckSeverity.ERROR)
++         option("NullAway:AnnotatedPackages", "net.ltgt")
++     }
+  }
+```
+
 ## Custom Error Prone checks
 
 **This requires Error Prone 2.3.0 or later.**
