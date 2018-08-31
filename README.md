@@ -199,6 +199,12 @@ someTask.configure {
 
 ## Migration from `net.ltgt.errorprone`
 
+If you relied on the default Error Prone dependency
+(which you shouldn't have, see warning above about changing versions),
+you'll have to configure it explicitly (see above).
+If you need to support building with JDK 8,
+you'll need to configure the Error Prone javac dependency (see above).
+
 Contrary to `net.ltgt.errorprone`,
 this plugins uses a DSL to configure Error Prone,
 and passing Error Prone-specific arguments to `options.compilerArgs` won't work.
