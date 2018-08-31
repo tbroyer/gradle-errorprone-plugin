@@ -1,4 +1,4 @@
-package net.ltgt.gradle.errorprone.javacplugin
+package net.ltgt.gradle.errorprone
 
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.plugins.ExtensionAware

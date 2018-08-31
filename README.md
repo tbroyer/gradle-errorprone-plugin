@@ -1,9 +1,8 @@
-# gradle-errorprone-javacplugin-plugin
+# gradle-errorprone-plugin
 
-This plugin configures `JavaCompile` tasks to use the [Error Prone compiler] as a [javac plugin].
+This plugin configures `JavaCompile` tasks to use the [Error Prone compiler].
 
 [Error Prone compiler]: https://errorprone.info/
-[javac plugin]: https://docs.oracle.com/javase/9/docs/api/com/sun/source/util/Plugin.html
 
 ## Requirements
 
@@ -16,7 +15,7 @@ See note below about JDK 8 support.
 
 ```gradle
 plugins {
-    id("net.ltgt.errorprone-javacplugin") version "<plugin version>"
+    id("net.ltgt.errorprone") version "<plugin version>"
 }
 ```
 
@@ -51,7 +50,7 @@ tasks.withType(JavaCompile).configureEach {
 <summary>with Kotlin DSL</summary>
 
 ```kotlin
-import net.ltgt.gradle.errorprone.javacplugin.*
+import net.ltgt.gradle.errorprone.*
 
 tasks.withType<JavaCompile>().configureEach {
     options.errorprone.disableWarningsInGeneratedCode = true
@@ -197,7 +196,7 @@ someTask.configure {
 [ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
 
 
-## Migration from `net.ltgt.errorprone`
+## Migration from [versions 0.0._x_]
 
 If you relied on the default Error Prone dependency
 (which you shouldn't have, see warning above about changing versions),
@@ -205,8 +204,8 @@ you'll have to configure it explicitly (see [above](#usage)).
 If you need to support building with JDK 8,
 you'll need to configure the Error Prone javac dependency (see [above](#jdk-8-support)).
 
-Contrary to `net.ltgt.errorprone`,
-this plugins uses a DSL to configure Error Prone,
+Contrary to [versions 0.0._x_],
+later versions use a DSL to configure Error Prone,
 and passing Error Prone-specific arguments to `options.compilerArgs` won't work.
 As an easy migration step,
 you can pass those arguments to `options.errorprone.errorproneArgs` instead:
@@ -233,6 +232,11 @@ The next (optional) step would be to move to using the DSL:
 +     }
   }
 ```
+
+Finally, the `net.ltgt.errorprone-base` plugin is removed without replacement.
+In most cases, it can be replaced by disabling or enabling Error Prone on selected tasks.
+
+[versions 0.0._x_]: https://github.com/tbroyer/gradle-errorprone-plugin-v0.0.x
 
 ## Custom Error Prone checks
 
@@ -290,7 +294,7 @@ or script block (`options.errorprone { … }`).
 
 In a `*.gradle.kts` script, the Kotlin extensions need to be imported:
 ```kotlin
-import net.ltgt.gradle.errorprone.javacplugin.*
+import net.ltgt.gradle.errorprone.*
 ```
 
 ### Properties

@@ -1,4 +1,4 @@
-package net.ltgt.gradle.errorprone.javacplugin
+package net.ltgt.gradle.errorprone
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
@@ -19,7 +19,7 @@ abstract class AbstractPluginIntegrationTest {
         internal val errorproneVersion = System.getProperty("errorprone.version")!!
         internal val errorproneJavacVersion = System.getProperty("errorprone-javac.version")!!
 
-        internal val supportsLazyTasks = ErrorProneJavacPluginPlugin.supportsLazyTasks(GradleVersion.version(testGradleVersion))
+        internal val supportsLazyTasks = ErrorPronePlugin.supportsLazyTasks(GradleVersion.version(testGradleVersion))
         internal val configureEachIfSupported = ".configureEach".takeIf { supportsLazyTasks }.orEmpty()
 
         internal const val FAILURE_SOURCE_COMPILATION_ERROR = "Failure.java:6: error: [ArrayEquals]"
@@ -41,6 +41,7 @@ abstract class AbstractPluginIntegrationTest {
         // See https://github.com/gradle/kotlin-dsl/issues/492
         val testRepository = TextUtil.normaliseFileSeparators(File("build/repository").absolutePath)
         settingsFile = testProjectDir.newFile("settings.gradle.kts").apply {
+            @Suppress("DEPRECATION")
             writeText("""
                 pluginManagement {
                     repositories {
@@ -49,7 +50,7 @@ abstract class AbstractPluginIntegrationTest {
                     }
                     resolutionStrategy {
                         eachPlugin {
-                            if (requested.id.id == "${ErrorProneJavacPluginPlugin.PLUGIN_ID}") {
+                            if (requested.id.id in listOf("${ErrorPronePlugin.PLUGIN_ID}", "${ErrorProneBasePlugin.PLUGIN_ID}", "${ErrorProneJavacPluginPlugin.PLUGIN_ID}")) {
                                 useVersion("$pluginVersion")
                             }
                             $additionalPluginManagementResolutionStrategyEachPlugin
@@ -61,7 +62,7 @@ abstract class AbstractPluginIntegrationTest {
         }
         buildFile = testProjectDir.newFile("build.gradle.kts").apply {
             writeText("""
-                import net.ltgt.gradle.errorprone.javacplugin.*
+                import net.ltgt.gradle.errorprone.*
 
             """.trimIndent())
         }

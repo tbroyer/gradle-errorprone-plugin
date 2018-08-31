@@ -1,4 +1,4 @@
-package net.ltgt.gradle.errorprone.javacplugin
+package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.TaskOutcome
@@ -37,7 +37,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
 
         buildFile.appendText("""
             plugins {
-                id("${ErrorProneJavacPluginPlugin.PLUGIN_ID}")
+                id("${ErrorPronePlugin.PLUGIN_ID}")
                 id("com.android.application") version "$androidPluginVersion"
             }
 

@@ -1,3 +1,3 @@
-rootProject.name = "gradle-errorprone-javacplugin-plugin"
+rootProject.name = "gradle-errorprone-plugin"
 
 enableFeaturePreview("STABLE_PUBLISHING")

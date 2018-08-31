@@ -64,6 +64,8 @@ publishing {
 tasks {
     val publishPluginsToTestRepository by registering {
         dependsOn("publishPluginMavenPublicationToTestRepository")
+        dependsOn("publishErrorpronePluginMarkerMavenPublicationToTestRepository")
+        dependsOn("publishErrorprone-basePluginMarkerMavenPublicationToTestRepository")
         dependsOn("publishErrorprone-javacpluginPluginMarkerMavenPublicationToTestRepository")
     }
 
@@ -99,18 +101,28 @@ tasks {
 
 gradlePlugin {
     plugins {
+        register("errorprone") {
+            id = "net.ltgt.errorprone"
+            displayName = "Gradle error-prone plugin"
+            implementationClass = "net.ltgt.gradle.errorprone.ErrorPronePlugin"
+        }
+        register("errorprone-base") {
+            id = "net.ltgt.errorprone-base"
+            displayName = "Gradle error-prone base plugin"
+            implementationClass = "net.ltgt.gradle.errorprone.ErrorProneBasePlugin"
+        }
         register("errorprone-javacplugin") {
             id = "net.ltgt.errorprone-javacplugin"
             displayName = "Gradle error-prone plugin (as a javac plugin)"
-            implementationClass = "net.ltgt.gradle.errorprone.javacplugin.ErrorProneJavacPluginPlugin"
+            implementationClass = "net.ltgt.gradle.errorprone.ErrorProneJavacPluginPlugin"
         }
     }
 }
 
 pluginBundle {
-    website = "https://github.com/tbroyer/gradle-errorprone-javacplugin-plugin"
-    vcsUrl = "https://github.com/tbroyer/gradle-errorprone-javacplugin-plugin"
-    description = "Gradle plugin to use the error-prone compiler for Java (as a javac plugin)"
+    website = "https://github.com/tbroyer/gradle-errorprone-plugin"
+    vcsUrl = "https://github.com/tbroyer/gradle-errorprone-plugin"
+    description = "Gradle plugin to use the error-prone compiler for Java"
     tags = listOf("javac", "error-prone")
 
     mavenCoordinates {

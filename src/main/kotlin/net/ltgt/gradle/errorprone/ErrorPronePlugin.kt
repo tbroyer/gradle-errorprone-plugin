@@ -1,4 +1,4 @@
-package net.ltgt.gradle.errorprone.javacplugin
+package net.ltgt.gradle.errorprone
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
@@ -27,10 +27,10 @@ import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.util.GradleVersion
 
-class ErrorProneJavacPluginPlugin : Plugin<Project> {
+class ErrorPronePlugin : Plugin<Project> {
 
     companion object {
-        const val PLUGIN_ID = "net.ltgt.errorprone-javacplugin"
+        const val PLUGIN_ID = "net.ltgt.errorprone"
 
         const val CONFIGURATION_NAME = "errorprone"
 
@@ -42,7 +42,7 @@ class ErrorProneJavacPluginPlugin : Plugin<Project> {
 
         private val SUPPORTS_LAZY_TASKS = supportsLazyTasks(GradleVersion.current())
 
-        private val LOGGER = Logging.getLogger(ErrorProneJavacPluginPlugin::class.java)
+        private val LOGGER = Logging.getLogger(ErrorPronePlugin::class.java)
 
         internal const val NO_JAVAC_DEPENDENCY_WARNING_MESSAGE =
 """No dependency was configured in configuration $JAVAC_CONFIGURATION_NAME, compilation with Error Prone will likely fail as a result.

@@ -1,4 +1,4 @@
-package net.ltgt.gradle.errorprone.javacplugin
+package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
 import com.google.errorprone.ErrorProneOptions.Severity

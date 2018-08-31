@@ -1,4 +1,4 @@
-package net.ltgt.gradle.errorprone.javacplugin
+package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
@@ -29,7 +29,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText("""
             plugins {
                 `java-library`
-                id("${ErrorProneJavacPluginPlugin.PLUGIN_ID}")
+                id("${ErrorPronePlugin.PLUGIN_ID}")
             }
             repositories {
                 jcenter()
@@ -232,7 +232,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         buildWithArgsAndFail("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
-            assertThat(result.output).contains(ErrorProneJavacPluginPlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
+            assertThat(result.output).contains(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
             assertThat(result.output).contains(FORKED)
             assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
         }
@@ -251,7 +251,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         buildWithArgs("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-            assertThat(result.output).doesNotContain(ErrorProneJavacPluginPlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
+            assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
             assertThat(result.output).contains(FORKED)
             assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
         }

@@ -1,4 +1,4 @@
-package net.ltgt.gradle.errorprone.javacplugin
+package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.TaskOutcome
@@ -6,14 +6,14 @@ import org.junit.Before
 import org.junit.Test
 import java.io.File
 
-class ErrorProneJavacPluginPluginIntegrationTest : AbstractPluginIntegrationTest() {
+class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Before
     fun setup() {
         buildFile.appendText("""
             plugins {
                 `java-library`
-                id("${ErrorProneJavacPluginPlugin.PLUGIN_ID}")
+                id("${ErrorPronePlugin.PLUGIN_ID}")
             }
             repositories {
                 jcenter()
