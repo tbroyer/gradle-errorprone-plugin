@@ -41,7 +41,7 @@ such as `latest.release` or `2.+`,
 means that your build could fail at any time,
 if a new version of Error Prone adds or enables new checks that your code would trigger.
 
-Error Prone can then be configured on the `JavaCompile` tasks:
+Error Prone can then be [configured](#configuration) on the `JavaCompile` tasks:
 ```gradle
 tasks.withType(JavaCompile).configureEach {
     options.errorprone.disableWarningsInGeneratedCode = true
@@ -77,11 +77,11 @@ tasks.named("compileTestJava", JavaCompile::class) {
 
 </details>
 
-Note that this plugin only configures tasks for source sets
+Note that this plugin only enables Error Prone on tasks for source sets
 (i.e. `compileJava` for the `main` source set, `compileTestJava` for the `test` source set,
 and `compileIntegTestJava` for a custom `integTest` source set).
 If you're creating custom `JavaCompile` tasks,
-then you'll have to configure them manually:
+then you'll have to configure them manually to enable Error Prone:
 ```gradle
 tasks.register("compileCustom", JavaCompile) {
     source "src/custom/"
@@ -201,9 +201,9 @@ someTask.configure {
 
 If you relied on the default Error Prone dependency
 (which you shouldn't have, see warning above about changing versions),
-you'll have to configure it explicitly (see above).
+you'll have to configure it explicitly (see [above](#usage)).
 If you need to support building with JDK 8,
-you'll need to configure the Error Prone javac dependency (see above).
+you'll need to configure the Error Prone javac dependency (see [above](#jdk-8-support)).
 
 Contrary to `net.ltgt.errorprone`,
 this plugins uses a DSL to configure Error Prone,
@@ -273,7 +273,7 @@ tasks.withType<JavaCompile>().configureEach {
     }
 }
 tasks.named("compileJava", JavaCompile::class) {
-    // Check defaults to WARNING, bump it up to ERROR for the main sources
+    // The check defaults to WARNING, bump it up to ERROR for the main sources
     options.errorprone.check("NullAway", CheckSeverity.ERROR)
 }
 ```
