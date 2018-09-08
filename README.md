@@ -2,7 +2,7 @@
 
 This plugin configures `JavaCompile` tasks to use the [Error Prone compiler] as a [javac plugin].
 
-[Error Prone compiler]: http://errorprone.info/
+[Error Prone compiler]: https://errorprone.info/
 [javac plugin]: https://docs.oracle.com/javase/9/docs/api/com/sun/source/util/Plugin.html
 
 ## Requirements
@@ -280,7 +280,7 @@ tasks.named("compileJava", JavaCompile::class) {
 
 </details>
 
-[custom checks]: http://errorprone.info/docs/plugins
+[custom checks]: https://errorprone.info/docs/plugins
 
 ## Configuration
 
