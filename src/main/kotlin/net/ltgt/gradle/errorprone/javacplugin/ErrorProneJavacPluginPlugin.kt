@@ -7,6 +7,7 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.BaseVariant
+import java.util.concurrent.atomic.AtomicBoolean
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.JavaVersion
 import org.gradle.api.Named
@@ -64,11 +65,9 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         }
         val javacConfiguration = project.configurations.create(JAVAC_CONFIGURATION_NAME) {
             isVisible = false
-            defaultDependencies {
-                LOGGER.warn(NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
-            }
         }
 
+        val noJavacDependencyNotified = AtomicBoolean()
         project.tasks.withType<JavaCompile>().configureElement {
             val errorproneOptions =
                 (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
@@ -93,6 +92,8 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                         javacConfiguration.asPath.also {
                             if (it.isNotBlank()) {
                                 options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:$it")
+                            } else if (noJavacDependencyNotified.compareAndSet(false, true)) {
+                                LOGGER.warn(NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
                             }
                         }
                     }
