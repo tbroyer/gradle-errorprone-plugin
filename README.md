@@ -211,7 +211,7 @@ and passing Error Prone-specific arguments to `options.compilerArgs` won't work.
 As an easy migration step,
 you can pass those arguments to `options.errorprone.errorproneArgs` instead:
 ```diff
-  tasks.withTask(JavaCompile).configureEach {
+  tasks.withType(JavaCompile).configureEach {
 -     options.compilerArgs << "-Xlint:all" << "-Werror" << "-XepDisableWarningsInGeneratedCode"
 -     options.compilerArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=net.ltgt"
 +     options.compilerArgs << "-Xlint:all" << "-Werror"
@@ -222,7 +222,7 @@ you can pass those arguments to `options.errorprone.errorproneArgs` instead:
 
 The next (optional) step would be to move to using the DSL:
 ```diff
-  tasks.withTask(JavaCompile).configureEach {
+  tasks.withType(JavaCompile).configureEach {
       options.compilerArgs << "-Xlint:all" << "-Werror"
 -     options.errorprone.errorproneArgs << "-XepDisableWarningsInGeneratedCode"
 -     options.errorprone.errorproneArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=com.uber"
