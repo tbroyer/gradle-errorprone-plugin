@@ -14,7 +14,7 @@ env:
   - GRADLE_VERSION=4.7
   - GRADLE_VERSION=4.8.1
   - GRADLE_VERSION=4.9
-  - GRADLE_VERSION=4.10
+  - GRADLE_VERSION=4.10.1
 
 matrix:
   exclude:
