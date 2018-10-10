@@ -50,7 +50,7 @@ open class ErrorProneOptions(
 
     override fun toString(): String {
         return (
-            listOfNotNull(
+            sequenceOf(
                 "-XepDisableAllChecks".takeIf { disableAllChecks },
                 "-XepAllErrorsAsWarnings".takeIf { allErrorsAsWarnings },
                 "-XepAllDisabledChecksAsWarnings".takeIf { allDisabledChecksAsWarnings },
@@ -58,7 +58,7 @@ open class ErrorProneOptions(
                 "-XepIgnoreUnknownCheckNames".takeIf { ignoreUnknownCheckNames },
                 "-XepCompilingTestOnlyCode".takeIf { isCompilingTestOnlyCode },
                 "-XepExcludedPaths:$excludedPaths".takeUnless { excludedPaths.isNullOrEmpty() }
-            ).asSequence() +
+            ).filterNotNull() +
                 checks.asSequence().onEach(::validateName).map { (name, severity) -> "-Xep:$name${severity.asArg}" } +
                 checkOptions.asSequence().map { (name, value) -> "-XepOpt:$name=$value" } +
                 errorproneArgs +
