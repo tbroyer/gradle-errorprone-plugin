@@ -7,7 +7,7 @@ android:
     - android-27
 jdk:
   - openjdk8
-  - oraclejdk10
+  - openjdk11
 
 env:
   - GRADLE_VERSION=4.6
@@ -18,8 +18,10 @@ env:
 
 matrix:
   exclude:
-    - jdk: oraclejdk10
+    - jdk: openjdk11
       env: GRADLE_VERSION=4.6
+    - jdk: openjdk11
+      env: GRADLE_VERSION=4.7
 
 install: true
 script: ./gradlew build -Ptest.gradle-version=$GRADLE_VERSION
