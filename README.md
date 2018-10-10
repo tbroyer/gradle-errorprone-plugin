@@ -9,7 +9,7 @@ This plugin configures `JavaCompile` tasks to use the [Error Prone compiler].
 This plugin requires using at least Gradle 4.6.
 
 While JDK 8 is supported, it is recommended to use at least a JDK 9 compiler.
-See note below about JDK 8 support.
+See [note below](#jdk-8-support) about JDK 8 support.
 
 ## Usage
 
