@@ -221,6 +221,8 @@ you can pass those arguments to `options.errorprone.errorproneArgs` instead:
 
 The next (optional) step would be to move to using the DSL:
 ```diff
++ import net.ltgt.gradle.errorprone.CheckSeverity
++ 
   tasks.withType(JavaCompile).configureEach {
       options.compilerArgs << "-Xlint:all" << "-Werror"
 -     options.errorprone.errorproneArgs << "-XepDisableWarningsInGeneratedCode"
@@ -257,6 +259,8 @@ dependencies {
 ```
 and can then be configured on the tasks; for example:
 ```gradle
+import net.ltgt.gradle.errorprone.CheckSeverity
+
 tasks.withType(JavaCompile).configureEach {
     options.errorprone {
         option("NullAway:AnnotatedPackages", "net.ltgt")
@@ -326,4 +330,5 @@ import net.ltgt.gradle.errorprone.*
 | `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, "true")`.
 | `option(optionName, value)`       | Adds a check option with a given value.
 
-A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.
+A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.  
+Note that the `net.ltgt.gradle.errorprone.CheckSeverity` needs to be `import`ed into your build scripts (see examples above).
