@@ -30,7 +30,7 @@ gradle.taskGraph.whenReady {
     }
 }
 
-val errorproneVersion = "2.3.1"
+val errorproneVersion = "2.3.2"
 val errorproneJavacVersion = "9+181-r4173-1"
 val androidPluginVersion = "3.1.4"
 
