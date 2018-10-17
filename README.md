@@ -143,6 +143,15 @@ afterEvaluate {
 
 </details>
 
+## Lombok support
+
+To support [lombok](https://github.com/rzwitserloot/lombok) you must add the lombok dependency to the `errorprone` configuration otherwise the compile tasks will fail.
+```gradle
+dependencies {
+    errorprone(""org.projectlombok:lombok:$lombokVersion")
+}
+```
+
 ## JDK 8 support
 
 Error Prone requires at least a JDK 9 compiler.
