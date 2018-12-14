@@ -19,6 +19,8 @@ plugins {
 }
 ```
 
+You can find the latest `<plugin version>` [on plugins.gradle.org](https://plugins.gradle.org/plugin/net.ltgt.errorprone).
+
 _Note: snippets in this guide use features from the latest Gradle version, so beware if copy/pasting._
 
 This plugin creates a configuration named `errorprone`,
@@ -34,6 +36,8 @@ dependencies {
     errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
 }
 ```
+
+You can find the latest `$errorproneVersion` [on Maven Central](https://search.maven.org/search?q=g:com.google.errorprone%20AND%20a:error_prone_core).
 
 **CAUTION:** Using a dynamic or changing version for Error Prone,
 such as `latest.release` or `2.+`,
