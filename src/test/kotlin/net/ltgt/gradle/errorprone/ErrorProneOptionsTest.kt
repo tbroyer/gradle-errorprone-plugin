@@ -16,6 +16,7 @@ class ErrorProneOptionsTest {
         doTestOptions { allDisabledChecksAsWarnings = true }
         doTestOptions { disableWarningsInGeneratedCode = true }
         doTestOptions { ignoreUnknownCheckNames = true }
+        doTestOptions { ignoreSuppressionAnnotations = true }
         doTestOptions { isCompilingTestOnlyCode = true }
         doTestOptions { excludedPaths = ".*/build/generated/.*" }
         doTestOptions { check("ArrayEquals") }
@@ -34,6 +35,7 @@ class ErrorProneOptionsTest {
             allDisabledChecksAsWarnings = true
             disableWarningsInGeneratedCode = true
             ignoreUnknownCheckNames = true
+            ignoreSuppressionAnnotations = true
             isCompilingTestOnlyCode = true
             excludedPaths = ".*/build/generated/.*"
             check("BetaApi")
@@ -139,6 +141,7 @@ class ErrorProneOptionsTest {
         assertThat(parsedOptions.isEnableAllChecksAsWarnings).isEqualTo(options.allDisabledChecksAsWarnings)
         assertThat(parsedOptions.disableWarningsInGeneratedCode()).isEqualTo(options.disableWarningsInGeneratedCode)
         assertThat(parsedOptions.ignoreUnknownChecks()).isEqualTo(options.ignoreUnknownCheckNames)
+        assertThat(parsedOptions.isIgnoreSuppressionAnnotations).isEqualTo(options.ignoreSuppressionAnnotations)
         assertThat(parsedOptions.isTestOnlyTarget).isEqualTo(options.isCompilingTestOnlyCode)
         assertThat(parsedOptions.excludedPattern?.pattern()).isEqualTo(options.excludedPaths)
         assertThat(parsedOptions.severityMap).containsExactlyEntriesIn(options.checks.mapValues { it.value.toSeverity() })

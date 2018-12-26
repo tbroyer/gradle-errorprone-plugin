@@ -16,6 +16,7 @@ open class ErrorProneOptions {
     @get:Input var allDisabledChecksAsWarnings: Boolean = false
     @get:Input var disableWarningsInGeneratedCode: Boolean = false
     @get:Input var ignoreUnknownCheckNames: Boolean = false
+    @get:Input var ignoreSuppressionAnnotations: Boolean = false
     @get:Input var isCompilingTestOnlyCode: Boolean = false
     @get:Input @get:Optional var excludedPaths: String? = null
     @get:Input var checks: MutableMap<String, CheckSeverity> = linkedMapOf()
@@ -56,6 +57,7 @@ open class ErrorProneOptions {
                 "-XepAllDisabledChecksAsWarnings".takeIf { allDisabledChecksAsWarnings },
                 "-XepDisableWarningsInGeneratedCode".takeIf { disableWarningsInGeneratedCode },
                 "-XepIgnoreUnknownCheckNames".takeIf { ignoreUnknownCheckNames },
+                "-XepIgnoreSuppressionAnnotations".takeIf { ignoreSuppressionAnnotations },
                 "-XepCompilingTestOnlyCode".takeIf { isCompilingTestOnlyCode },
                 "-XepExcludedPaths:$excludedPaths".takeUnless { excludedPaths.isNullOrEmpty() }
             ).filterNotNull() +
