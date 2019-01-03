@@ -35,8 +35,14 @@ val errorproneJavacVersion = "9+181-r4173-1"
 val androidPluginVersion = "3.1.4"
 
 repositories {
-    jcenter()
+    mavenCentral()
     google()
+    jcenter() {
+        content {
+            onlyForConfigurations("ktlint")
+            includeModule("com.andreapivetta.kolor", "kolor")
+        }
+    }
 }
 dependencies {
     compileOnly("com.android.tools.build:gradle:$androidPluginVersion") {

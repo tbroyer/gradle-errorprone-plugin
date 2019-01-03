@@ -15,7 +15,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             }
 
             repositories {
-                jcenter()
+                mavenCentral()
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
@@ -59,7 +59,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             }
 
             repositories {
-                jcenter()
+                mavenCentral()
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")

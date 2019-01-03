@@ -14,7 +14,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     override val additionalPluginManagementRepositories: String
         get() = """
             google()
-            jcenter()
+            mavenCentral()
         """
 
     override val additionalPluginManagementResolutionStrategyEachPlugin: String
@@ -52,7 +52,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
             }
 
             repositories {
-                jcenter()
+                mavenCentral()
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")

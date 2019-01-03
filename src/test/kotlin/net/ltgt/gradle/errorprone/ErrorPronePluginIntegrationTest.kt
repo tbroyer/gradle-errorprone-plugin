@@ -16,7 +16,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
                 id("${ErrorPronePlugin.PLUGIN_ID}")
             }
             repositories {
-                jcenter()
+                mavenCentral()
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
@@ -100,7 +100,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
                     java
                 }
                 repositories {
-                    jcenter()
+                    mavenCentral()
                 }
                 dependencies {
                     compileOnly("com.google.errorprone:error_prone_check_api:$errorproneVersion")

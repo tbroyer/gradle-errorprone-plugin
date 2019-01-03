@@ -45,7 +45,7 @@ class DeprecatedPluginsIntegrationTest : AbstractPluginIntegrationTest() {
                 id("${ErrorProneJavacPluginPlugin.PLUGIN_ID}")
             }
             repositories {
-                jcenter()
+                mavenCentral()
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
