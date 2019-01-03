@@ -69,7 +69,7 @@ tasks {
         dependsOn("publishErrorprone-javacpluginPluginMarkerMavenPublicationToTestRepository")
     }
 
-    "test"(Test::class) {
+    test {
         dependsOn(publishPluginsToTestRepository)
 
         val testJavaHome = project.findProperty("test.java-home")
@@ -144,7 +144,7 @@ tasks {
         main = "com.github.shyiko.ktlint.Main"
         args("**/*.gradle.kts", "**/*.kt")
     }
-    "check" {
+    check {
         dependsOn(verifyKtlint)
     }
 
