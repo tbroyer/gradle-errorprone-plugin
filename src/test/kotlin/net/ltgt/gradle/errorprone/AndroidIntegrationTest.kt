@@ -42,10 +42,10 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
             }
 
             android {
-                compileSdkVersion(27)
+                compileSdkVersion(28)
                 defaultConfig {
                     minSdkVersion(15)
-                    targetSdkVersion(27)
+                    targetSdkVersion(28)
                     versionCode = 1
                     versionName = "1.0"
                 }
@@ -53,6 +53,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
 
             repositories {
                 mavenCentral()
+                google()
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")

@@ -32,7 +32,7 @@ gradle.taskGraph.whenReady {
 
 val errorproneVersion = "2.3.2"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.1.4"
+val androidPluginVersion = "3.2.1"
 
 repositories {
     mavenCentral()
@@ -140,7 +140,7 @@ pluginBundle {
 val ktlint by configurations.creating
 
 dependencies {
-    ktlint("com.github.shyiko:ktlint:0.27.0")
+    ktlint("com.github.shyiko:ktlint:0.29.0")
 }
 
 tasks {
