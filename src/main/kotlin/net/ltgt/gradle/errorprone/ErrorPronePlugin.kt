@@ -7,6 +7,8 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.api.TestVariant
+import com.android.build.gradle.api.UnitTestVariant
 import java.util.concurrent.atomic.AtomicBoolean
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.JavaVersion
@@ -120,19 +122,24 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
 
         arrayOf("application", "library", "feature", "test", "instantapp").forEach {
             project.plugins.withId("com.android.$it") {
-                val configure: BaseVariant.() -> Unit = {
+                fun BaseVariant.configure() {
                     annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
-                    (javaCompiler as? JavaCompile)?.options?.errorprone?.isEnabled = true
+                    (javaCompiler as? JavaCompile)?.options?.errorprone?.apply {
+                        isEnabled = true
+                        if (this@configure is TestVariant || this@configure is UnitTestVariant) {
+                            isCompilingTestOnlyCode = true
+                        }
+                    }
                 }
 
                 val android = project.extensions.getByName<BaseExtension>("android")
-                (android as? AppExtension)?.applicationVariants?.configureElement(configure)
-                (android as? LibraryExtension)?.libraryVariants?.configureElement(configure)
-                (android as? FeatureExtension)?.featureVariants?.configureElement(configure)
-                (android as? TestExtension)?.applicationVariants?.configureElement(configure)
+                (android as? AppExtension)?.applicationVariants?.configureElement(BaseVariant::configure)
+                (android as? LibraryExtension)?.libraryVariants?.configureElement(BaseVariant::configure)
+                (android as? FeatureExtension)?.featureVariants?.configureElement(BaseVariant::configure)
+                (android as? TestExtension)?.applicationVariants?.configureElement(BaseVariant::configure)
                 if (android is TestedExtension) {
-                    android.testVariants.configureElement(configure)
-                    android.unitTestVariants.configureElement(configure)
+                    android.testVariants.configureElement(BaseVariant::configure)
+                    android.unitTestVariants.configureElement(BaseVariant::configure)
                 }
             }
         }
