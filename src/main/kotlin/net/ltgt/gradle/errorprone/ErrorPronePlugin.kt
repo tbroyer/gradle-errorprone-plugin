@@ -62,11 +62,19 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         }
 
         val errorproneConfiguration = project.configurations.create(CONFIGURATION_NAME) {
+            description = "Error Prone dependencies, will be extended by all source sets' annotationProcessor configurations"
             isVisible = false
+            isCanBeConsumed = false
+            // This configuration is not meant to be resolved, but there's no reason it couldn't be (and there's a test that does this)
+            isCanBeResolved = true
+
             exclude(group = "com.google.errorprone", module = "javac")
         }
         val javacConfiguration = project.configurations.create(JAVAC_CONFIGURATION_NAME) {
+            description = "Error Prone Javac dependencies, will only be used when using JDK 8 (i.e. not JDK 9 or superior)"
             isVisible = false
+            isCanBeConsumed = false
+            isCanBeResolved = true
         }
 
         val noJavacDependencyNotified = AtomicBoolean()
