@@ -50,7 +50,7 @@ abstract class AbstractPluginIntegrationTest {
                     }
                     resolutionStrategy {
                         eachPlugin {
-                            if (requested.id.id in listOf("${ErrorPronePlugin.PLUGIN_ID}", "${ErrorProneBasePlugin.PLUGIN_ID}", "${ErrorProneJavacPluginPlugin.PLUGIN_ID}")) {
+                            if (requested.id.id == "${ErrorPronePlugin.PLUGIN_ID}") {
                                 useVersion("$pluginVersion")
                             }
                             $additionalPluginManagementResolutionStrategyEachPlugin

@@ -71,8 +71,6 @@ tasks {
     val publishPluginsToTestRepository by registering {
         dependsOn("publishPluginMavenPublicationToTestRepository")
         dependsOn("publishErrorpronePluginMarkerMavenPublicationToTestRepository")
-        dependsOn("publishErrorprone-basePluginMarkerMavenPublicationToTestRepository")
-        dependsOn("publishErrorprone-javacpluginPluginMarkerMavenPublicationToTestRepository")
     }
 
     test {
@@ -111,16 +109,6 @@ gradlePlugin {
             id = "net.ltgt.errorprone"
             displayName = "Gradle error-prone plugin"
             implementationClass = "net.ltgt.gradle.errorprone.ErrorPronePlugin"
-        }
-        register("errorprone-base") {
-            id = "net.ltgt.errorprone-base"
-            displayName = "Gradle error-prone base plugin"
-            implementationClass = "net.ltgt.gradle.errorprone.ErrorProneBasePlugin"
-        }
-        register("errorprone-javacplugin") {
-            id = "net.ltgt.errorprone-javacplugin"
-            displayName = "Gradle error-prone plugin (as a javac plugin)"
-            implementationClass = "net.ltgt.gradle.errorprone.ErrorProneJavacPluginPlugin"
         }
     }
 }
