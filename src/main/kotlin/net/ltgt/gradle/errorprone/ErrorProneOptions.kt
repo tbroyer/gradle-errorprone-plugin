@@ -9,20 +9,20 @@ import org.gradle.api.tasks.compile.CompileOptions
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 
-open class ErrorProneOptions(
-    @get:Input var isEnabled: Boolean = false,
-    @get:Input var disableAllChecks: Boolean = false,
-    @get:Input var allErrorsAsWarnings: Boolean = false,
-    @get:Input var allDisabledChecksAsWarnings: Boolean = false,
-    @get:Input var disableWarningsInGeneratedCode: Boolean = false,
-    @get:Input var ignoreUnknownCheckNames: Boolean = false,
-    @get:Input var isCompilingTestOnlyCode: Boolean = false,
-    @get:Input @get:Optional var excludedPaths: String? = null,
-    @get:Input var checks: MutableMap<String, CheckSeverity> = linkedMapOf(),
-    @get:Input var checkOptions: MutableMap<String, String> = linkedMapOf(),
-    @get:Input var errorproneArgs: MutableList<String> = arrayListOf(),
+open class ErrorProneOptions {
+    @get:Input var isEnabled: Boolean = false
+    @get:Input var disableAllChecks: Boolean = false
+    @get:Input var allErrorsAsWarnings: Boolean = false
+    @get:Input var allDisabledChecksAsWarnings: Boolean = false
+    @get:Input var disableWarningsInGeneratedCode: Boolean = false
+    @get:Input var ignoreUnknownCheckNames: Boolean = false
+    @get:Input var isCompilingTestOnlyCode: Boolean = false
+    @get:Input @get:Optional var excludedPaths: String? = null
+    @get:Input var checks: MutableMap<String, CheckSeverity> = linkedMapOf()
+    @get:Input var checkOptions: MutableMap<String, String> = linkedMapOf()
+    @get:Input var errorproneArgs: MutableList<String> = arrayListOf()
     @get:Nested val errorproneArgumentProviders: MutableList<CommandLineArgumentProvider> = arrayListOf()
-) {
+
     companion object {
         const val NAME = "errorprone"
 
