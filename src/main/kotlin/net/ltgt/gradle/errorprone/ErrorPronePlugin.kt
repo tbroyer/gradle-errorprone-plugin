@@ -79,8 +79,8 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
 
         val noJavacDependencyNotified = AtomicBoolean()
         project.tasks.withType<JavaCompile>().configureElement {
-            val errorproneOptions =
-                (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
+            val errorproneOptions = ErrorProneOptions()
+            (options as ExtensionAware).extensions.add(ErrorProneOptions.NAME, errorproneOptions)
             options
                 .compilerArgumentProviders
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
