@@ -13,7 +13,7 @@ abstract class AbstractPluginIntegrationTest {
 
     companion object {
         internal val testJavaHome: String? = System.getProperty("test.java-home")
-        private val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
+        internal val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
         private val pluginVersion = System.getProperty("plugin.version")!!
 
         internal val errorproneVersion = System.getProperty("errorprone.version")!!

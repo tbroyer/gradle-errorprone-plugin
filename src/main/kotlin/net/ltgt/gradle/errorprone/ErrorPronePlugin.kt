@@ -132,10 +132,12 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             project.plugins.withId("com.android.$it") {
                 fun BaseVariant.configure() {
                     annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
-                    (javaCompiler as? JavaCompile)?.options?.errorprone?.apply {
-                        isEnabled = true
-                        if (this@configure is TestVariant || this@configure is UnitTestVariant) {
-                            isCompilingTestOnlyCode = true
+                    javaCompileProvider.configure {
+                        options.errorprone {
+                            isEnabled = true
+                            if (this@configure is TestVariant || this@configure is UnitTestVariant) {
+                                isCompilingTestOnlyCode = true
+                            }
                         }
                     }
                 }

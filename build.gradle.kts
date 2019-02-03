@@ -32,7 +32,7 @@ gradle.taskGraph.whenReady {
 
 val errorproneVersion = "2.3.2"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.2.1"
+val androidPluginVersion = "3.3.0"
 
 repositories {
     mavenCentral()
@@ -46,10 +46,9 @@ repositories {
 }
 dependencies {
     compileOnly("com.android.tools.build:gradle:$androidPluginVersion") {
-        exclude(module = "kotlin-stdlib-jre8").because(
-            "kotlin-stdlib-jreN is deprecated, " +
-                "it's safe to exclude because we have kotlin-stdlib-jdk8 in the classpath through the `embedded-kotlin` plugin"
-        )
+        // com.android.tools.build:builder bundles the Kotlin runtime
+        // This produces a warning that breaks the build due to kotlinOptions.allWarningsAsErrors
+        isTransitive = false
     }
     testRuntimeOnly("com.android.tools.build:gradle:$androidPluginVersion")
 
