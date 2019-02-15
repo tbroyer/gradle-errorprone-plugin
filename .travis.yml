@@ -26,7 +26,7 @@ matrix:
       env: GRADLE_VERSION=4.7
 
 install: true
-script: ./gradlew build -Ptest.gradle-version=$GRADLE_VERSION
+script: ./gradlew --scan build -Ptest.gradle-version=$GRADLE_VERSION
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
