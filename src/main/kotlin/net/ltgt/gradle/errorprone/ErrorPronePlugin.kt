@@ -23,6 +23,7 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.compile.ForkOptions
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
@@ -89,7 +90,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
                 // We don't know yet whether the task will use the same JVM (and need the Error Prone javac),
                 // but chances are really high that this will be the case, so configure task inputs anyway.
-                inputs.files(javacConfiguration)
+                inputs.files(javacConfiguration).withPropertyName(JAVAC_CONFIGURATION_NAME).withPathSensitivity(PathSensitivity.NAME_ONLY)
                 doFirst("configure errorprone in bootclasspath") {
                     if (options.errorprone.isEnabled &&
                         (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null))) {
