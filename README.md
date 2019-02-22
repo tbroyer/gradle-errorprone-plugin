@@ -183,12 +183,27 @@ If you need it, you can configure the bootstrap classpath manually for those tas
 someTask.configure {
     // …
 
-    inputs.files(configurations.errorproneJavac)
+    inputs.files(configurations.errorproneJavac).withNormalizer(ClasspathNormalizer)
     doFirst {
-        options.forkOptions.jvmArgs.add("-Xbootclasspath/p:${configurations.errorproneJavac.asPath}")
+        options.forkOptions.jvmArgs += "-Xbootclasspath/p:${configurations.errorproneJavac.asPath}"
     }
 }
 ```
+<details>
+<summary>with Kotlin DSL</summary>
+
+```kotlin
+someTask.configure {
+    // …
+
+    inputs.files(configurations.errorproneJavac).withNormalizer(ClasspathNormalizer::class)
+    doFirst {
+        options.forkOptions.jvmArgs.add("-Xbootclasspath/p:${configurations["errorproneJavac"].asPath}")
+    }
+}
+```
+
+</details>
 (if you're using `forkOptions.executable`, then use `-J-Xbootclasspath/p:` instead.)
 
 [CompileOptions.fork]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:fork

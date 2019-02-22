@@ -256,4 +256,56 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
         }
     }
+
+    @Test
+    fun `is build-cache friendly`() {
+        assume().that(testJavaHome).named("test.java-home").isNull()
+        assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
+
+        // given
+        settingsFile.appendText("""
+
+            buildCache {
+                local(DirectoryBuildCache::class.java) {
+                    directory = file("build-cache")
+                }
+            }
+        """.trimIndent())
+
+        // Prime the build cache
+
+        // when
+        buildWithArgs("--build-cache", "compileJava", "-PrenamePrefix=").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+            assertThat(result.output).contains(FORKED)
+            assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
+        }
+
+        // Move the errorproneJavac dependency: first remove it, then add it back… differently
+        buildFile.writeText(buildFile.readLines().filterNot {
+            it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
+        }.joinToString(separator = "\n", postfix = """
+
+            val epJavac by configurations.creating
+            val moveEpJavac by tasks.creating(Copy::class) {
+                from(epJavac)
+                // destinationDir chosen to match JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC
+                into(file("javac/com.google.errorprone/javac/$errorproneJavacVersion/foo/"))
+                rename { "${'$'}{project.property("renamePrefix")}${'$'}it" }
+            }
+            dependencies {
+                epJavac("com.google.errorprone:javac:$errorproneJavacVersion")
+                errorproneJavac(fileTree(moveEpJavac.destinationDir).builtBy(moveEpJavac))
+            }
+        """.trimIndent()))
+
+        // when
+        testProjectDir.root.resolve("build/").deleteRecursively()
+        testProjectDir.root.resolve("javac/").deleteRecursively()
+        buildWithArgs("--build-cache", "compileJava", "-PrenamePrefix=renamed-").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
+        }
+    }
 }
