@@ -275,7 +275,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // Prime the build cache
 
         // when
-        buildWithArgs("--build-cache", "compileJava", "-PrenamePrefix=").also { result ->
+        buildWithArgs("--build-cache", "compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
@@ -292,7 +292,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
                 from(epJavac)
                 // destinationDir chosen to match JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC
                 into(file("javac/com.google.errorprone/javac/$errorproneJavacVersion/foo/"))
-                rename { "${'$'}{project.property("renamePrefix")}${'$'}it" }
+                rename { "renamed-${'$'}it" }
             }
             dependencies {
                 epJavac("com.google.errorprone:javac:$errorproneJavacVersion")
@@ -303,7 +303,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // when
         testProjectDir.root.resolve("build/").deleteRecursively()
         testProjectDir.root.resolve("javac/").deleteRecursively()
-        buildWithArgs("--build-cache", "compileJava", "-PrenamePrefix=renamed-").also { result ->
+        buildWithArgs("--build-cache", "compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
         }
