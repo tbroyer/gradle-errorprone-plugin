@@ -33,7 +33,7 @@ gradle.taskGraph.whenReady {
 
 val errorproneVersion = "2.3.2"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.3.0"
+val androidPluginVersion = "3.3.1"
 
 repositories {
     mavenCentral()
@@ -46,11 +46,7 @@ repositories {
     }
 }
 dependencies {
-    compileOnly("com.android.tools.build:gradle:$androidPluginVersion") {
-        // com.android.tools.build:builder bundles the Kotlin runtime
-        // This produces a warning that breaks the build due to kotlinOptions.allWarningsAsErrors
-        isTransitive = false
-    }
+    compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
     testRuntimeOnly("com.android.tools.build:gradle:$androidPluginVersion")
 
     testImplementation("junit:junit:4.12")
