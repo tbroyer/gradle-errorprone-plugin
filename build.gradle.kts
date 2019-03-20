@@ -33,7 +33,7 @@ gradle.taskGraph.whenReady {
 
 val errorproneVersion = "2.3.3"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.3.1"
+val androidPluginVersion = "3.3.2"
 
 repositories {
     mavenCentral()
