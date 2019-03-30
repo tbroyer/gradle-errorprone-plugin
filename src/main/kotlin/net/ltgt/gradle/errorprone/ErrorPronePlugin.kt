@@ -18,10 +18,10 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.ForkOptions
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
@@ -50,8 +50,8 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
     }
 
     override fun apply(project: Project) {
-        if (GradleVersion.current() < GradleVersion.version("4.6")) {
-            throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 4.6")
+        if (GradleVersion.current() < GradleVersion.version("4.10")) {
+            throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 4.10")
         }
 
         val errorproneConfiguration = project.configurations.create(CONFIGURATION_NAME) {
@@ -71,7 +71,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         }
 
         val noJavacDependencyNotified = AtomicBoolean()
-        project.tasks.withType<JavaCompile>().configureElement {
+        project.tasks.withType<JavaCompile>().configureEach {
             val errorproneOptions =
                 // XXX: service injection was added in Gradle 5.2, remove project.objects argument when changing min version
                 (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java, project.objects)
@@ -79,8 +79,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 .compilerArgumentProviders
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
 
-            // XXX: isJava8 isn't available in Gradle 4.6
-            if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
+            if (JavaVersion.current().isJava8) {
                 // We don't know yet whether the task will use the same JVM (and need the Error Prone javac),
                 // but chances are really high that this will be the case, so configure task inputs anyway.
                 inputs.files(javacConfiguration).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
@@ -106,18 +105,18 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         }
 
         project.plugins.withType<JavaBasePlugin> {
-            // XXX: move to project.extensions.getByName<SourceSetContainer>("sourceSets") when changing min version to 4.10+
-            val java = project.convention.getPlugin<JavaPluginConvention>()
-            java.sourceSets.configureElement {
+            project.extensions.getByName<SourceSetContainer>("sourceSets").configureEach {
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
-                project.configureTask<JavaCompile>(compileJavaTaskName) {
+                // XXX: move to tasks.named<JavaCompile>(compileJavaTaskName) { … } when changing min version to 5.+
+                project.tasks.withType<JavaCompile>().named(compileJavaTaskName).configure {
                     options.errorprone.isEnabled.byConvention(true)
                 }
             }
         }
 
         project.plugins.withType<JavaPlugin> {
-            project.configureTask<JavaCompile>(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME) {
+            // XXX: move to tasks.named<JavaCompile>(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME) { … } when changing min version 5.+
+            project.tasks.withType<JavaCompile>().named(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME).configure {
                 options.errorprone.isCompilingTestOnlyCode.byConvention(true)
             }
         }
@@ -137,13 +136,13 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 }
 
                 val android = project.extensions.getByName<BaseExtension>("android")
-                (android as? AppExtension)?.applicationVariants?.configureElement(BaseVariant::configure)
-                (android as? LibraryExtension)?.libraryVariants?.configureElement(BaseVariant::configure)
-                (android as? FeatureExtension)?.featureVariants?.configureElement(BaseVariant::configure)
-                (android as? TestExtension)?.applicationVariants?.configureElement(BaseVariant::configure)
+                (android as? AppExtension)?.applicationVariants?.configureEach(BaseVariant::configure)
+                (android as? LibraryExtension)?.libraryVariants?.configureEach(BaseVariant::configure)
+                (android as? FeatureExtension)?.featureVariants?.configureEach(BaseVariant::configure)
+                (android as? TestExtension)?.applicationVariants?.configureEach(BaseVariant::configure)
                 if (android is TestedExtension) {
-                    android.testVariants.configureElement(BaseVariant::configure)
-                    android.unitTestVariants.configureElement(BaseVariant::configure)
+                    android.testVariants.configureEach(BaseVariant::configure)
+                    android.unitTestVariants.configureEach(BaseVariant::configure)
                 }
             }
         }

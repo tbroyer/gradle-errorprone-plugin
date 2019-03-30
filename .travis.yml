@@ -10,22 +10,11 @@ jdk:
   - openjdk11
 
 env:
-  - GRADLE_VERSION=4.6
-  - GRADLE_VERSION=4.7
-  - GRADLE_VERSION=4.8.1
-  - GRADLE_VERSION=4.9
   - GRADLE_VERSION=4.10.2
   - GRADLE_VERSION=5.0
   - GRADLE_VERSION=5.1.1
   - GRADLE_VERSION=5.2.1
   - GRADLE_VERSION=5.3
-
-matrix:
-  exclude:
-    - jdk: openjdk11
-      env: GRADLE_VERSION=4.6
-    - jdk: openjdk11
-      env: GRADLE_VERSION=4.7
 
 install: true
 script: ./gradlew --scan build -Ptest.gradle-version=$GRADLE_VERSION

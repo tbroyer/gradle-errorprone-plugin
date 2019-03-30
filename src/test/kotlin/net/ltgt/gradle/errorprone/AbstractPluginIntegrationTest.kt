@@ -19,9 +19,6 @@ abstract class AbstractPluginIntegrationTest {
         internal val errorproneVersion = System.getProperty("errorprone.version")!!
         internal val errorproneJavacVersion = System.getProperty("errorprone-javac.version")!!
 
-        internal val supportsLazyTasks = supportsLazyTasks(GradleVersion.version(testGradleVersion))
-        internal val configureEachIfSupported = ".configureEach".takeIf { supportsLazyTasks }.orEmpty()
-
         internal const val FAILURE_SOURCE_COMPILATION_ERROR = "Failure.java:6: error: [ArrayEquals]"
     }
 
@@ -115,7 +112,7 @@ abstract class AbstractPluginIntegrationTest {
         testJavaHome?.also {
             buildFile.appendText("""
 
-                tasks.withType<JavaCompile>()$configureEachIfSupported {
+                tasks.withType<JavaCompile>().configureEach {
                     options.isFork = true
                     options.forkOptions.javaHome = File(""${'"'}${it.replace("\$", "\${'\$'}")}${'"'}"")
                 }

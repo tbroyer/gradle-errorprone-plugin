@@ -16,7 +16,7 @@ kotlinDslPluginOptions {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    // This is the version used in Gradle 4.6, for backwards compatibility when we'll upgrade
+    // This is the version used in Gradle 4.10, for backwards compatibility when we'll upgrade
     kotlinOptions.apiVersion = "1.2"
 
     kotlinOptions.allWarningsAsErrors = true
