@@ -91,5 +91,5 @@ enum class CheckSeverity {
 val CompileOptions.errorprone: ErrorProneOptions
     get() = (this as ExtensionAware).extensions.getByName<ErrorProneOptions>(ErrorProneOptions.NAME)
 
-operator fun ErrorProneOptions.invoke(configure: ErrorProneOptions.() -> Unit): ErrorProneOptions =
-    apply(configure)
+fun CompileOptions.errorprone(action: ErrorProneOptions.() -> Unit) =
+    (this as ExtensionAware).extensions.configure(ErrorProneOptions.NAME, action)

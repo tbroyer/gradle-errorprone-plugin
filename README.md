@@ -50,7 +50,7 @@ tasks.withType(JavaCompile).configureEach {
 <summary>with Kotlin DSL</summary>
 
 ```kotlin
-import net.ltgt.gradle.errorprone.*
+import net.ltgt.gradle.errorprone.errorprone
 
 tasks.withType<JavaCompile>().configureEach {
     options.errorprone.disableWarningsInGeneratedCode.set(true)
@@ -313,7 +313,7 @@ or script block (`options.errorprone { … }`).
 
 In a `*.gradle.kts` script, the Kotlin extensions need to be imported:
 ```kotlin
-import net.ltgt.gradle.errorprone.*
+import net.ltgt.gradle.errorprone.errorprone
 ```
 
 ### Properties
