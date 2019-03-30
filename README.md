@@ -69,7 +69,7 @@ tasks.named("compileTestJava").configure {
 <summary>with Kotlin DSL</summary>
 
 ```kotlin
-tasks.named("compileTestJava", JavaCompile::class) {
+tasks.named<JavaCompile>("compileTestJava") {
     options.errorprone.isEnabled.set(false)
 }
 ```
