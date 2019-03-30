@@ -19,7 +19,7 @@ abstract class AbstractPluginIntegrationTest {
         internal val errorproneVersion = System.getProperty("errorprone.version")!!
         internal val errorproneJavacVersion = System.getProperty("errorprone-javac.version")!!
 
-        internal val supportsLazyTasks = ErrorPronePlugin.supportsLazyTasks(GradleVersion.version(testGradleVersion))
+        internal val supportsLazyTasks = supportsLazyTasks(GradleVersion.version(testGradleVersion))
         internal val configureEachIfSupported = ".configureEach".takeIf { supportsLazyTasks }.orEmpty()
 
         internal const val FAILURE_SOURCE_COMPILATION_ERROR = "Failure.java:6: error: [ArrayEquals]"
@@ -126,5 +126,6 @@ abstract class AbstractPluginIntegrationTest {
             .withGradleVersion(testGradleVersion)
             .withProjectDir(testProjectDir.root)
             .withArguments(*tasks)
+            .forwardOutput()
     }
 }

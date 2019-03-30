@@ -10,12 +10,10 @@ import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
 import com.android.build.gradle.api.UnitTestVariant
 import java.util.concurrent.atomic.AtomicBoolean
-import org.gradle.api.DomainObjectCollection
 import org.gradle.api.JavaVersion
 import org.gradle.api.Named
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
@@ -38,12 +36,6 @@ class ErrorPronePlugin : Plugin<Project> {
         const val CONFIGURATION_NAME = "errorprone"
 
         const val JAVAC_CONFIGURATION_NAME = "errorproneJavac"
-
-        private val MIN_GRADLE_VERSION_WITH_LAZY_TASKS = GradleVersion.version("4.9")
-
-        internal fun supportsLazyTasks(version: GradleVersion) = version >= MIN_GRADLE_VERSION_WITH_LAZY_TASKS
-
-        private val SUPPORTS_LAZY_TASKS = supportsLazyTasks(GradleVersion.current())
 
         private val LOGGER = Logging.getLogger(ErrorPronePlugin::class.java)
 
@@ -81,7 +73,8 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         val noJavacDependencyNotified = AtomicBoolean()
         project.tasks.withType<JavaCompile>().configureElement {
             val errorproneOptions =
-                (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
+                // XXX: service injection was added in Gradle 5.2, remove project.objects argument when changing min version
+                (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java, project.objects)
             options
                 .compilerArgumentProviders
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
@@ -92,7 +85,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 // but chances are really high that this will be the case, so configure task inputs anyway.
                 inputs.files(javacConfiguration).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
                 doFirst("configure errorprone in bootclasspath") {
-                    if (options.errorprone.isEnabled &&
+                    if (options.errorprone.isEnabled.getOrElse(false) &&
                         (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null))) {
                         // We now know that we need the Error Prone javac
                         if (!options.isFork) {
@@ -118,14 +111,14 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             java.sourceSets.configureElement {
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
                 project.configureTask<JavaCompile>(compileJavaTaskName) {
-                    options.errorprone.isEnabled = true
+                    options.errorprone.isEnabled.byConvention(true)
                 }
             }
         }
 
         project.plugins.withType<JavaPlugin> {
             project.configureTask<JavaCompile>(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME) {
-                options.errorprone.isCompilingTestOnlyCode = true
+                options.errorprone.isCompilingTestOnlyCode.byConvention(true)
             }
         }
 
@@ -135,9 +128,9 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                     annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
                     javaCompileProvider.configure {
                         options.errorprone {
-                            isEnabled = true
+                            isEnabled.byConvention(true)
                             if (this@configure is TestVariant || this@configure is UnitTestVariant) {
-                                isCompilingTestOnlyCode = true
+                                isCompilingTestOnlyCode.byConvention(true)
                             }
                         }
                     }
@@ -155,26 +148,11 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             }
         }
     }
-
-    private inline fun <reified T : Task> Project.configureTask(taskName: String, noinline action: T.() -> Unit) {
-        if (SUPPORTS_LAZY_TASKS) {
-            tasks.withType(T::class.java).named(taskName).configure(action)
-        } else {
-            tasks.withType(T::class.java).getByName(taskName, action)
-        }
-    }
-
-    private fun <T> DomainObjectCollection<out T>.configureElement(action: T.() -> Unit) {
-        if (SUPPORTS_LAZY_TASKS) {
-            this.configureEach(action)
-        } else {
-            this.all(action)
-        }
-    }
 }
 
-internal class ErrorProneCompilerArgumentProvider(private val errorproneOptions: ErrorProneOptions) :
-    CommandLineArgumentProvider, Named {
+internal class ErrorProneCompilerArgumentProvider(
+    private val errorproneOptions: ErrorProneOptions
+) : CommandLineArgumentProvider, Named {
 
     override fun getName(): String = "errorprone"
 
@@ -182,12 +160,12 @@ internal class ErrorProneCompilerArgumentProvider(private val errorproneOptions:
     @Nested
     @Optional
     fun getErrorproneOptions(): ErrorProneOptions? {
-        return errorproneOptions.takeIf { it.isEnabled }
+        return errorproneOptions.takeIf { it.isEnabled.getOrElse(false) }
     }
 
     override fun asArguments(): Iterable<String> {
         return when {
-            errorproneOptions.isEnabled -> listOf("-Xplugin:ErrorProne $errorproneOptions", "-XDcompilePolicy=simple")
+            errorproneOptions.isEnabled.getOrElse(false) -> listOf("-Xplugin:ErrorProne $errorproneOptions", "-XDcompilePolicy=simple")
             else -> emptyList()
         }
     }

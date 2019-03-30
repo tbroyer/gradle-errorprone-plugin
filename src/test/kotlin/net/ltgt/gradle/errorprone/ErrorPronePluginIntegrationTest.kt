@@ -76,7 +76,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText("""
 
             tasks.withType<JavaCompile>()$configureEachIfSupported {
-                options.errorprone.isEnabled = false
+                options.errorprone.isEnabled.set(false)
             }
         """.trimIndent())
         writeFailureSource()

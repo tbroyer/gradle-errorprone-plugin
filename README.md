@@ -53,7 +53,7 @@ tasks.withType(JavaCompile).configureEach {
 import net.ltgt.gradle.errorprone.*
 
 tasks.withType<JavaCompile>().configureEach {
-    options.errorprone.disableWarningsInGeneratedCode = true
+    options.errorprone.disableWarningsInGeneratedCode.set(true)
 }
 ```
 
@@ -70,7 +70,7 @@ tasks.named("compileTestJava").configure {
 
 ```kotlin
 tasks.named("compileTestJava", JavaCompile::class) {
-    options.errorprone.isEnabled = false
+    options.errorprone.isEnabled.set(false)
 }
 ```
 
@@ -113,9 +113,9 @@ tasks.register<JavaCompile>("compileCustom") {
     // Error Prone must be available in the annotation processor path
     options.annotationProcessorPath = configurations["errorprone"]
     // Enable Error Prone
-    options.errorprone.isEnabled = true
+    options.errorprone.isEnabled.set(true)
     // It can then be configured for the task
-    options.errorprone.disableWarningsInGeneratedCode = true
+    options.errorprone.disableWarningsInGeneratedCode.set(true)
 }
 ```
 
@@ -136,7 +136,7 @@ afterEvaluate {
 ```kotlin
 afterEvaluate {
     tasks.withType<JavaCompile>().configureEach {
-        options.errorprone.disableWarningsInGeneratedCode = true
+        options.errorprone.disableWarningsInGeneratedCode.set(true)
     }
 }
 ```

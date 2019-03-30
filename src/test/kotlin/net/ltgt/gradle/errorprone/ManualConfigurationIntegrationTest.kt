@@ -31,8 +31,8 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 options.annotationProcessorPath = configurations["errorprone"]
 
                 options.errorprone {
-                    isEnabled = true
-                    disableAllChecks = true
+                    isEnabled.set(true)
+                    disableAllChecks.set(true)
                     check("ArrayEquals", CheckSeverity.ERROR)
                 }
             }
@@ -73,7 +73,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 options.annotationProcessorPath = configurations["errorprone"]
 
                 options.errorprone {
-                    disableAllChecks = true
+                    disableAllChecks.set(true)
                     check("ArrayEquals", CheckSeverity.ERROR)
                 }
             }
@@ -93,7 +93,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
         // given
         buildFile.appendText("""
 
-            customCompileJava.options.errorprone.isEnabled = true
+            customCompileJava.options.errorprone.isEnabled.set(true)
         """.trimIndent())
 
         // when

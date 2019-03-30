@@ -113,7 +113,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // given
         buildFile.appendText("""
 
-            compileJava.options.errorprone.isEnabled = false
+            compileJava.options.errorprone.isEnabled.set(false)
         """.trimIndent())
 
         // when

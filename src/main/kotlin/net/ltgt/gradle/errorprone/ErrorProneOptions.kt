@@ -1,7 +1,9 @@
 package net.ltgt.gradle.errorprone
 
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
@@ -9,19 +11,21 @@ import org.gradle.api.tasks.compile.CompileOptions
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 
-open class ErrorProneOptions {
-    @get:Input var isEnabled: Boolean = false
-    @get:Input var disableAllChecks: Boolean = false
-    @get:Input var allErrorsAsWarnings: Boolean = false
-    @get:Input var allDisabledChecksAsWarnings: Boolean = false
-    @get:Input var disableWarningsInGeneratedCode: Boolean = false
-    @get:Input var ignoreUnknownCheckNames: Boolean = false
-    @get:Input var ignoreSuppressionAnnotations: Boolean = false
-    @get:Input var isCompilingTestOnlyCode: Boolean = false
-    @get:Input @get:Optional var excludedPaths: String? = null
+open class ErrorProneOptions constructor(
+    objectFactory: ObjectFactory
+) {
+    @get:Input val isEnabled = objectFactory.property<Boolean>().byConvention(false)
+    @get:Input val disableAllChecks = objectFactory.property<Boolean>().byConvention(false)
+    @get:Input val allErrorsAsWarnings = objectFactory.property<Boolean>().byConvention(false)
+    @get:Input val allDisabledChecksAsWarnings = objectFactory.property<Boolean>().byConvention(false)
+    @get:Input val disableWarningsInGeneratedCode = objectFactory.property<Boolean>().byConvention(false)
+    @get:Input val ignoreUnknownCheckNames = objectFactory.property<Boolean>().byConvention(false)
+    @get:Input val ignoreSuppressionAnnotations = objectFactory.property<Boolean>().byConvention(false)
+    @get:Input val isCompilingTestOnlyCode = objectFactory.property<Boolean>().byConvention(false)
+    @get:Input @get:Optional val excludedPaths = objectFactory.property<String>()
     @get:Input var checks: MutableMap<String, CheckSeverity> = linkedMapOf()
     @get:Input var checkOptions: MutableMap<String, String> = linkedMapOf()
-    @get:Input var errorproneArgs: MutableList<String> = arrayListOf()
+    @get:Input val errorproneArgs = objectFactory.listProperty<String>().setEmpty()
     @get:Nested val errorproneArgumentProviders: MutableList<CommandLineArgumentProvider> = arrayListOf()
 
     companion object {
@@ -52,22 +56,28 @@ open class ErrorProneOptions {
     override fun toString(): String {
         return (
             sequenceOf(
-                "-XepDisableAllChecks".takeIf { disableAllChecks },
-                "-XepAllErrorsAsWarnings".takeIf { allErrorsAsWarnings },
-                "-XepAllDisabledChecksAsWarnings".takeIf { allDisabledChecksAsWarnings },
-                "-XepDisableWarningsInGeneratedCode".takeIf { disableWarningsInGeneratedCode },
-                "-XepIgnoreUnknownCheckNames".takeIf { ignoreUnknownCheckNames },
-                "-XepIgnoreSuppressionAnnotations".takeIf { ignoreSuppressionAnnotations },
-                "-XepCompilingTestOnlyCode".takeIf { isCompilingTestOnlyCode },
-                "-XepExcludedPaths:$excludedPaths".takeUnless { excludedPaths.isNullOrEmpty() }
+                booleanOption("-XepDisableAllChecks", disableAllChecks),
+                booleanOption("-XepAllErrorsAsWarnings", allErrorsAsWarnings),
+                booleanOption("-XepAllDisabledChecksAsWarnings", allDisabledChecksAsWarnings),
+                booleanOption("-XepDisableWarningsInGeneratedCode", disableWarningsInGeneratedCode),
+                booleanOption("-XepIgnoreUnknownCheckNames", ignoreUnknownCheckNames),
+                booleanOption("-XepIgnoreSuppressionAnnotations", ignoreSuppressionAnnotations),
+                booleanOption("-XepCompilingTestOnlyCode", isCompilingTestOnlyCode),
+                stringOption("-XepExcludedPaths", excludedPaths)
             ).filterNotNull() +
                 checks.asSequence().onEach(::validateName).map { (name, severity) -> "-Xep:$name${severity.asArg}" } +
                 checkOptions.asSequence().map { (name, value) -> "-XepOpt:$name=$value" } +
-                errorproneArgs +
+                errorproneArgs.getOrElse(emptyList()) +
                 errorproneArgumentProviders.asSequence().flatMap { it.asArguments().asSequence() }
             ).onEach(::validate)
             .joinToString(separator = " ")
     }
+
+    private fun booleanOption(name: String, value: Provider<Boolean>): String? =
+        name.takeIf { value.getOrElse(false) }
+
+    private fun stringOption(name: String, value: Provider<String>): String? =
+        value.orNull?.let { "$name:$it" }
 }
 
 enum class CheckSeverity {

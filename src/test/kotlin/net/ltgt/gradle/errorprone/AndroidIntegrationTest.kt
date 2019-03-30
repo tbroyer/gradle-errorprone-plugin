@@ -125,7 +125,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
 
             afterEvaluate {
                 tasks.withType<JavaCompile>()$configureEachIfSupported {
-                    options.errorprone.isEnabled = false
+                    options.errorprone.isEnabled.set(false)
                 }
             }
         """.trimIndent())
