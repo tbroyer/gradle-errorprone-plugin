@@ -10,9 +10,6 @@ jdk:
   - openjdk11
 
 env:
-  - GRADLE_VERSION=4.10.2
-  - GRADLE_VERSION=5.0
-  - GRADLE_VERSION=5.1.1
   - GRADLE_VERSION=5.2.1
   - GRADLE_VERSION=5.3
 

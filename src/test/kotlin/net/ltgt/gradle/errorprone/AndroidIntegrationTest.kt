@@ -1,9 +1,7 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.TruthJUnit.assume
 import org.gradle.testkit.runner.TaskOutcome
-import org.gradle.util.GradleVersion
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -14,7 +12,6 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Before
     fun setupAndroid() {
-        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("4.10.1"))
         assertThat(androidSdkHome).isNotEmpty()
 
         Properties().apply {

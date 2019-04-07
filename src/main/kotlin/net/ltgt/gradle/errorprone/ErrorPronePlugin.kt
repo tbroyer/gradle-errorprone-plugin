@@ -50,8 +50,8 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
     }
 
     override fun apply(project: Project) {
-        if (GradleVersion.current() < GradleVersion.version("4.10")) {
-            throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 4.10")
+        if (GradleVersion.current() < GradleVersion.version("5.2")) {
+            throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 5.2")
         }
 
         val errorproneConfiguration = project.configurations.create(CONFIGURATION_NAME) {
@@ -73,8 +73,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         val noJavacDependencyNotified = AtomicBoolean()
         project.tasks.withType<JavaCompile>().configureEach {
             val errorproneOptions =
-                // XXX: service injection was added in Gradle 5.2, remove project.objects argument when changing min version
-                (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java, project.objects)
+                (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
             options
                 .compilerArgumentProviders
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
@@ -107,17 +106,15 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         project.plugins.withType<JavaBasePlugin> {
             project.extensions.getByName<SourceSetContainer>("sourceSets").configureEach {
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
-                // XXX: move to tasks.named<JavaCompile>(compileJavaTaskName) { … } when changing min version to 5.+
-                project.tasks.withType<JavaCompile>().named(compileJavaTaskName).configure {
-                    options.errorprone.isEnabled.byConvention(true)
+                project.tasks.named<JavaCompile>(compileJavaTaskName) {
+                    options.errorprone.isEnabled.convention(true)
                 }
             }
         }
 
         project.plugins.withType<JavaPlugin> {
-            // XXX: move to tasks.named<JavaCompile>(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME) { … } when changing min version 5.+
-            project.tasks.withType<JavaCompile>().named(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME).configure {
-                options.errorprone.isCompilingTestOnlyCode.byConvention(true)
+            project.tasks.named<JavaCompile>(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME) {
+                options.errorprone.isCompilingTestOnlyCode.convention(true)
             }
         }
 
@@ -127,9 +124,9 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                     annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
                     javaCompileProvider.configure {
                         options.errorprone {
-                            isEnabled.byConvention(true)
+                            isEnabled.convention(true)
                             if (this@configure is TestVariant || this@configure is UnitTestVariant) {
-                                isCompilingTestOnlyCode.byConvention(true)
+                                isCompilingTestOnlyCode.convention(true)
                             }
                         }
                     }

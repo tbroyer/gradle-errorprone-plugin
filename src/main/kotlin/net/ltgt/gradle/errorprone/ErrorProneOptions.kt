@@ -15,18 +15,18 @@ import org.gradle.process.CommandLineArgumentProvider
 open class ErrorProneOptions constructor(
     objectFactory: ObjectFactory
 ) {
-    @get:Input val isEnabled = objectFactory.property<Boolean>().byConvention(false)
-    @get:Input val disableAllChecks = objectFactory.property<Boolean>().byConvention(false)
-    @get:Input val allErrorsAsWarnings = objectFactory.property<Boolean>().byConvention(false)
-    @get:Input val allDisabledChecksAsWarnings = objectFactory.property<Boolean>().byConvention(false)
-    @get:Input val disableWarningsInGeneratedCode = objectFactory.property<Boolean>().byConvention(false)
-    @get:Input val ignoreUnknownCheckNames = objectFactory.property<Boolean>().byConvention(false)
-    @get:Input val ignoreSuppressionAnnotations = objectFactory.property<Boolean>().byConvention(false)
-    @get:Input val isCompilingTestOnlyCode = objectFactory.property<Boolean>().byConvention(false)
+    @get:Input val isEnabled = objectFactory.property<Boolean>().convention(false)
+    @get:Input val disableAllChecks = objectFactory.property<Boolean>().convention(false)
+    @get:Input val allErrorsAsWarnings = objectFactory.property<Boolean>().convention(false)
+    @get:Input val allDisabledChecksAsWarnings = objectFactory.property<Boolean>().convention(false)
+    @get:Input val disableWarningsInGeneratedCode = objectFactory.property<Boolean>().convention(false)
+    @get:Input val ignoreUnknownCheckNames = objectFactory.property<Boolean>().convention(false)
+    @get:Input val ignoreSuppressionAnnotations = objectFactory.property<Boolean>().convention(false)
+    @get:Input val isCompilingTestOnlyCode = objectFactory.property<Boolean>().convention(false)
     @get:Input @get:Optional val excludedPaths = objectFactory.property<String>()
     @get:Input var checks: MutableMap<String, CheckSeverity> = linkedMapOf()
     @get:Input var checkOptions: MutableMap<String, String> = linkedMapOf()
-    @get:Input val errorproneArgs = objectFactory.listProperty<String>().setEmpty()
+    @get:Input val errorproneArgs = objectFactory.listProperty<String>().empty()
     @get:Nested val errorproneArgumentProviders: MutableList<CommandLineArgumentProvider> = arrayListOf()
 
     companion object {
