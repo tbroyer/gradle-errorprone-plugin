@@ -15,7 +15,7 @@ See [note below](#jdk-8-support) about JDK 8 support.
 
 ```gradle
 plugins {
-    id("net.ltgt.errorprone") version "<plugin version>"
+    id("net.ltgt.errorprone") version "<error_prone_plugin version>"
 }
 ```
 
@@ -31,7 +31,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
+    errorprone("com.google.errorprone:error_prone_core:<error_prone_core version>")
 }
 ```
 
