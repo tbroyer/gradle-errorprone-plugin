@@ -90,7 +90,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
             afterEvaluate {
                 tasks.withType<JavaCompile>().configureEach {
                     options.errorprone {
-                        check("ArrayEquals", CheckSeverity.OFF)
+                        disable("ArrayEquals")
                     }
                 }
             }

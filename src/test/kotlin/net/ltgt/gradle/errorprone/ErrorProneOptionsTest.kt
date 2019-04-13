@@ -34,7 +34,10 @@ class ErrorProneOptionsTest {
         doTestOptions { ignoreSuppressionAnnotations.set(true) }
         doTestOptions { isCompilingTestOnlyCode.set(true) }
         doTestOptions { excludedPaths.set(".*/build/generated/.*") }
-        doTestOptions { check("ArrayEquals") }
+        doTestOptions { enable("ArrayEquals") }
+        doTestOptions { disable("ArrayEquals") }
+        doTestOptions { warn("ArrayEquals") }
+        doTestOptions { error("ArrayEquals") }
         doTestOptions { check("ArrayEquals" to CheckSeverity.OFF) }
         doTestOptions { check("ArrayEquals", CheckSeverity.WARN) }
         doTestOptions { checks["ArrayEquals"] = CheckSeverity.ERROR }
@@ -53,7 +56,7 @@ class ErrorProneOptionsTest {
             ignoreSuppressionAnnotations.set(true)
             isCompilingTestOnlyCode.set(true)
             excludedPaths.set(".*/build/generated/.*")
-            check("BetaApi")
+            enable("BetaApi")
             check("NullAway", CheckSeverity.ERROR)
             option("Foo")
             option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone")
@@ -75,7 +78,7 @@ class ErrorProneOptionsTest {
 
         doTestOptions(
             { errorproneArgs.set(mutableListOf("-XepDisableAllChecks", "-Xep:BetaApi")) },
-            { disableAllChecks.set(true); check("BetaApi") })
+            { disableAllChecks.set(true); enable("BetaApi") })
 
         doTestOptions({
             errorproneArgumentProviders.add(CommandLineArgumentProvider {
@@ -101,7 +104,7 @@ class ErrorProneOptionsTest {
         doTestSpaces("-XepExcludedPaths:") {
             excludedPaths.set("/home/user/My Projects/project-name/build/generated sources/.*")
         }
-        doTestSpaces("-Xep:") { check("Foo Bar") }
+        doTestSpaces("-Xep:") { enable("Foo Bar") }
         doTestSpaces("-XepOpt:") { option("Foo Bar") }
         doTestSpaces("-XepOpt:") { option("Foo", "Bar Baz") }
         doTestSpaces("-Xep:Foo -Xep:Bar") { errorproneArgs.add("-Xep:Foo -Xep:Bar") }
@@ -122,7 +125,7 @@ class ErrorProneOptionsTest {
     @Test
     fun `rejects colon in check name`() {
         try {
-            ErrorProneOptions(objects).apply({ check("ArrayEquals:OFF") }).toString()
+            ErrorProneOptions(objects).apply({ enable("ArrayEquals:OFF") }).toString()
             fail("Should have thrown")
         } catch (e: InvalidUserDataException) {
             assertThat(e).hasMessageThat()

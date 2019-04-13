@@ -31,25 +31,25 @@ open class ErrorProneOptions constructor(
 
     companion object {
         const val NAME = "errorprone"
-
-        private fun validate(arg: String) {
-            if (arg.contains("""\p{IsWhite_Space}""".toRegex()))
-                throw InvalidUserDataException("""Error Prone options cannot contain white space: "$arg".""")
-        }
-
-        private fun validateName(arg: Map.Entry<String, Any>) {
-            if (arg.key.contains(':'))
-                throw InvalidUserDataException("""Error Prone check name cannot contain a colon (":"): "${arg.key}".""")
-        }
     }
 
-    fun check(vararg checkNames: String) = checks.putAll(checkNames.map { it to CheckSeverity.DEFAULT })
-    fun check(vararg pairs: Pair<String, CheckSeverity>) = checks.putAll(pairs)
+    @Deprecated("Renamed to enable", replaceWith = ReplaceWith("enable(*checkNames)"), level = DeprecationLevel.ERROR)
+    fun check(vararg checkNames: String) = enable(*checkNames)
+    fun check(vararg pairs: Pair<String, CheckSeverity>) = pairs.forEach { (checkName, severity) -> check(checkName, severity) }
     fun check(checkName: String, severity: CheckSeverity) {
+        validateName(checkName)
         checks[checkName] = severity
     }
 
-    fun option(name: String) = option(name, "true")
+    fun enable(vararg checkNames: String) = set(*checkNames, atSeverity = CheckSeverity.DEFAULT)
+    fun disable(vararg checkNames: String) = set(*checkNames, atSeverity = CheckSeverity.OFF)
+    fun warn(vararg checkNames: String) = set(*checkNames, atSeverity = CheckSeverity.WARN)
+    fun error(vararg checkNames: String) = set(*checkNames, atSeverity = CheckSeverity.ERROR)
+
+    private fun set(vararg checkNames: String, atSeverity: CheckSeverity) =
+        checkNames.forEach { check(it, atSeverity) }
+
+    @JvmOverloads fun option(name: String, value: Boolean = true) = option(name, value.toString())
     fun option(name: String, value: String) {
         checkOptions[name] = value
     }
@@ -66,7 +66,7 @@ open class ErrorProneOptions constructor(
                 booleanOption("-XepCompilingTestOnlyCode", isCompilingTestOnlyCode),
                 stringOption("-XepExcludedPaths", excludedPaths)
             ).filterNotNull() +
-                checks.asSequence().onEach(::validateName).map { (name, severity) -> "-Xep:$name${severity.asArg}" } +
+                checks.asSequence().map { (name, severity) -> validateName(name); "-Xep:$name${severity.asArg}" } +
                 checkOptions.asSequence().map { (name, value) -> "-XepOpt:$name=$value" } +
                 errorproneArgs.getOrElse(emptyList()) +
                 errorproneArgumentProviders.asSequence().flatMap { it.asArguments().asSequence() }
@@ -82,10 +82,20 @@ open class ErrorProneOptions constructor(
 }
 
 enum class CheckSeverity {
-    DEFAULT, OFF, WARN, ERROR;
+    DEFAULT, OFF, WARN, ERROR
+}
 
-    internal val asArg: String
-        get() = if (this == DEFAULT) "" else ":$name"
+private val CheckSeverity.asArg: String
+    get() = if (this == CheckSeverity.DEFAULT) "" else ":$name"
+
+private fun validate(arg: String) {
+    if (arg.contains("""\p{IsWhite_Space}""".toRegex()))
+        throw InvalidUserDataException("""Error Prone options cannot contain white space: "$arg".""")
+}
+
+private fun validateName(checkName: String) {
+    if (checkName.contains(':'))
+        throw InvalidUserDataException("""Error Prone check name cannot contain a colon (":"): "$checkName".""")
 }
 
 // Extensions

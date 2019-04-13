@@ -33,7 +33,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 options.errorprone {
                     isEnabled.set(true)
                     disableAllChecks.set(true)
-                    check("ArrayEquals", CheckSeverity.ERROR)
+                    error("ArrayEquals")
                 }
             }
         """.trimIndent())
@@ -74,7 +74,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
 
                 options.errorprone {
                     disableAllChecks.set(true)
-                    check("ArrayEquals", CheckSeverity.ERROR)
+                    error("ArrayEquals")
                 }
             }
         """.trimIndent())

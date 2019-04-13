@@ -236,15 +236,13 @@ you can pass those arguments to `options.errorprone.errorproneArgs` instead:
 
 The next (optional) step would be to move to using the DSL:
 ```diff
-+ import net.ltgt.gradle.errorprone.CheckSeverity
-+ 
   tasks.withType(JavaCompile).configureEach {
       options.compilerArgs << "-Xlint:all" << "-Werror"
 -     options.errorprone.errorproneArgs << "-XepDisableWarningsInGeneratedCode"
 -     options.errorprone.errorproneArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=com.uber"
 +     options.errorprone {
 +         disableWarningsInGeneratedCode = true
-+         check("NullAway", CheckSeverity.ERROR)
++         error("NullAway")
 +         option("NullAway:AnnotatedPackages", "net.ltgt")
 +     }
   }
@@ -274,16 +272,14 @@ dependencies {
 ```
 and can then be configured on the tasks; for example:
 ```gradle
-import net.ltgt.gradle.errorprone.CheckSeverity
-
 tasks.withType(JavaCompile).configureEach {
     options.errorprone {
         option("NullAway:AnnotatedPackages", "net.ltgt")
     }
 }
 tasks.named("compileJava").configure {
-    // Check defaults to WARNING, bump it up to ERROR for the main sources
-    options.errorprone.check("NullAway", CheckSeverity.ERROR)
+    // The check defaults to a warning, bump it up to an error for the main sources
+    options.errorprone.error("NullAway")
 }
 ```
 <details>
@@ -296,8 +292,8 @@ tasks.withType<JavaCompile>().configureEach {
     }
 }
 tasks.named("compileJava", JavaCompile::class) {
-    // The check defaults to WARNING, bump it up to ERROR for the main sources
-    options.errorprone.check("NullAway", CheckSeverity.ERROR)
+    // The check defaults to a warning, bump it up to an error for the main sources
+    options.errorprone.error("NullAway")
 }
 ```
 
@@ -340,11 +336,14 @@ import net.ltgt.gradle.errorprone.errorprone
 
 | Method | Description
 | :----- | :----------
-| `check(checkNames...)`            | Adds checks with their default severity. Useful in combination with `disableAllChecks` to selectively re-enable checks.
-| `check(checkName to severity...)` | (Kotlin DSL only) Adds pairs of check name to severity. Severity can be set to `CheckSeverity.OFF` to disable a check.
-| `check(checkName, severity)`      | Adds a check with a given severity. Severity can be set to `CheckSeverity.OFF` to disable the check.
-| `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, "true")`.
-| `option(optionName, value)`       | Adds a check option with a given value.
+| `enable(checkNames...)`           | Adds checks with their default severity. Useful in combination with `disableAllChecks` to selectively re-enable checks.
+| `disable(checkNames...)`          | Disable checks.
+| `warn(checkNames...)`             | Adds checks with warning severity.
+| `error(checkNames...)`            | Adds checks with error severity.
+| `check(checkName to severity...)` | (Kotlin DSL only) Adds pairs of check name to severity.
+| `check(checkName, severity)`      | Adds a check with a given severity.
+| `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, true)`.
+| `option(optionName, value)`       | Adds a check option with a given value. Value can be a boolean or a string.
 
 A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.  
 Note that the `net.ltgt.gradle.errorprone.CheckSeverity` needs to be `import`ed into your build scripts (see examples above).

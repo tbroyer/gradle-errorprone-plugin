@@ -57,7 +57,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 
             tasks.withType<JavaCompile>().configureEach {
                 options.errorprone {
-                    check("ArrayEquals", CheckSeverity.OFF)
+                    disable("ArrayEquals")
                 }
             }
         """.trimIndent())
@@ -124,7 +124,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
                 errorprone(project(":customCheck"))
             }
             tasks.withType<JavaCompile>().configureEach {
-                options.errorprone.check("MyCustomCheck", CheckSeverity.ERROR)
+                options.errorprone.error("MyCustomCheck")
             }
         """.trimIndent())
 
