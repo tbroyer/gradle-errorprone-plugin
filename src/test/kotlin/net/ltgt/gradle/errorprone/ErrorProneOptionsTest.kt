@@ -5,6 +5,8 @@ import com.google.errorprone.ErrorProneOptions.Severity
 import com.google.errorprone.InvalidCommandLineOptionException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ProviderFactory
+import org.gradle.kotlin.dsl.property
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Assert.fail
@@ -18,9 +20,13 @@ class ErrorProneOptionsTest {
         @JvmField @ClassRule val projectDir = TemporaryFolder()
 
         lateinit var objects: ObjectFactory
+        lateinit var providers: ProviderFactory
 
         @JvmStatic @BeforeClass fun setup() {
-            objects = ProjectBuilder.builder().withProjectDir(projectDir.root).build().objects
+            ProjectBuilder.builder().withProjectDir(projectDir.root).build().let { project ->
+                objects = project.objects
+                providers = project.providers
+            }
         }
     }
 
@@ -40,12 +46,12 @@ class ErrorProneOptionsTest {
         doTestOptions { error("ArrayEquals") }
         doTestOptions { check("ArrayEquals" to CheckSeverity.OFF) }
         doTestOptions { check("ArrayEquals", CheckSeverity.WARN) }
-        doTestOptions { checks["ArrayEquals"] = CheckSeverity.ERROR }
-        doTestOptions { checks = mutableMapOf("ArrayEquals" to CheckSeverity.DEFAULT) }
+        doTestOptions { checks.put("ArrayEquals", CheckSeverity.ERROR) }
+        doTestOptions { checks.set(mutableMapOf("ArrayEquals" to CheckSeverity.DEFAULT)) }
         doTestOptions { option("Foo") }
         doTestOptions { option("Foo", "Bar") }
-        doTestOptions { checkOptions["Foo"] = "Bar" }
-        doTestOptions { checkOptions = mutableMapOf("Foo" to "Bar") }
+        doTestOptions { checkOptions.put("Foo", "Bar") }
+        doTestOptions { checkOptions.set(mutableMapOf("Foo" to "Bar")) }
 
         doTestOptions {
             disableAllChecks.set(true)
@@ -89,6 +95,31 @@ class ErrorProneOptionsTest {
             })
         }, {
             check("NullAway", CheckSeverity.ERROR)
+            option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone")
+        })
+    }
+
+    @Test
+    fun `correctly allows lazy configuration`() {
+        doTestOptions({
+            check("NullAway", isCompilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
+        }, {
+            error("NullAway")
+        })
+
+        doTestOptions({
+            check("NullAway", isCompilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
+            isCompilingTestOnlyCode.set(providers.provider { true })
+        }, {
+            isCompilingTestOnlyCode.set(true)
+            warn("NullAway")
+        })
+
+        doTestOptions({
+            val annotatedPackages = objects.property<String>()
+            option("NullAway:AnnotatedPackages", annotatedPackages)
+            annotatedPackages.set(providers.provider { "net.ltgt.gradle.errorprone" })
+        }, {
             option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone")
         })
     }
@@ -162,8 +193,8 @@ class ErrorProneOptionsTest {
         assertThat(parsedOptions.isIgnoreSuppressionAnnotations).isEqualTo(options.ignoreSuppressionAnnotations.get())
         assertThat(parsedOptions.isTestOnlyTarget).isEqualTo(options.isCompilingTestOnlyCode.get())
         assertThat(parsedOptions.excludedPattern?.pattern()).isEqualTo(options.excludedPaths.orNull)
-        assertThat(parsedOptions.severityMap).containsExactlyEntriesIn(options.checks.mapValues { it.value.toSeverity() })
-        assertThat(parsedOptions.flags.flagsMap).containsExactlyEntriesIn(options.checkOptions)
+        assertThat(parsedOptions.severityMap).containsExactlyEntriesIn(options.checks.get().mapValues { it.value.toSeverity() })
+        assertThat(parsedOptions.flags.flagsMap).containsExactlyEntriesIn(options.checkOptions.get())
         assertThat(parsedOptions.remainingArgs).isEmpty()
     }
 

@@ -24,8 +24,8 @@ open class ErrorProneOptions constructor(
     @get:Input val ignoreSuppressionAnnotations = objectFactory.property<Boolean>().convention(false)
     @get:Input val isCompilingTestOnlyCode = objectFactory.property<Boolean>().convention(false)
     @get:Input @get:Optional val excludedPaths = objectFactory.property<String>()
-    @get:Input var checks: MutableMap<String, CheckSeverity> = linkedMapOf()
-    @get:Input var checkOptions: MutableMap<String, String> = linkedMapOf()
+    @get:Input val checks = objectFactory.mapProperty<String, CheckSeverity>().empty()
+    @get:Input val checkOptions = objectFactory.mapProperty<String, String>().empty()
     @get:Input val errorproneArgs = objectFactory.listProperty<String>().empty()
     @get:Nested val errorproneArgumentProviders: MutableList<CommandLineArgumentProvider> = arrayListOf()
 
@@ -38,7 +38,11 @@ open class ErrorProneOptions constructor(
     fun check(vararg pairs: Pair<String, CheckSeverity>) = pairs.forEach { (checkName, severity) -> check(checkName, severity) }
     fun check(checkName: String, severity: CheckSeverity) {
         validateName(checkName)
-        checks[checkName] = severity
+        checks.put(checkName, severity)
+    }
+    fun check(checkName: String, severity: Provider<CheckSeverity>) {
+        validateName(checkName)
+        checks.put(checkName, severity)
     }
 
     fun enable(vararg checkNames: String) = set(*checkNames, atSeverity = CheckSeverity.DEFAULT)
@@ -51,7 +55,10 @@ open class ErrorProneOptions constructor(
 
     @JvmOverloads fun option(name: String, value: Boolean = true) = option(name, value.toString())
     fun option(name: String, value: String) {
-        checkOptions[name] = value
+        checkOptions.put(name, value)
+    }
+    fun option(name: String, value: Provider<String>) {
+        checkOptions.put(name, value)
     }
 
     override fun toString(): String {
@@ -66,8 +73,8 @@ open class ErrorProneOptions constructor(
                 booleanOption("-XepCompilingTestOnlyCode", isCompilingTestOnlyCode),
                 stringOption("-XepExcludedPaths", excludedPaths)
             ).filterNotNull() +
-                checks.asSequence().map { (name, severity) -> validateName(name); "-Xep:$name${severity.asArg}" } +
-                checkOptions.asSequence().map { (name, value) -> "-XepOpt:$name=$value" } +
+                checks.getOrElse(emptyMap()).asSequence().map { (name, severity) -> validateName(name); "-Xep:$name${severity.asArg}" } +
+                checkOptions.getOrElse(emptyMap()).asSequence().map { (name, value) -> "-XepOpt:$name=$value" } +
                 errorproneArgs.getOrElse(emptyList()) +
                 errorproneArgumentProviders.asSequence().flatMap { it.asArguments().asSequence() }
             ).onEach(::validate)

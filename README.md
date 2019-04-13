@@ -341,9 +341,9 @@ import net.ltgt.gradle.errorprone.errorprone
 | `warn(checkNames...)`             | Adds checks with warning severity.
 | `error(checkNames...)`            | Adds checks with error severity.
 | `check(checkName to severity...)` | (Kotlin DSL only) Adds pairs of check name to severity.
-| `check(checkName, severity)`      | Adds a check with a given severity.
+| `check(checkName, severity)`      | Adds a check with a given severity. The severity can be passed as a provider for lazy configuration.
 | `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, true)`.
-| `option(optionName, value)`       | Adds a check option with a given value. Value can be a boolean or a string.
+| `option(optionName, value)`       | Adds a check option with a given value. Value can be a boolean or a string, or a provider of string.
 
 A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.  
 Note that the `net.ltgt.gradle.errorprone.CheckSeverity` needs to be `import`ed into your build scripts (see examples above).
