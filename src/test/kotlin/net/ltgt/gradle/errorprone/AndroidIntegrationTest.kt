@@ -11,20 +11,6 @@ import java.util.Properties
 
 class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     private val androidSdkHome = System.getProperty("test.android-sdk-home")
-    private val androidPluginVersion = System.getProperty("android-plugin.version")!!
-
-    override val additionalPluginManagementRepositories: String
-        get() = """
-            google()
-            mavenCentral()
-        """
-
-    override val additionalPluginManagementResolutionStrategyEachPlugin: String
-        get() = """
-            if (requested.id.namespace == "com.android") {
-                useModule("com.android.tools.build:gradle:${'$'}{requested.version}")
-            }
-        """
 
     @Before
     fun setupAndroid() {
@@ -41,7 +27,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText("""
             plugins {
                 id("${ErrorPronePlugin.PLUGIN_ID}")
-                id("com.android.application") version "$androidPluginVersion"
+                id("com.android.application")
             }
 
             android {

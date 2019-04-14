@@ -3,7 +3,6 @@ package net.ltgt.gradle.errorprone
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.util.GradleVersion
-import org.gradle.util.TextUtil
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -14,7 +13,6 @@ abstract class AbstractPluginIntegrationTest {
     companion object {
         internal val testJavaHome: String? = System.getProperty("test.java-home")
         internal val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
-        private val pluginVersion = System.getProperty("plugin.version")!!
 
         internal val errorproneVersion = System.getProperty("errorprone.version")!!
         internal val errorproneJavacVersion = System.getProperty("errorprone-javac.version")!!
@@ -29,34 +27,9 @@ abstract class AbstractPluginIntegrationTest {
     lateinit var settingsFile: File
     lateinit var buildFile: File
 
-    protected open val additionalPluginManagementRepositories: String = ""
-
-    protected open val additionalPluginManagementResolutionStrategyEachPlugin: String = ""
-
     @Before
     fun setupProject() {
-        // See https://github.com/gradle/kotlin-dsl/issues/492
-        val testRepository = TextUtil.normaliseFileSeparators(File("build/repository").absolutePath)
-        settingsFile = testProjectDir.newFile("settings.gradle.kts").apply {
-            @Suppress("DEPRECATION")
-            writeText("""
-                pluginManagement {
-                    repositories {
-                        maven { url = uri("$testRepository") }
-                        $additionalPluginManagementRepositories
-                    }
-                    resolutionStrategy {
-                        eachPlugin {
-                            if (requested.id.id == "${ErrorPronePlugin.PLUGIN_ID}") {
-                                useVersion("$pluginVersion")
-                            }
-                            $additionalPluginManagementResolutionStrategyEachPlugin
-                        }
-                    }
-                }
-
-            """.trimIndent())
-        }
+        settingsFile = testProjectDir.newFile("settings.gradle.kts")
         buildFile = testProjectDir.newFile("build.gradle.kts").apply {
             writeText("""
                 import net.ltgt.gradle.errorprone.*
@@ -122,6 +95,7 @@ abstract class AbstractPluginIntegrationTest {
         return GradleRunner.create()
             .withGradleVersion(testGradleVersion)
             .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
             .withArguments(*tasks)
             .forwardOutput()
     }

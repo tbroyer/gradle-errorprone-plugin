@@ -5,7 +5,6 @@ plugins {
     id("com.gradle.build-scan") version "2.1"
     `java-gradle-plugin`
     `kotlin-dsl`
-    `maven-publish`
     id("com.gradle.plugin-publish") version "0.10.0"
 }
 
@@ -31,6 +30,9 @@ gradle.taskGraph.whenReady {
     }
 }
 
+// See https://github.com/gradle/gradle/issues/7974
+val additionalPluginClasspath by configurations.creating
+
 val errorproneVersion = "2.3.3"
 val errorproneJavacVersion = "9+181-r4173-1"
 val androidPluginVersion = "3.3.2"
@@ -47,31 +49,19 @@ repositories {
 }
 dependencies {
     compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
-    testRuntimeOnly("com.android.tools.build:gradle:$androidPluginVersion")
+    additionalPluginClasspath("com.android.tools.build:gradle:$androidPluginVersion")
 
     testImplementation("junit:junit:4.12")
     testImplementation("com.google.truth:truth:0.42")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
-// See https://github.com/gradle/kotlin-dsl/issues/492
-publishing {
-    repositories {
-        maven(url = "$buildDir/repository") {
-            name = "test"
-        }
-    }
-}
-
 tasks {
-    val publishPluginsToTestRepository by registering {
-        dependsOn("publishPluginMavenPublicationToTestRepository")
-        dependsOn("publishErrorpronePluginMarkerMavenPublicationToTestRepository")
+    pluginUnderTestMetadata {
+        this.pluginClasspath.from(additionalPluginClasspath)
     }
 
     test {
-        dependsOn(publishPluginsToTestRepository)
-
         val testJavaHome = project.findProperty("test.java-home")
         testJavaHome?.also { systemProperty("test.java-home", it) }
 
@@ -82,10 +72,8 @@ tasks {
             ?: System.getenv("ANDROID_SDK_ROOT") ?: System.getenv("ANDROID_HOME")
         androidSdkHome?.also { systemProperty("test.android-sdk-home", androidSdkHome) }
 
-        systemProperty("plugin.version", version)
         systemProperty("errorprone.version", errorproneVersion)
         systemProperty("errorprone-javac.version", errorproneJavacVersion)
-        systemProperty("android-plugin.version", androidPluginVersion)
 
         if (project.findProperty("test.skipAndroid").toString().toBoolean()) {
             exclude("**/*Android*")
