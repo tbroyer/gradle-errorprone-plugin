@@ -55,7 +55,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking in non-Java 8 VM`() {
-        assume().that(testJavaHome).named("test.java-home").isNull()
         assume().that(JavaVersion.current().isJava8).named("isJava8").isFalse()
 
         // when
@@ -85,7 +84,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `configure forking in Java 8 VM`() {
-        assume().that(testJavaHome).named("test.java-home").isNull()
         assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
 
         // when
@@ -107,7 +105,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking if Error Prone is disabled`() {
-        assume().that(testJavaHome).named("test.java-home").isNull()
         assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
 
         // given
@@ -127,7 +124,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `configure bootclasspath for already-forked tasks without javaHome or executable`() {
-        assume().that(testJavaHome).named("test.java-home").isNull()
         assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
 
         // given
@@ -154,17 +150,14 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
 
         // given
-        if (testJavaHome == null) {
-            // forking is already configured if testJavaHome is set, so only configure here if not set
-            val javaHome = System.getProperty("java.home")
-            buildFile.appendText("""
+        val javaHome = System.getProperty("java.home")
+        buildFile.appendText("""
 
-                compileJava.apply {
-                    options.isFork = true
-                    options.forkOptions.javaHome = File(""${'"'}${javaHome.replace("\$", "\${'\$'}")}${'"'}"")
-                }
-            """.trimIndent())
-        }
+            compileJava.apply {
+                options.isFork = true
+                options.forkOptions.javaHome = File(""${'"'}${javaHome.replace("\$", "\${'\$'}")}${'"'}"")
+            }
+        """.trimIndent())
         // XXX: make it fail always, even with non-Java 8
         buildFile.appendText("""
 
@@ -184,7 +177,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure bootclasspath for already-forked tasks using executable`() {
-        assume().that(testJavaHome).named("test.java-home").isNull()
         assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
 
         // given
@@ -219,7 +211,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `warns if Error Prone javac dependency is not configured`() {
-        assume().that(testJavaHome).named("test.java-home").isNull()
         assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
 
         // given
@@ -259,7 +250,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `is build-cache friendly`() {
-        assume().that(testJavaHome).named("test.java-home").isNull()
         assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
 
         // given

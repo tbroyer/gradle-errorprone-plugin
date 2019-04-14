@@ -11,7 +11,6 @@ import java.io.File
 abstract class AbstractPluginIntegrationTest {
 
     companion object {
-        internal val testJavaHome: String? = System.getProperty("test.java-home")
         internal val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
 
         internal val errorproneVersion = System.getProperty("errorprone.version")!!
@@ -82,16 +81,6 @@ abstract class AbstractPluginIntegrationTest {
     }
 
     private fun prepareBuild(vararg tasks: String): GradleRunner {
-        testJavaHome?.also {
-            buildFile.appendText("""
-
-                tasks.withType<JavaCompile>().configureEach {
-                    options.isFork = true
-                    options.forkOptions.javaHome = File(""${'"'}${it.replace("\$", "\${'\$'}")}${'"'}"")
-                }
-            """.trimIndent())
-        }
-
         return GradleRunner.create()
             .withGradleVersion(testGradleVersion)
             .withProjectDir(testProjectDir.root)
