@@ -6,6 +6,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.10.0"
+    id("com.diffplug.gradle.spotless") version "3.21.1"
 }
 
 group = "net.ltgt.gradle"
@@ -40,12 +41,6 @@ val androidPluginVersion = "3.3.2"
 repositories {
     mavenCentral()
     google()
-    jcenter() {
-        content {
-            onlyForConfigurations("ktlint")
-            includeModule("com.andreapivetta.kolor", "kolor")
-        }
-    }
 }
 dependencies {
     compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
@@ -114,28 +109,13 @@ buildScan {
     termsOfServiceAgree = "yes"
 }
 
-val ktlint by configurations.creating
-
-dependencies {
-    ktlint("com.github.shyiko:ktlint:0.29.0")
-}
-
-tasks {
-    val verifyKtlint by registering(JavaExec::class) {
-        description = "Check Kotlin code style."
-        classpath = ktlint
-        main = "com.github.shyiko.ktlint.Main"
-        args("**/*.gradle.kts", "**/*.kt")
+spotless {
+    val ktlintVersion = "0.31.0"
+    kotlin {
+        ktlint(ktlintVersion)
     }
-    check {
-        dependsOn(verifyKtlint)
-    }
-
-    register("ktlint", JavaExec::class.java) {
-        description = "Fix Kotlin code style violations."
-        classpath = ktlint
-        main = "com.github.shyiko.ktlint.Main"
-        args("-F", "**/*.gradle.kts", "**/*.kt")
+    kotlinGradle {
+        ktlint(ktlintVersion)
     }
 }
 
