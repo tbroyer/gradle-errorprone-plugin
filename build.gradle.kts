@@ -2,10 +2,10 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.gradle.build-scan") version "2.1"
+    id("com.gradle.build-scan") version "2.2.1"
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "0.10.0"
+    id("com.gradle.plugin-publish") version "0.10.1"
     id("com.diffplug.gradle.spotless") version "3.21.1"
 }
 
@@ -47,7 +47,7 @@ dependencies {
     additionalPluginClasspath("com.android.tools.build:gradle:$androidPluginVersion")
 
     testImplementation("junit:junit:4.12")
-    testImplementation("com.google.truth:truth:0.42")
+    testImplementation("com.google.truth:truth:0.44")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
