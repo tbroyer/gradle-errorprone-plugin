@@ -2,11 +2,11 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.gradle.build-scan") version "2.2.1"
+    id("com.gradle.build-scan") version "2.3"
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.10.1"
-    id("com.diffplug.gradle.spotless") version "3.21.1"
+    id("com.diffplug.gradle.spotless") version "3.23.0"
 }
 
 group = "net.ltgt.gradle"
@@ -36,7 +36,7 @@ val additionalPluginClasspath by configurations.creating
 
 val errorproneVersion = "2.3.3"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.3.2"
+val androidPluginVersion = "3.4.1"
 
 repositories {
     mavenCentral()
@@ -47,7 +47,7 @@ dependencies {
     additionalPluginClasspath("com.android.tools.build:gradle:$androidPluginVersion")
 
     testImplementation("junit:junit:4.12")
-    testImplementation("com.google.truth:truth:0.44")
+    testImplementation("com.google.truth:truth:0.45")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
@@ -110,7 +110,7 @@ buildScan {
 }
 
 spotless {
-    val ktlintVersion = "0.31.0"
+    val ktlintVersion = "0.33.0"
     kotlin {
         ktlint(ktlintVersion)
     }

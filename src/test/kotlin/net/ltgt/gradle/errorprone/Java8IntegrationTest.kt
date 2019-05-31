@@ -55,7 +55,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking in non-Java 8 VM`() {
-        assume().that(JavaVersion.current().isJava8).named("isJava8").isFalse()
+        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isFalse()
 
         // when
         buildWithArgs("compileJava").also { result ->
@@ -84,7 +84,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `configure forking in Java 8 VM`() {
-        assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
+        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // when
         buildWithArgs("compileJava").also { result ->
@@ -105,7 +105,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking if Error Prone is disabled`() {
-        assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
+        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // given
         buildFile.appendText("""
@@ -124,7 +124,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `configure bootclasspath for already-forked tasks without javaHome or executable`() {
-        assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
+        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // given
         buildFile.appendText("""
@@ -147,7 +147,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure bootclasspath for already-forked tasks using javaHome`() {
-        assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
+        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // given
         val javaHome = System.getProperty("java.home")
@@ -177,7 +177,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure bootclasspath for already-forked tasks using executable`() {
-        assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
+        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // given
         val javaHome = System.getProperty("java.home")
@@ -211,7 +211,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `warns if Error Prone javac dependency is not configured`() {
-        assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
+        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // given
         // Remove the errorproneJavac dependency
@@ -250,7 +250,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `is build-cache friendly`() {
-        assume().that(JavaVersion.current().isJava8).named("isJava8").isTrue()
+        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // given
         settingsFile.appendText("""
