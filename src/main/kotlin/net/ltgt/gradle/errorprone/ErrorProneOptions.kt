@@ -15,6 +15,7 @@ import org.gradle.process.CommandLineArgumentProvider
 open class ErrorProneOptions constructor(
     objectFactory: ObjectFactory
 ) {
+    @get:JvmName("getEnabled")
     @get:Input val isEnabled = objectFactory.property<Boolean>().convention(false)
     @get:Input val disableAllChecks = objectFactory.property<Boolean>().convention(false)
     @get:Input val allErrorsAsWarnings = objectFactory.property<Boolean>().convention(false)
@@ -22,6 +23,7 @@ open class ErrorProneOptions constructor(
     @get:Input val disableWarningsInGeneratedCode = objectFactory.property<Boolean>().convention(false)
     @get:Input val ignoreUnknownCheckNames = objectFactory.property<Boolean>().convention(false)
     @get:Input val ignoreSuppressionAnnotations = objectFactory.property<Boolean>().convention(false)
+    @get:JvmName("getCompilingTestOnlyCode")
     @get:Input val isCompilingTestOnlyCode = objectFactory.property<Boolean>().convention(false)
     @get:Input @get:Optional val excludedPaths = objectFactory.property<String>()
     @get:Input val checks = objectFactory.mapProperty<String, CheckSeverity>().empty()

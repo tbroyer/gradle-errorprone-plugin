@@ -26,8 +26,9 @@ abstract class AbstractPluginIntegrationTest {
     lateinit var settingsFile: File
     lateinit var buildFile: File
 
+    // TODO: refactor to avoid overriding this in GroovyDslIntegrationTest
     @Before
-    fun setupProject() {
+    open fun setupProject() {
         settingsFile = testProjectDir.newFile("settings.gradle.kts")
         buildFile = testProjectDir.newFile("build.gradle.kts").apply {
             writeText("""
