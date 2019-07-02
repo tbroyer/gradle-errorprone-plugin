@@ -8,7 +8,8 @@ class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
     override fun setupProject() {
         settingsFile = testProjectDir.newFile("settings.gradle")
         buildFile = testProjectDir.newFile("build.gradle").apply {
-            appendText("""
+            appendText(
+                """
                 plugins {
                     id("java-library")
                     id("${ErrorPronePlugin.PLUGIN_ID}")
@@ -20,19 +21,22 @@ class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
                     errorprone "com.google.errorprone:error_prone_core:$errorproneVersion"
                     errorproneJavac "com.google.errorprone:javac:$errorproneJavacVersion"
                 }
-            """.trimIndent())
+                """.trimIndent()
+            )
         }
     }
 
     @Test
     fun `can disable errorprone`() {
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             tasks.withType(JavaCompile).configureEach {
                 options.errorprone.enabled = false
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         writeFailureSource()
 
         // when
@@ -45,7 +49,8 @@ class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `can configure errorprone`() {
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             tasks.withType(JavaCompile).configureEach {
                 options.errorprone {
@@ -62,7 +67,8 @@ class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
                     enable("ArrayEquals")
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         writeSuccessSource()
 
         // when

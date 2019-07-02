@@ -2,11 +2,11 @@ package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
+import java.io.File
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Before
 import org.junit.Test
-import java.io.File
 
 class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
@@ -26,7 +26,8 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Before
     fun setup() {
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             plugins {
                 `java-library`
                 id("${ErrorPronePlugin.PLUGIN_ID}")
@@ -49,7 +50,8 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
                 }
             }
             compileJava.finalizedBy(displayCompileJavaOptions)
-        """.trimIndent())
+            """.trimIndent()
+        )
         writeSuccessSource()
     }
 
@@ -68,10 +70,12 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // Test a forked task
 
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             compileJava.options.isFork = true
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         // when
         buildWithArgs("compileJava").also { result ->
@@ -108,10 +112,12 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             compileJava.options.errorprone.isEnabled.set(false)
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         // when
         val result = buildWithArgs("compileJava")
@@ -127,13 +133,15 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             compileJava.apply {
                 options.isFork = true
                 options.forkOptions.jvmArgs!!.add("-XshowSettings")
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         // when
         val result = buildWithArgs("compileJava")
 
@@ -151,20 +159,24 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
         // given
         val javaHome = System.getProperty("java.home")
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             compileJava.apply {
                 options.isFork = true
                 options.forkOptions.javaHome = File(""${'"'}${javaHome.replace("\$", "\${'\$'}")}${'"'}"")
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         // XXX: make it fail always, even with non-Java 8
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             compileJava.doLast {
                 error("Forced failure")
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         // when
         val result = buildWithArgsAndFail("compileJava")
@@ -185,20 +197,24 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             System.getProperty("os.name").startsWith("Windows") -> ".exe"
             else -> ""
         }
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             compileJava.apply {
                 options.isFork = true
                 options.forkOptions.executable = ""${'"'}${javaHome.replace("\$", "\${'\$'}")}${File.separator}bin${File.separator}javac$ext${'"'}""
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         // XXX: make it fail always, in case our executable above is actually wrong (such as java.home pointing to a JRE, not a JDK)
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             compileJava.doLast {
                 error("Forced failure")
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         // when
         val result = buildWithArgsAndFail("compileJava")
@@ -215,9 +231,11 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
         // given
         // Remove the errorproneJavac dependency
-        buildFile.writeText(buildFile.readLines().filterNot {
-            it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
-        }.joinToString(separator = "\n"))
+        buildFile.writeText(
+            buildFile.readLines().filterNot {
+                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
+            }.joinToString(separator = "\n")
+        )
 
         // when
         buildWithArgsAndFail("compileJava").also { result ->
@@ -231,12 +249,14 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // check that adding back the dependency fixes compilation (so it was indeed caused by missing dependency) and silences the warning
 
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             dependencies {
                 errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         // when
         buildWithArgs("compileJava").also { result ->
@@ -253,14 +273,16 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // given
-        settingsFile.appendText("""
+        settingsFile.appendText(
+            """
 
             buildCache {
                 local(DirectoryBuildCache::class.java) {
                     directory = file("build-cache")
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         // Prime the build cache
 
@@ -273,22 +295,28 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         }
 
         // Move the errorproneJavac dependency: first remove it, then add it back… differently
-        buildFile.writeText(buildFile.readLines().filterNot {
-            it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
-        }.joinToString(separator = "\n", postfix = """
+        buildFile.writeText(
+            buildFile.readLines().filterNot {
+                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
+            }.joinToString(
+                separator = "\n",
+                postfix =
+                    """
 
-            val epJavac by configurations.creating
-            val moveEpJavac by tasks.creating(Copy::class) {
-                from(epJavac)
-                // destinationDir chosen to match JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC
-                into(file("javac/com.google.errorprone/javac/$errorproneJavacVersion/foo/"))
-                rename { "renamed-${'$'}it" }
-            }
-            dependencies {
-                epJavac("com.google.errorprone:javac:$errorproneJavacVersion")
-                errorproneJavac(fileTree(moveEpJavac.destinationDir).builtBy(moveEpJavac))
-            }
-        """.trimIndent()))
+                    val epJavac by configurations.creating
+                    val moveEpJavac by tasks.creating(Copy::class) {
+                        from(epJavac)
+                        // destinationDir chosen to match JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC
+                        into(file("javac/com.google.errorprone/javac/$errorproneJavacVersion/foo/"))
+                        rename { "renamed-${'$'}it" }
+                    }
+                    dependencies {
+                        epJavac("com.google.errorprone:javac:$errorproneJavacVersion")
+                        errorproneJavac(fileTree(moveEpJavac.destinationDir).builtBy(moveEpJavac))
+                    }
+                    """.trimIndent()
+            )
+        )
 
         // when
         testProjectDir.root.resolve("build/").deleteRecursively()

@@ -1,16 +1,17 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Before
 import org.junit.Test
-import java.io.File
 
 class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Before
     fun setup() {
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             plugins {
                 `java-library`
                 id("${ErrorPronePlugin.PLUGIN_ID}")
@@ -22,7 +23,8 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
                 errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -53,14 +55,16 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `can configure errorprone`() {
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             tasks.withType<JavaCompile>().configureEach {
                 options.errorprone {
                     disable("ArrayEquals")
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         writeFailureSource()
 
         // when
@@ -73,12 +77,14 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `can disable errorprone`() {
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             tasks.withType<JavaCompile>().configureEach {
                 options.errorprone.isEnabled.set(false)
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         writeFailureSource()
 
         // when
@@ -91,24 +97,28 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `with a custom check`() {
         // given
-        settingsFile.appendText("""
+        settingsFile.appendText(
+            """
 
             include(":customCheck")
-        """.trimIndent())
-        File(testProjectDir.newFolder("customCheck"), "build.gradle.kts").writeText("""
-                plugins {
-                    java
-                }
-                repositories {
-                    mavenCentral()
-                }
-                dependencies {
-                    compileOnly("com.google.errorprone:error_prone_check_api:$errorproneVersion")
+            """.trimIndent()
+        )
+        File(testProjectDir.newFolder("customCheck"), "build.gradle.kts").writeText(
+            """
+            plugins {
+                java
+            }
+            repositories {
+                mavenCentral()
+            }
+            dependencies {
+                compileOnly("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 
-                    compileOnly("com.google.auto.service:auto-service:1.0-rc4")
-                    annotationProcessor("com.google.auto.service:auto-service:1.0-rc4")
-                }
-            """.trimIndent())
+                compileOnly("com.google.auto.service:auto-service:1.0-rc4")
+                annotationProcessor("com.google.auto.service:auto-service:1.0-rc4")
+            }
+            """.trimIndent()
+        )
         File(
             testProjectDir.newFolder("customCheck", "src", "main", "resources", "META-INF", "services"),
             "com.google.errorprone.bugpatterns.BugChecker"
@@ -118,7 +128,8 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             "MyCustomCheck.java"
         ).writeText(javaClass.getResource("/com/google/errorprone/sample/MyCustomCheck.java").readText())
 
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             dependencies {
                 errorprone(project(":customCheck"))
@@ -126,7 +137,8 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             tasks.withType<JavaCompile>().configureEach {
                 options.errorprone.error("MyCustomCheck")
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         File(
             testProjectDir.newFolder("src", "main", "java", "com", "google", "errorprone", "sample"),

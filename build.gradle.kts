@@ -6,7 +6,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.10.1"
-    id("com.diffplug.gradle.spotless") version "3.23.0"
+    id("org.jlleitschuh.gradle.ktlint") version "8.1.0"
 }
 
 group = "net.ltgt.gradle"
@@ -109,14 +109,11 @@ buildScan {
     termsOfServiceAgree = "yes"
 }
 
-spotless {
-    val ktlintVersion = "0.33.0"
-    kotlin {
-        ktlint(ktlintVersion)
-    }
-    kotlinGradle {
-        ktlint(ktlintVersion)
-    }
+ktlint {
+    version.set("0.33.0")
+    enableExperimentalRules.set(true)
+    outputToConsole.set(true)
+    reporters.empty()
 }
 
 fun String.execute(envp: Array<String>?, workingDir: File?) =

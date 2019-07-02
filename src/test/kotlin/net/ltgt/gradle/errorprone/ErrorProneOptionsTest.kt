@@ -84,44 +84,59 @@ class ErrorProneOptionsTest {
 
         doTestOptions(
             { errorproneArgs.set(mutableListOf("-XepDisableAllChecks", "-Xep:BetaApi")) },
-            { disableAllChecks.set(true); enable("BetaApi") })
+            { disableAllChecks.set(true); enable("BetaApi") }
+        )
 
-        doTestOptions({
-            errorproneArgumentProviders.add(CommandLineArgumentProvider {
-                listOf(
-                    "-Xep:NullAway:ERROR",
-                    "-XepOpt:NullAway:AnnotatedPackages=net.ltgt.gradle.errorprone"
+        doTestOptions(
+            {
+                errorproneArgumentProviders.add(
+                    CommandLineArgumentProvider {
+                        listOf(
+                            "-Xep:NullAway:ERROR",
+                            "-XepOpt:NullAway:AnnotatedPackages=net.ltgt.gradle.errorprone"
+                        )
+                    }
                 )
-            })
-        }, {
-            check("NullAway", CheckSeverity.ERROR)
-            option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone")
-        })
+            },
+            {
+                check("NullAway", CheckSeverity.ERROR)
+                option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone")
+            }
+        )
     }
 
     @Test
     fun `correctly allows lazy configuration`() {
-        doTestOptions({
-            check("NullAway", isCompilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
-        }, {
-            error("NullAway")
-        })
+        doTestOptions(
+            {
+                check("NullAway", isCompilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
+            },
+            {
+                error("NullAway")
+            }
+        )
 
-        doTestOptions({
-            check("NullAway", isCompilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
-            isCompilingTestOnlyCode.set(providers.provider { true })
-        }, {
-            isCompilingTestOnlyCode.set(true)
-            warn("NullAway")
-        })
+        doTestOptions(
+            {
+                check("NullAway", isCompilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
+                isCompilingTestOnlyCode.set(providers.provider { true })
+            },
+            {
+                isCompilingTestOnlyCode.set(true)
+                warn("NullAway")
+            }
+        )
 
-        doTestOptions({
-            val annotatedPackages = objects.property<String>()
-            option("NullAway:AnnotatedPackages", annotatedPackages)
-            annotatedPackages.set(providers.provider { "net.ltgt.gradle.errorprone" })
-        }, {
-            option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone")
-        })
+        doTestOptions(
+            {
+                val annotatedPackages = objects.property<String>()
+                option("NullAway:AnnotatedPackages", annotatedPackages)
+                annotatedPackages.set(providers.provider { "net.ltgt.gradle.errorprone" })
+            },
+            {
+                option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone")
+            }
+        )
     }
 
     private fun doTestOptions(configure: ErrorProneOptions.() -> Unit, reference: ErrorProneOptions.() -> Unit) {
@@ -166,10 +181,12 @@ class ErrorProneOptionsTest {
         // Won't analyze free-form arguments, but those should be caught (later) by argument parsing
         // This test asserts that we're not being too restrictive, and only try to fail early.
         try {
-            parseOptions(ErrorProneOptions(objects).apply {
-                ignoreUnknownCheckNames.set(true)
-                errorproneArgs.add("-Xep:Foo:Bar")
-            })
+            parseOptions(
+                ErrorProneOptions(objects).apply {
+                    ignoreUnknownCheckNames.set(true)
+                    errorproneArgs.add("-Xep:Foo:Bar")
+                }
+            )
             fail("Should have thrown")
         } catch (ignore: InvalidCommandLineOptionException) {}
     }

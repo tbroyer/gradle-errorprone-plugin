@@ -1,12 +1,12 @@
 package net.ltgt.gradle.errorprone
 
+import java.io.File
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.util.GradleVersion
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import java.io.File
 
 abstract class AbstractPluginIntegrationTest {
 
@@ -31,17 +31,20 @@ abstract class AbstractPluginIntegrationTest {
     open fun setupProject() {
         settingsFile = testProjectDir.newFile("settings.gradle.kts")
         buildFile = testProjectDir.newFile("build.gradle.kts").apply {
-            writeText("""
+            writeText(
+                """
                 import net.ltgt.gradle.errorprone.*
 
-            """.trimIndent())
+                """.trimIndent()
+            )
         }
     }
 
     protected fun writeSuccessSource() {
         File(testProjectDir.newFolder("src", "main", "java", "test"), "Success.java").apply {
             createNewFile()
-            writeText("""
+            writeText(
+                """
                 package test;
 
                 public class Success {
@@ -51,14 +54,16 @@ abstract class AbstractPluginIntegrationTest {
                         return a.equals(b);
                     }
                 }
-            """.trimIndent())
+                """.trimIndent()
+            )
         }
     }
 
     protected fun writeFailureSource() {
         File(testProjectDir.newFolder("src", "main", "java", "test"), "Failure.java").apply {
             createNewFile()
-            writeText("""
+            writeText(
+                """
                 package test;
 
                 public class Failure {
@@ -67,7 +72,8 @@ abstract class AbstractPluginIntegrationTest {
                         return a.equals(b);
                     }
                 }
-            """.trimIndent())
+                """.trimIndent()
+            )
         }
     }
 

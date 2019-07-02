@@ -9,7 +9,8 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `in non-java project with applied plugin`() {
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             plugins {
                 id("${ErrorPronePlugin.PLUGIN_ID}")
             }
@@ -36,7 +37,8 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                     error("ArrayEquals")
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         writeFailureSource()
 
         // when
@@ -52,7 +54,8 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
         // This is similar to what the me.champeau.gradle.jmh plugin does
 
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             plugins {
                 java
                 id("${ErrorPronePlugin.PLUGIN_ID}")
@@ -77,7 +80,8 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                     error("ArrayEquals")
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         writeFailureSource()
 
         // Error Prone is disabled by default, so compilation should succeed.
@@ -91,10 +95,12 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
         // Now enable Error Prone and check that compilation fails.
 
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             customCompileJava.options.errorprone.isEnabled.set(true)
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         // when
         val result2 = buildWithArgsAndFail("customCompileJava")

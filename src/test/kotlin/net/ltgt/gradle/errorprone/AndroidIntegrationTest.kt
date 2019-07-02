@@ -1,11 +1,11 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
+import java.io.File
+import java.util.Properties
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Before
 import org.junit.Test
-import java.io.File
-import java.util.Properties
 
 class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     private val androidSdkHome = System.getProperty("test.android-sdk-home")
@@ -21,7 +21,8 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
             }
         }
 
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             plugins {
                 id("${ErrorPronePlugin.PLUGIN_ID}")
                 id("com.android.application")
@@ -45,13 +46,16 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
                 errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
-        File(testProjectDir.newFolder("src", "main"), "AndroidManifest.xml").writeText("""
+        File(testProjectDir.newFolder("src", "main"), "AndroidManifest.xml").writeText(
+            """
             <?xml version="1.0" encoding="utf-8"?>
             <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example">
             </manifest>
-        """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -82,7 +86,8 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `can configure errorprone`() {
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             afterEvaluate {
                 tasks.withType<JavaCompile>().configureEach {
@@ -91,7 +96,8 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
                     }
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         writeFailureSource()
 
         // when
@@ -104,14 +110,16 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `can disable errorprone`() {
         // given
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             afterEvaluate {
                 tasks.withType<JavaCompile>().configureEach {
                     options.errorprone.isEnabled.set(false)
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         writeFailureSource()
 
         // when

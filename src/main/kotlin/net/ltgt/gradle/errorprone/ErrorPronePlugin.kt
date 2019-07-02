@@ -84,7 +84,8 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 inputs.files(javacConfiguration).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
                 doFirst("configure errorprone in bootclasspath") {
                     if (options.errorprone.isEnabled.getOrElse(false) &&
-                        (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null))) {
+                        (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null))
+                    ) {
                         // We now know that we need the Error Prone javac
                         if (!options.isFork) {
                             options.isFork = true
