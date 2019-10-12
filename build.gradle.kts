@@ -47,7 +47,7 @@ dependencies {
     additionalPluginClasspath("com.android.tools.build:gradle:$androidPluginVersion")
 
     testImplementation("junit:junit:4.12")
-    testImplementation("com.google.truth:truth:0.45")
+    testImplementation("com.google.truth:truth:1.0")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
