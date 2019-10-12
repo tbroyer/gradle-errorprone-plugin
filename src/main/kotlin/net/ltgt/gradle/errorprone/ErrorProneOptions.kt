@@ -16,7 +16,8 @@ open class ErrorProneOptions constructor(
     objectFactory: ObjectFactory
 ) {
     @get:JvmName("getEnabled")
-    @get:Input val isEnabled = objectFactory.property<Boolean>().convention(false)
+    @get:Input
+    val isEnabled = objectFactory.property<Boolean>().convention(false)
     @get:Input val disableAllChecks = objectFactory.property<Boolean>().convention(false)
     @get:Input val allErrorsAsWarnings = objectFactory.property<Boolean>().convention(false)
     @get:Input val allDisabledChecksAsWarnings = objectFactory.property<Boolean>().convention(false)
@@ -24,8 +25,10 @@ open class ErrorProneOptions constructor(
     @get:Input val ignoreUnknownCheckNames = objectFactory.property<Boolean>().convention(false)
     @get:Input val ignoreSuppressionAnnotations = objectFactory.property<Boolean>().convention(false)
     @get:JvmName("getCompilingTestOnlyCode")
-    @get:Input val isCompilingTestOnlyCode = objectFactory.property<Boolean>().convention(false)
-    @get:Input @get:Optional val excludedPaths = objectFactory.property<String>()
+    @get:Input
+    val isCompilingTestOnlyCode = objectFactory.property<Boolean>().convention(false)
+    @get:Input @get:Optional
+    val excludedPaths = objectFactory.property<String>()
     @get:Input val checks = objectFactory.mapProperty<String, CheckSeverity>().empty()
     @get:Input val checkOptions = objectFactory.mapProperty<String, String>().empty()
     @get:Input val errorproneArgs = objectFactory.listProperty<String>().empty()
@@ -98,13 +101,15 @@ private val CheckSeverity.asArg: String
     get() = if (this == CheckSeverity.DEFAULT) "" else ":$name"
 
 private fun validate(arg: String) {
-    if (arg.contains("""\p{IsWhite_Space}""".toRegex()))
+    if (arg.contains("""\p{IsWhite_Space}""".toRegex())) {
         throw InvalidUserDataException("""Error Prone options cannot contain white space: "$arg".""")
+    }
 }
 
 private fun validateName(checkName: String) {
-    if (checkName.contains(':'))
+    if (checkName.contains(':')) {
         throw InvalidUserDataException("""Error Prone check name cannot contain a colon (":"): "$checkName".""")
+    }
 }
 
 // Extensions

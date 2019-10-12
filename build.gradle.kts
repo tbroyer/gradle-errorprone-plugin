@@ -2,11 +2,11 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.gradle.build-scan") version "2.3"
+    id("com.gradle.build-scan") version "2.4.2"
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.10.1"
-    id("org.jlleitschuh.gradle.ktlint") version "8.1.0"
+    id("org.jlleitschuh.gradle.ktlint") version "9.0.0"
 }
 
 group = "net.ltgt.gradle"
@@ -110,10 +110,9 @@ buildScan {
 }
 
 ktlint {
-    version.set("0.33.0")
+    version.set("0.34.2")
     enableExperimentalRules.set(true)
     outputToConsole.set(true)
-    reporters.empty()
 }
 
 fun String.execute(envp: Array<String>?, workingDir: File?) =

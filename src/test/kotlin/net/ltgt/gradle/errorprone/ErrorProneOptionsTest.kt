@@ -17,12 +17,14 @@ import org.junit.rules.TemporaryFolder
 
 class ErrorProneOptionsTest {
     companion object {
-        @JvmField @ClassRule val projectDir = TemporaryFolder()
+        @JvmField @ClassRule
+        val projectDir = TemporaryFolder()
 
         lateinit var objects: ObjectFactory
         lateinit var providers: ProviderFactory
 
-        @JvmStatic @BeforeClass fun setup() {
+        @JvmStatic @BeforeClass
+        fun setup() {
             ProjectBuilder.builder().withProjectDir(projectDir.root).build().let { project ->
                 objects = project.objects
                 providers = project.providers
