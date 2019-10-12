@@ -36,11 +36,16 @@ val additionalPluginClasspath by configurations.creating
 
 val errorproneVersion = "2.3.3"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.4.1"
+val androidPluginVersion = "3.5.1"
 
 repositories {
     mavenCentral()
     google()
+    jcenter() {
+        mavenContent {
+            includeModule("org.jetbrains.trove4j", "trove4j")
+        }
+    }
 }
 dependencies {
     compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
