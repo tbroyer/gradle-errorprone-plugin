@@ -149,7 +149,7 @@ Error Prone requires at least a JDK 9 compiler.
 When using JDK 8, you can configure a dependency on the Error Prone javac in the `errorproneJavac` configuration:
 ```gradle
 dependencies {
-    errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
+    errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
 }
 ```
 and the plugin will configure the `JavaCompile` tasks to [use a forking compiler][CompileOptions.fork]
