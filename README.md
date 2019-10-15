@@ -323,7 +323,7 @@ import net.ltgt.gradle.errorprone.errorprone
 | `disableWarningsInGeneratedCode` | Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`. Defaults to `false`.
 | `ignoreUnknownCheckNames`        | Defaults to `false`.
 | `ignoreSuppressionAnnotations`   | (since Error Prone 2.3.3) Defaults to `false`.
-| `compilingTestOnlyCode`          | (`isCompilingTestOnlyCode` with Kotlin DSL) Defaults to `false`. (defaults to `true` for the `compileTestJava` task)
+| `compilingTestOnlyCode`          | (`isCompilingTestOnlyCode` with Kotlin DSL) Defaults to `false`. (defaults to `true` for a source set inferred as a test source set)
 | `excludedPaths`                  | A regular expression pattern (as a string) of file paths to exclude from Error Prone checking. Defaults to `null`.
 | `checks`                         | A map of check name to `CheckSeverity`, to configure which checks are enabled or disabled, and their severity. Defaults to an empty map.
 | `checkOptions`                   | A map of check options to their value. Use an explicit `"true"` value for a boolean option. Defaults to an empty map.

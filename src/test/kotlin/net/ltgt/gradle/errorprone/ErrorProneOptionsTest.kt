@@ -1,11 +1,14 @@
 package net.ltgt.gradle.errorprone
 
+import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
 import com.google.errorprone.ErrorProneOptions.Severity
 import com.google.errorprone.InvalidCommandLineOptionException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.tasks.SourceSet
+import org.gradle.internal.component.external.model.TestFixturesSupport
 import org.gradle.kotlin.dsl.property
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.testfixtures.ProjectBuilder
@@ -31,6 +34,22 @@ class ErrorProneOptionsTest {
             }
         }
     }
+
+    @Test
+    fun `detects test source sets`() {
+        assertThat(SourceSet.MAIN_SOURCE_SET_NAME).isNotTestSourceSetName()
+        assertThat("testing").isNotTestSourceSetName()
+        assertThat("fooTester").isNotTestSourceSetName()
+
+        assertThat(SourceSet.TEST_SOURCE_SET_NAME).isTestSourceSetName()
+        assertThat(TestFixturesSupport.TEST_FIXTURE_SOURCESET_NAME).isTestSourceSetName()
+        // E.g. from nebula.integtest plugin
+        assertThat("integTest").isTestSourceSetName()
+        assertThat("fooTestBar").isTestSourceSetName()
+    }
+
+    private fun StringSubject.isTestSourceSetName() = this.matches(TEST_SOURCE_SET_NAME_REGEX.toPattern())
+    private fun StringSubject.isNotTestSourceSetName() = this.doesNotMatch(TEST_SOURCE_SET_NAME_REGEX.toPattern())
 
     @Test
     fun `generates correct error prone options`() {

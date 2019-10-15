@@ -17,7 +17,6 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
@@ -109,13 +108,8 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
                 project.tasks.named<JavaCompile>(compileJavaTaskName) {
                     options.errorprone.isEnabled.convention(true)
+                    options.errorprone.isCompilingTestOnlyCode.convention(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
                 }
-            }
-        }
-
-        project.plugins.withType<JavaPlugin> {
-            project.tasks.named<JavaCompile>(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME) {
-                options.errorprone.isCompilingTestOnlyCode.convention(true)
             }
         }
 
@@ -126,9 +120,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                     javaCompileProvider.configure {
                         options.errorprone {
                             isEnabled.convention(true)
-                            if (this@configure is TestVariant || this@configure is UnitTestVariant) {
-                                isCompilingTestOnlyCode.convention(true)
-                            }
+                            isCompilingTestOnlyCode.convention(this@configure is TestVariant || this@configure is UnitTestVariant)
                         }
                     }
                 }
@@ -167,3 +159,6 @@ internal class ErrorProneCompilerArgumentProvider(
         }
     }
 }
+
+internal val TEST_SOURCE_SET_NAME_REGEX =
+    """^(t|.*T)est(\p{javaUpperCase}.*)?$""".toRegex()
