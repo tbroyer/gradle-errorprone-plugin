@@ -18,6 +18,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.ClasspathNormalizer
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.SourceSetContainer
@@ -143,7 +144,7 @@ internal class ErrorProneCompilerArgumentProvider(
     private val errorproneOptions: ErrorProneOptions
 ) : CommandLineArgumentProvider, Named {
 
-    override fun getName(): String = "errorprone"
+    @Internal override fun getName(): String = "errorprone"
 
     @Suppress("unused")
     @Nested
