@@ -5,7 +5,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.10.1"
-    id("org.jlleitschuh.gradle.ktlint") version "9.0.0"
+    id("org.jlleitschuh.gradle.ktlint") version "9.1.1"
 }
 
 group = "net.ltgt.gradle"
@@ -109,7 +109,7 @@ pluginBundle {
 }
 
 ktlint {
-    version.set("0.34.2")
+    version.set("0.35.0")
     enableExperimentalRules.set(true)
     outputToConsole.set(true)
 }
