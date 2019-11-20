@@ -2,7 +2,6 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("com.gradle.build-scan") version "2.4.2"
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.10.1"
@@ -107,11 +106,6 @@ pluginBundle {
         groupId = project.group.toString()
         artifactId = project.name
     }
-}
-
-buildScan {
-    termsOfServiceUrl = "https://gradle.com/terms-of-service"
-    termsOfServiceAgree = "yes"
 }
 
 ktlint {

@@ -15,7 +15,8 @@ env:
   - GRADLE_VERSION=5.3.1
   - GRADLE_VERSION=5.4.1
   - GRADLE_VERSION=5.5.1
-  - GRADLE_VERSION=5.6.2
+  - GRADLE_VERSION=5.6.4
+  - GRADLE_VERSION=6.0.1
 
 install: true
 script: ./gradlew --scan build -Ptest.gradle-version=$GRADLE_VERSION
