@@ -33,9 +33,9 @@ gradle.taskGraph.whenReady {
 // See https://github.com/gradle/gradle/issues/7974
 val additionalPluginClasspath by configurations.creating
 
-val errorproneVersion = "2.3.3"
+val errorproneVersion = "2.3.4"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.5.1"
+val androidPluginVersion = "3.5.3"
 
 repositories {
     mavenCentral()
@@ -50,8 +50,8 @@ dependencies {
     compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
     additionalPluginClasspath("com.android.tools.build:gradle:$androidPluginVersion")
 
-    testImplementation("junit:junit:4.12")
-    testImplementation("com.google.truth:truth:1.0")
+    testImplementation("junit:junit:4.13")
+    testImplementation("com.google.truth:truth:1.0.1")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
@@ -109,7 +109,7 @@ pluginBundle {
 }
 
 ktlint {
-    version.set("0.35.0")
+    version.set("0.36.0")
     enableExperimentalRules.set(true)
     outputToConsole.set(true)
 }

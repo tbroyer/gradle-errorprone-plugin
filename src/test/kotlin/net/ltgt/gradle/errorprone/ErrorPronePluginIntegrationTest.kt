@@ -114,8 +114,8 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             dependencies {
                 compileOnly("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 
-                compileOnly("com.google.auto.service:auto-service:1.0-rc4")
-                annotationProcessor("com.google.auto.service:auto-service:1.0-rc4")
+                compileOnly("com.google.auto.service:auto-service-annotations:1.0-rc6")
+                annotationProcessor("com.google.auto.service:auto-service:1.0-rc6")
             }
             """.trimIndent()
         )
