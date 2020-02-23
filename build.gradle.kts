@@ -5,7 +5,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.10.1"
-    id("org.jlleitschuh.gradle.ktlint") version "9.1.1"
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 group = "net.ltgt.gradle"
