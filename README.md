@@ -229,8 +229,8 @@ you can pass those arguments to `options.errorprone.errorproneArgs` instead:
 -     options.compilerArgs << "-Xlint:all" << "-Werror" << "-XepDisableWarningsInGeneratedCode"
 -     options.compilerArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=net.ltgt"
 +     options.compilerArgs << "-Xlint:all" << "-Werror"
-+     options.errorprone.errorproneArgs << "-XepDisableWarningsInGeneratedCode"
-+     options.errorprone.errorproneArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=com.uber"
++     options.errorprone.errorproneArgs.add("-XepDisableWarningsInGeneratedCode")
++     options.errorprone.errorproneArgs.addAll("-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.uber")
   }
 ```
 
@@ -238,8 +238,8 @@ The next (optional) step would be to move to using the DSL:
 ```diff
   tasks.withType(JavaCompile).configureEach {
       options.compilerArgs << "-Xlint:all" << "-Werror"
--     options.errorprone.errorproneArgs << "-XepDisableWarningsInGeneratedCode"
--     options.errorprone.errorproneArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=com.uber"
+-     options.errorprone.errorproneArgs.add("-XepDisableWarningsInGeneratedCode")
+-     options.errorprone.errorproneArgs.addAll("-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.uber")
 +     options.errorprone {
 +         disableWarningsInGeneratedCode = true
 +         error("NullAway")
