@@ -314,6 +314,10 @@ import net.ltgt.gradle.errorprone.errorprone
 
 ### Properties
 
+_Please note that all properties are [lazy](https://docs.gradle.org/current/userguide/lazy_configuration.html#lazy_properties),
+so while you can use `=` in place of `.set(…)` in the Groovy DSL,
+you cannot use `<<` or `+=` to add to lists for instance._
+
 | Property | Description
 | :------- | :----------
 | `enabled`                        | (`isEnabled` with Kotlin DSL) Allows disabling Error Prone altogether for the task. Defaults to `true`.
