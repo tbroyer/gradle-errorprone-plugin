@@ -35,7 +35,7 @@ val additionalPluginClasspath by configurations.creating
 
 val errorproneVersion = "2.3.4"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.5.3"
+val androidPluginVersion = "3.6.0"
 
 repositories {
     mavenCentral()
