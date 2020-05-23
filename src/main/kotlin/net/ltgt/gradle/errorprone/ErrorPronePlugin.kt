@@ -114,7 +114,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             }
         }
 
-        arrayOf("application", "library", "feature", "test", "instantapp").forEach {
+        arrayOf("application", "library", "test", "dynamic-feature", /* deprecated plugins: */ "feature", "instantapp").forEach {
             project.plugins.withId("com.android.$it") {
                 fun BaseVariant.configure() {
                     annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
@@ -129,12 +129,13 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 val android = project.extensions.getByName<BaseExtension>("android")
                 (android as? AppExtension)?.applicationVariants?.configureEach(BaseVariant::configure)
                 (android as? LibraryExtension)?.libraryVariants?.configureEach(BaseVariant::configure)
-                (android as? FeatureExtension)?.featureVariants?.configureEach(BaseVariant::configure)
                 (android as? TestExtension)?.applicationVariants?.configureEach(BaseVariant::configure)
                 if (android is TestedExtension) {
                     android.testVariants.configureEach(BaseVariant::configure)
                     android.unitTestVariants.configureEach(BaseVariant::configure)
                 }
+                // Deprecated
+                (android as? FeatureExtension)?.featureVariants?.configureEach(BaseVariant::configure)
             }
         }
     }
