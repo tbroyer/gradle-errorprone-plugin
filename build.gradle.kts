@@ -1,3 +1,4 @@
+import com.android.Version
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -6,6 +7,7 @@ plugins {
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.11.0"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("com.android.lint") version "3.6.3"
 }
 
 group = "net.ltgt.gradle"
@@ -35,7 +37,6 @@ val additionalPluginClasspath by configurations.creating
 
 val errorproneVersion = "2.3.4"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.6.3"
 
 repositories {
     mavenCentral()
@@ -47,8 +48,8 @@ repositories {
     }
 }
 dependencies {
-    compileOnly("com.android.tools.build:gradle:$androidPluginVersion")
-    additionalPluginClasspath("com.android.tools.build:gradle:$androidPluginVersion")
+    compileOnly("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
+    additionalPluginClasspath("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
 
     testImplementation("junit:junit:4.13")
     testImplementation("com.google.truth:truth:1.0.1")
