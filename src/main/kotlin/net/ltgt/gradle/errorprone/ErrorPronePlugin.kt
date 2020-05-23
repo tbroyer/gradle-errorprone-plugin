@@ -14,6 +14,7 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Named
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
@@ -63,7 +64,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
 
             exclude(group = "com.google.errorprone", module = "javac")
         }
-        val javacConfiguration = project.configurations.create(JAVAC_CONFIGURATION_NAME) {
+        val javacConfiguration: FileCollection = project.configurations.create(JAVAC_CONFIGURATION_NAME) {
             description = "Error Prone Javac dependencies, will only be used when using JDK 8 (i.e. not JDK 9 or superior)"
             isVisible = false
             isCanBeConsumed = false

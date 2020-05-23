@@ -1,8 +1,10 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.TruthJUnit.assume
 import java.io.File
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.util.GradleVersion
 import org.junit.Before
 import org.junit.Test
 
@@ -151,5 +153,22 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
         assertThat(result.output).contains("[MyCustomCheck] String formatting inside print method")
+    }
+
+    @Test
+    fun `is configuration-cache friendly`() {
+        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.5-rc-1"))
+
+        // given
+        writeSuccessSource()
+
+        // Prime the configuration cache
+        buildWithArgs("--configuration-cache=on", "compileJava")
+
+        // when
+        val result = buildWithArgs("--configuration-cache=on", "compileJava")
+
+        // then
+        assertThat(result.output).contains("Reusing configuration cache.")
     }
 }
