@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "0.10.1"
+    id("com.gradle.plugin-publish") version "0.11.0"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
@@ -35,7 +35,7 @@ val additionalPluginClasspath by configurations.creating
 
 val errorproneVersion = "2.3.4"
 val errorproneJavacVersion = "9+181-r4173-1"
-val androidPluginVersion = "3.6.0"
+val androidPluginVersion = "3.6.3"
 
 repositories {
     mavenCentral()
