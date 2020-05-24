@@ -1,0 +1,183 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+
+env:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+# First build on Linux and Windows with JDK 8
+# Then run tests with various Gradle and JDKs versions
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup JDK 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - name: Cache Gradle wrapper
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper/dists/gradle-6.4.1-bin/
+          key: wrapper-6.4.1
+
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches/modules-2/
+          key: deps-${{ hashFiles('**/*gradle.lockfile') }}
+
+      - name: Build with Gradle
+        id: gradle-build
+        run: ./gradlew --scan build
+
+      - name: Store reports
+        if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-reports
+          path: build/reports/
+
+      - name: Before cache
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: rm -f ~/.gradle/caches/modules-2/*.lock ~/.gradle/caches/modules-2/gc.properties
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Cache Gradle wrapper
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper/dists/gradle-6.4.1-bin/
+          key: wrapper-6.4.1
+
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches/modules-2/
+          key: deps-${{ hashFiles('**/*gradle.lockfile') }}
+
+      - name: Build with Gradle
+        id: gradle-build
+        run: ./gradlew --scan build
+
+      - name: Store reports
+        if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-reports
+          path: build/reports/
+
+      - name: Before cache
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: Remove-Item ~/.gradle/caches/modules-2/*.lock,~/.gradle/caches/modules-2/gc.properties -Force
+
+  test-gradle:
+    needs: linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        gradle: [ '6.3', '6.2.2', '6.1.1', '6.0.1', '5.6.4', '5.5.1', '5.4.1', '5.3.1', '5.2.1' ]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup JDK 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - name: Cache Gradle wrapper
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper/dists/gradle-6.4.1-bin/
+          key: wrapper-6.4.1
+
+      - name: Cache Gradle test wrapper (${{ matrix.gradle }})
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper/dists/gradle-${{ matrix.gradle }}-bin/
+          key: wrapper-${{ matrix.gradle }}
+
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches/modules-2/
+          key: deps-${{ hashFiles('**/*gradle.lockfile') }}
+
+      - name: Build with Gradle
+        id: gradle-build
+        run: ./gradlew --scan test -Ptest.gradle-version="${{ matrix.gradle }}"
+
+      - name: Store reports
+        if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
+        uses: actions/upload-artifact@v2
+        with:
+          name: gradle-${{ matrix.gradle }}-tests
+          path: build/reports/tests/test/
+
+  test-jdk:
+    needs: linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11, 14 ]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup JDK ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+
+      # Workaround for https://github.com/actions/setup-java/issues/65
+      - name: Backup JAVA_HOME
+        id: setup-test-java
+        run: echo "::set-output name=path::$JAVA_HOME"
+
+      - name: Setup JDK 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - name: Cache Gradle wrapper
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper/dists/gradle-6.4.1-bin/
+          key: wrapper-6.4.1
+
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches/modules-2/
+          key: deps-${{ hashFiles('**/*gradle.lockfile') }}
+
+      - name: Build with Gradle
+        id: gradle-build
+        run: ./gradlew --scan test -Ptest.java-home="${{ steps.setup-test-java.outputs.path }}"
+
+      - name: Store reports
+        if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
+        uses: actions/upload-artifact@v2
+        with:
+          name: jdk-${{ matrix.java }}-tests
+          path: build/reports/tests/test/
