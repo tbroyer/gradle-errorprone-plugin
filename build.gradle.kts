@@ -9,6 +9,16 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     id("com.android.lint") version "3.6.3"
 }
+buildscript {
+    dependencyLocking {
+        lockAllConfigurations()
+        lockMode.set(LockMode.STRICT)
+    }
+}
+dependencyLocking {
+    lockAllConfigurations()
+    lockMode.set(LockMode.STRICT)
+}
 
 group = "net.ltgt.gradle"
 
