@@ -63,7 +63,12 @@ tasks {
 
     test {
         val testJavaHome = project.findProperty("test.java-home")
-        testJavaHome?.also { systemProperty("test.java-home", it) }
+        testJavaHome?.also {
+            executable(
+                project.javaInstalls.installationForDirectory(project.layout.dir(provider { file(it) }))
+                    .get().javaExecutable
+            )
+        }
 
         val testGradleVersion = project.findProperty("test.gradle-version")
         testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
