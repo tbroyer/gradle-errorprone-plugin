@@ -19,6 +19,7 @@ open class ErrorProneOptions constructor(
     @get:Input
     val isEnabled = objectFactory.property<Boolean>().convention(false)
     @get:Input val disableAllChecks = objectFactory.property<Boolean>().convention(false)
+    @get:Input val disableAllWarnings = objectFactory.property<Boolean>().convention(false)
     @get:Input val allErrorsAsWarnings = objectFactory.property<Boolean>().convention(false)
     @get:Input val allDisabledChecksAsWarnings = objectFactory.property<Boolean>().convention(false)
     @get:Input val disableWarningsInGeneratedCode = objectFactory.property<Boolean>().convention(false)
@@ -70,6 +71,7 @@ open class ErrorProneOptions constructor(
         return (
             sequenceOf(
                 booleanOption("-XepDisableAllChecks", disableAllChecks),
+                booleanOption("-XepDisableAllWarnings", disableAllWarnings),
                 booleanOption("-XepAllErrorsAsWarnings", allErrorsAsWarnings),
                 booleanOption("-XepAllDisabledChecksAsWarnings", allDisabledChecksAsWarnings),
                 booleanOption("-XepDisableWarningsInGeneratedCode", disableWarningsInGeneratedCode),

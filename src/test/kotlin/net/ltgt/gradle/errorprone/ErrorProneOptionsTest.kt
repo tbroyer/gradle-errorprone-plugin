@@ -54,6 +54,7 @@ class ErrorProneOptionsTest {
     @Test
     fun `generates correct error prone options`() {
         doTestOptions { disableAllChecks.set(true) }
+        doTestOptions { disableAllWarnings.set(true) }
         doTestOptions { allErrorsAsWarnings.set(true) }
         doTestOptions { allDisabledChecksAsWarnings.set(true) }
         doTestOptions { disableWarningsInGeneratedCode.set(true) }
@@ -76,6 +77,7 @@ class ErrorProneOptionsTest {
 
         doTestOptions {
             disableAllChecks.set(true)
+            disableAllWarnings.set(true)
             allErrorsAsWarnings.set(true)
             allDisabledChecksAsWarnings.set(true)
             disableWarningsInGeneratedCode.set(true)
@@ -224,6 +226,7 @@ class ErrorProneOptionsTest {
         parsedOptions: com.google.errorprone.ErrorProneOptions
     ) {
         assertThat(parsedOptions.isDisableAllChecks).isEqualTo(options.disableAllChecks.get())
+        assertThat(parsedOptions.isDisableAllWarnings).isEqualTo(options.disableAllWarnings.get())
         assertThat(parsedOptions.isDropErrorsToWarnings).isEqualTo(options.allErrorsAsWarnings.get())
         assertThat(parsedOptions.isEnableAllChecksAsWarnings).isEqualTo(options.allDisabledChecksAsWarnings.get())
         assertThat(parsedOptions.disableWarningsInGeneratedCode()).isEqualTo(options.disableWarningsInGeneratedCode.get())

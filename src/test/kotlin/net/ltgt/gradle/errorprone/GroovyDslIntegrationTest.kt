@@ -57,6 +57,7 @@ class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
                     // configure with the default values, we only want to check the DSL, not the effects
                     enabled = true
                     disableAllChecks = false
+                    disableAllWarnings = false
                     allErrorsAsWarnings = false
                     allDisabledChecksAsWarnings = false
                     disableWarningsInGeneratedCode = false

@@ -322,6 +322,7 @@ you cannot use `<<` or `+=` to add to lists for instance._
 | :------- | :----------
 | `enabled`                        | (`isEnabled` with Kotlin DSL) Allows disabling Error Prone altogether for the task. Defaults to `true`.
 | `disableAllChecks`               | Disable all Error Prone checks. This will be the first argument, so checks can then be re-enabled on a case-by-case basis. Defaults to `false`.
+| `disableAllWarnings`             | (since ErrorProne 2.4.0) Defaults to `false`.
 | `allErrorsAsWarnings`            | Defaults to `false`.
 | `allDisabledChecksAsWarnings`    | Enables all Error Prone checks, checks that are disabled by default are enabled as warnings. Defaults to `false`.
 | `disableWarningsInGeneratedCode` | Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`. Defaults to `false`.
