@@ -8,6 +8,7 @@ plugins {
     id("com.gradle.plugin-publish") version "0.11.0"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
     id("com.android.lint") version "3.6.3"
+    id("org.nosphere.gradle.github.actions") version "1.2.0"
 }
 buildscript {
     dependencyLocking {
