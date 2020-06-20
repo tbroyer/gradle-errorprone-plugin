@@ -24,22 +24,15 @@ jobs:
         with:
           java-version: 8
 
-      - name: Cache Gradle wrapper
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/wrapper/dists/gradle-6.5-bin/
-          key: wrapper-6.5
-
-      - name: Cache dependencies
-        id: cache-dependencies
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches/modules-2/
-          key: deps-${{ hashFiles('**/*gradle.lockfile') }}
-
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew --scan build
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: --scan build
+          wrapper-cache-enabled: true
+          dependencies-cache-enabled: true
+          dependencies-cache-key: '**/*gradle.lockfile'
+          dependencies-cache-exact: true
 
       - name: Store reports
         if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
@@ -47,10 +40,6 @@ jobs:
         with:
           name: linux-reports
           path: build/reports/
-
-      - name: Before cache
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        run: rm -f ~/.gradle/caches/modules-2/*.lock ~/.gradle/caches/modules-2/gc.properties
 
   windows:
     runs-on: windows-latest
@@ -62,22 +51,15 @@ jobs:
         with:
           java-version: 11
 
-      - name: Cache Gradle wrapper
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/wrapper/dists/gradle-6.5-bin/
-          key: wrapper-6.5
-
-      - name: Cache dependencies
-        id: cache-dependencies
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches/modules-2/
-          key: deps-${{ hashFiles('**/*gradle.lockfile') }}
-
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew --scan build
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: --scan build
+          wrapper-cache-enabled: true
+          dependencies-cache-enabled: true
+          dependencies-cache-key: '**/*gradle.lockfile'
+          dependencies-cache-exact: true
 
       - name: Store reports
         if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
@@ -85,10 +67,6 @@ jobs:
         with:
           name: windows-reports
           path: build/reports/
-
-      - name: Before cache
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
-        run: Remove-Item ~/.gradle/caches/modules-2/*.lock,~/.gradle/caches/modules-2/gc.properties -Force
 
   test-gradle:
     needs: linux
@@ -104,28 +82,21 @@ jobs:
         with:
           java-version: 8
 
-      - name: Cache Gradle wrapper
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/wrapper/dists/gradle-6.5-bin/
-          key: wrapper-6.5
-
       - name: Cache Gradle test wrapper (${{ matrix.gradle }})
         uses: actions/cache@v1
         with:
           path: ~/.gradle/wrapper/dists/gradle-${{ matrix.gradle }}-bin/
           key: wrapper-${{ matrix.gradle }}
 
-      - name: Cache dependencies
-        id: cache-dependencies
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches/modules-2/
-          key: deps-${{ hashFiles('**/*gradle.lockfile') }}
-
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew --scan test -Ptest.gradle-version="${{ matrix.gradle }}"
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: --scan test "-Ptest.gradle-version=${{ matrix.gradle }}"
+          wrapper-cache-enabled: true
+          dependencies-cache-enabled: true
+          dependencies-cache-key: '**/*gradle.lockfile'
+          dependencies-cache-exact: true
 
       - name: Store reports
         if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
@@ -158,22 +129,15 @@ jobs:
         with:
           java-version: 8
 
-      - name: Cache Gradle wrapper
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/wrapper/dists/gradle-6.5-bin/
-          key: wrapper-6.5
-
-      - name: Cache dependencies
-        id: cache-dependencies
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches/modules-2/
-          key: deps-${{ hashFiles('**/*gradle.lockfile') }}
-
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew --scan test -Ptest.java-home="${{ steps.setup-test-java.outputs.path }}"
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: --scan test "-Ptest.java-home=${{ steps.setup-test-java.outputs.path }}"
+          wrapper-cache-enabled: true
+          dependencies-cache-enabled: true
+          dependencies-cache-key: '**/*gradle.lockfile'
+          dependencies-cache-exact: true
 
       - name: Store reports
         if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
