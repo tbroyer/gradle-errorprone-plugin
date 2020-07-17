@@ -157,16 +157,16 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `is configuration-cache friendly`() {
-        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.5-rc-1"))
+        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.6-rc-1"))
 
         // given
         writeSuccessSource()
 
         // Prime the configuration cache
-        buildWithArgs("--configuration-cache=on", "compileJava")
+        buildWithArgs("--configuration-cache", "compileJava")
 
         // when
-        val result = buildWithArgs("--configuration-cache=on", "compileJava")
+        val result = buildWithArgs("--configuration-cache", "compileJava")
 
         // then
         assertThat(result.output).contains("Reusing configuration cache.")
