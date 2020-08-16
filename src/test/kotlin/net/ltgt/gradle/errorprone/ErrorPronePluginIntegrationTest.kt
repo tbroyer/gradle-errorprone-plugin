@@ -157,7 +157,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `is configuration-cache friendly`() {
-        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.6-rc-1"))
+        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.6"))
 
         // given
         writeSuccessSource()
