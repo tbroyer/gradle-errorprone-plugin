@@ -120,16 +120,16 @@ jobs:
         run: echo "::set-env name=JAVA_HOME_${{ matrix.java }}_X64::${{ steps.setup-test-java.outputs.path }}"
 
       - name: Setup environment
-        id: setup-env
         run: |
           echo "::set-env name=JAVA_HOME::${JAVA_HOME_8_X64}"
-          echo "::set-output name=test_java_home::${JAVA_HOME_${{ matrix.java }}_X64}"
+          echo "org.gradle.java.installations.auto-download=false" | tee -a gradle.properties
+          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_${{ matrix.java }}_X64" | tee -a gradle.properties
 
       - name: Build with Gradle
         id: gradle-build
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: --scan test "-Ptest.java-home=${{ steps.setup-env.outputs.test_java_home }}"
+          arguments: --scan test "-Ptest.java-toolchain=${{ matrix.java }}"
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
           dependencies-cache-key: '**/*gradle.lockfile'

@@ -73,11 +73,12 @@ tasks {
     }
 
     test {
-        val testJavaHome = project.findProperty("test.java-home")
-        testJavaHome?.also {
-            executable(
-                project.javaInstalls.installationForDirectory(project.layout.dir(provider { file(it) }))
-                    .get().javaExecutable
+        val testJavaToolchain = project.findProperty("test.java-toolchain")
+        testJavaToolchain?.also {
+            javaLauncher.set(
+                javaToolchains.launcherFor {
+                    languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
+                }
             )
         }
 
