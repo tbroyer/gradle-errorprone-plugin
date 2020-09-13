@@ -11,18 +11,16 @@ on:
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-# First build on Linux and Windows with JDK 8
-# Then run tests with various Gradle and JDKs versions
+# First build on Linux with JDK 8 and Windows with JDK 11
+# Then run tests with various Gradle and JDKs versions (Linux only)
 jobs:
   linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup JDK 8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 8
+      - name: Setup environment
+        run: echo "::set-env name=JAVA_HOME::${JAVA_HOME_8_X64}"
 
       - name: Build with Gradle
         id: gradle-build
@@ -46,10 +44,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
+      - name: Setup environment
+        run: echo "::set-env name=JAVA_HOME::${JAVA_HOME_11_X64}"
 
       - name: Build with Gradle
         id: gradle-build
@@ -77,16 +73,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup JDK 8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 8
-
       - name: Cache Gradle test wrapper (${{ matrix.gradle }})
         uses: actions/cache@v1
         with:
           path: ~/.gradle/wrapper/dists/gradle-${{ matrix.gradle }}-bin/
           key: wrapper-${{ matrix.gradle }}
+
+      - name: Setup environment
+        run: echo "::set-env name=JAVA_HOME::${JAVA_HOME_8_X64}"
 
       - name: Build with Gradle
         id: gradle-build
@@ -116,20 +110,26 @@ jobs:
 
       - name: Setup JDK ${{ matrix.java }}
         id: setup-test-java
+        if: matrix.java != 11
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
 
-      - name: Setup JDK 8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 8
+      - name: Setup JAVA_HOME_${{ matrix.java }}_X64 environment variable
+        if: matrix.java != 11
+        run: echo "::set-env name=JAVA_HOME_${{ matrix.java }}_X64::${{ steps.setup-test-java.outputs.path }}"
+
+      - name: Setup environment
+        id: setup-env
+        run: |
+          echo "::set-env name=JAVA_HOME::${JAVA_HOME_8_X64}"
+          echo "::set-output name=test_java_home::${JAVA_HOME_${{ matrix.java }}_X64}"
 
       - name: Build with Gradle
         id: gradle-build
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: --scan test "-Ptest.java-home=${{ steps.setup-test-java.outputs.path }}"
+          arguments: --scan test "-Ptest.java-home=${{ steps.setup-env.outputs.test_java_home }}"
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
           dependencies-cache-key: '**/*gradle.lockfile'
