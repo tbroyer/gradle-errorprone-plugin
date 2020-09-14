@@ -146,7 +146,7 @@ afterEvaluate {
 ## JDK 8 support
 
 Error Prone requires at least a JDK 9 compiler.
-When using JDK 8, you can configure a dependency on the Error Prone javac in the `errorproneJavac` configuration:
+When using a JDK 8 compiler, you can configure a dependency on the Error Prone javac in the `errorproneJavac` configuration:
 ```gradle
 dependencies {
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
@@ -156,7 +156,13 @@ and the plugin will configure the `JavaCompile` tasks to [use a forking compiler
 and will override the compiler by prepending the dependencies to the bootstrap classpath
 (using a `-Xbootclasspath/p:` [JVM argument][BaseForkOptions.getJvmArgs]).
 
-Alternatively, you can [configure `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK while still using JDK 8 for running Gradle:
+Starting with Gradle 6.7, you can [configure `JavaCompile` tasks][gradle-toolchains] to use a specific JDK compiler,
+independently of the JDK used to run Gradle itself.
+The plugin will use the toolchain version, if any is specified, to configure the task.
+This allows you to enforce compilation with JDK 8 (properly configured for Error Prone!) while running Gradle with e.g. JDK 11,
+or the reverse: enforce compilation with JDK 11 while running Gradle with JDK 8.
+
+Alternatively, or for previous versions of Gradle, you can [configure `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK while still using JDK 8 for running Gradle:
 ```gradle
 tasks.withType(JavaCompile).configureEach {
     options.fork(javaHome: project.getProperty("jdk11home"))
@@ -204,12 +210,13 @@ someTask.configure {
 ```
 
 </details>
+
 (if you're using `forkOptions.executable`, then use `-J-Xbootclasspath/p:` instead.)
 
+[gradle-toolchains]: https://docs.gradle.org/6.7-rc-1/userguide/toolchains.html
 [CompileOptions.fork]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:fork
 [BaseForkOptions.getJvmArgs]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/BaseForkOptions.html#getJvmArgs--
 [ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
-
 
 ## Migration from [versions 0.0._x_]
 

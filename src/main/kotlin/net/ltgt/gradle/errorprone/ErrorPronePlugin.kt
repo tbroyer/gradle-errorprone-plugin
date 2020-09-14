@@ -48,6 +48,10 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         $JAVAC_CONFIGURATION_NAME("com.google.errorprone:javac:${'$'}errorproneJavacVersion")
     }
 """
+
+        private val HAS_TOOLCHAINS = GradleVersion.current().baseVersion >= GradleVersion.version("6.7")
+
+        internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 8"
     }
 
     override fun apply(project: Project) {
@@ -72,6 +76,21 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         }
 
         val noJavacDependencyNotified = AtomicBoolean()
+        fun JavaCompile.configureErrorProneJavac() {
+            if (!options.isFork) {
+                options.isFork = true
+                // reset forkOptions in case they were configured
+                options.forkOptions = ForkOptions()
+            }
+            javacConfiguration.asPath.also {
+                if (it.isNotBlank()) {
+                    options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:$it")
+                } else if (noJavacDependencyNotified.compareAndSet(false, true)) {
+                    LOGGER.warn(NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
+                }
+            }
+        }
+
         project.tasks.withType<JavaCompile>().configureEach {
             val errorproneOptions =
                 (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
@@ -79,27 +98,20 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 .compilerArgumentProviders
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
 
-            if (JavaVersion.current().isJava8) {
-                // We don't know yet whether the task will use the same JVM (and need the Error Prone javac),
-                // but chances are really high that this will be the case, so configure task inputs anyway.
+            if (HAS_TOOLCHAINS || JavaVersion.current().isJava8) {
                 inputs.files(javacConfiguration).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
                 doFirst("configure errorprone in bootclasspath") {
-                    if (options.errorprone.isEnabled.getOrElse(false) &&
-                        (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null))
-                    ) {
-                        // We now know that we need the Error Prone javac
-                        if (!options.isFork) {
-                            options.isFork = true
-                            // reset forkOptions in case they were configured
-                            options.forkOptions = ForkOptions()
-                        }
-                        javacConfiguration.asPath.also {
-                            if (it.isNotBlank()) {
-                                options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:$it")
-                            } else if (noJavacDependencyNotified.compareAndSet(false, true)) {
-                                LOGGER.warn(NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
+                    when {
+                        !options.errorprone.isEnabled.getOrElse(false) -> return@doFirst
+                        HAS_TOOLCHAINS && javaCompiler.isPresent -> {
+                            val targetVersion = javaCompiler.get().metadata.languageVersion.asInt()
+                            when {
+                                targetVersion < 8 -> throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
+                                targetVersion == 8 -> configureErrorProneJavac()
                             }
                         }
+                        JavaVersion.current().isJava8 && (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null)) ->
+                            configureErrorProneJavac()
                     }
                 }
             }
