@@ -108,12 +108,30 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             """.trimIndent()
         )
 
-        // when
-        val result = buildWithArgsAndFail("compileJava")
+        // First test that it's disabled by default
 
-        // then
-        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        assertThat(result.output).contains(ErrorPronePlugin.TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
+        // when
+        buildWithArgsAndFail("displayCompileJavaOptions").also { result ->
+            // then
+            assertThat(result.task(":displayCompileJavaOptions")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+            assertThat(result.output).contains("ErrorProne: disabled")
+        }
+
+        // Then test that it fails if we force-enable it
+
+        buildFile.appendText(
+            """
+
+            tasks.compileJava { options.errorprone.isEnabled.set(true) }
+            """.trimIndent()
+        )
+
+        // when
+        buildWithArgsAndFail("compileJava").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
+            assertThat(result.output).contains(ErrorPronePlugin.TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
+        }
     }
 
     @Test

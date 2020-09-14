@@ -117,12 +117,22 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             }
         }
 
+        val enableErrorProne: JavaCompile.(Boolean) -> Unit = { testOnly ->
+            options.errorprone {
+                if (HAS_TOOLCHAINS) {
+                    isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 8 }.orElse(true))
+                } else {
+                    isEnabled.convention(true)
+                }
+                isCompilingTestOnlyCode.convention(testOnly)
+            }
+        }
+
         project.plugins.withType<JavaBasePlugin> {
             project.extensions.getByName<SourceSetContainer>("sourceSets").configureEach {
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
                 project.tasks.named<JavaCompile>(compileJavaTaskName) {
-                    options.errorprone.isEnabled.convention(true)
-                    options.errorprone.isCompilingTestOnlyCode.convention(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
+                    enableErrorProne(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
                 }
             }
         }
@@ -132,10 +142,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 fun BaseVariant.configure() {
                     annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
                     javaCompileProvider.configure {
-                        options.errorprone {
-                            isEnabled.convention(true)
-                            isCompilingTestOnlyCode.convention(this@configure is TestVariant || this@configure is UnitTestVariant)
-                        }
+                        enableErrorProne(this@configure is TestVariant || this@configure is UnitTestVariant)
                     }
                 }
 
