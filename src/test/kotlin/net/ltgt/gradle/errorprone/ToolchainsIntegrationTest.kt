@@ -76,11 +76,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
     private fun BuildResult.assumeToolchainAvailable() {
         if (task("alwaysFail") == null &&
-            (
-                output.contains("No compatible toolchains found for request filter") ||
-                    // XXX: specific to 6.7-rc-1 https://github.com/gradle/gradle/issues/14504
-                    output.contains("Cannot obtain value from provider of Gradle property 'org.gradle.java.installations.auto-detect' at configuration time.")
-                )
+            output.contains("No compatible toolchains found for request filter")
         ) {
             assume().withMessage("No compatible toolchains found").fail()
         }
