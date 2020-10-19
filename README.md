@@ -213,7 +213,7 @@ someTask.configure {
 
 (if you're using `forkOptions.executable`, then use `-J-Xbootclasspath/p:` instead.)
 
-[gradle-toolchains]: https://docs.gradle.org/6.7-rc-1/userguide/toolchains.html
+[gradle-toolchains]: https://docs.gradle.org/6.7/userguide/toolchains.html
 [CompileOptions.fork]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:fork
 [BaseForkOptions.getJvmArgs]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/BaseForkOptions.html#getJvmArgs--
 [ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
