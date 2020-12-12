@@ -29,6 +29,9 @@ import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.util.GradleVersion
 
+/**
+ * A [Plugin] that configures [JavaCompile] tasks to use the [Error Prone compiler](https://errorprone.info/).
+ */
 class ErrorPronePlugin : Plugin<Project> {
 
     companion object {

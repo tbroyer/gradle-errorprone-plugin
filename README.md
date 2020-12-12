@@ -327,18 +327,18 @@ you cannot use `<<` or `+=` to add to lists for instance._
 
 | Property | Description
 | :------- | :----------
-| `enabled`                        | (`isEnabled` with Kotlin DSL) Allows disabling Error Prone altogether for the task. Defaults to `true`.
-| `disableAllChecks`               | Disable all Error Prone checks. This will be the first argument, so checks can then be re-enabled on a case-by-case basis. Defaults to `false`.
-| `disableAllWarnings`             | (since ErrorProne 2.4.0) Defaults to `false`.
-| `allErrorsAsWarnings`            | Defaults to `false`.
-| `allDisabledChecksAsWarnings`    | Enables all Error Prone checks, checks that are disabled by default are enabled as warnings. Defaults to `false`.
-| `disableWarningsInGeneratedCode` | Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`. Defaults to `false`.
-| `ignoreUnknownCheckNames`        | Defaults to `false`.
-| `ignoreSuppressionAnnotations`   | (since Error Prone 2.3.3) Defaults to `false`.
-| `compilingTestOnlyCode`          | (`isCompilingTestOnlyCode` with Kotlin DSL) Defaults to `false`. (defaults to `true` for a source set inferred as a test source set)
-| `excludedPaths`                  | A regular expression pattern (as a string) of file paths to exclude from Error Prone checking. Defaults to `null`.
-| `checks`                         | A map of check name to `CheckSeverity`, to configure which checks are enabled or disabled, and their severity. Defaults to an empty map.
-| `checkOptions`                   | A map of check options to their value. Use an explicit `"true"` value for a boolean option. Defaults to an empty map.
+| `enabled`                        | (`isEnabled` with Kotlin DSL) Allows disabling Error Prone altogether for the task. Error Prone will still be in the annotation processor path, but `-Xplugin:ErrorProne` won't be passed as a compiler argument. Defaults to `true` for source set tasks, `false` otherwise.
+| `disableAllChecks`               | Disable all Error Prone checks; maps to `-XepDisableAllChecks`. This will be the first argument, so checks can then be re-enabled on a case-by-case basis. Defaults to `false`.
+| `disableAllWarnings`             | Maps to `-XepDisableAllWarnings` (since ErrorProne 2.4.0). Defaults to `false`.
+| `allErrorsAsWarnings`            | Maps to `-XepAllErrorsAsWarnings`. Defaults to `false`.
+| `allDisabledChecksAsWarnings`    | Enables all Error Prone checks, checks that are disabled by default are enabled as warnings; maps to `-XepDisabledChecksAsWarnings`. Defaults to `false`.
+| `disableWarningsInGeneratedCode` | Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`; maps to `-XepDisableWarningsInGeneratedCode`. Defaults to `false`.
+| `ignoreUnknownCheckNames`        | Maps to `-XepIgnoreUnknownCheckNames`. Defaults to `false`.
+| `ignoreSuppressionAnnotations`   | Maps to `-XepIgnoreSuppressionAnnotations` (since Error Prone 2.3.3). Defaults to `false`.
+| `compilingTestOnlyCode`          | (`isCompilingTestOnlyCode` with Kotlin DSL) Maps to `-XepCompilingTestOnlyCode`. Defaults to `false`. (defaults to `true` for a source set inferred as a test source set)
+| `excludedPaths`                  | A regular expression pattern (as a string) of file paths to exclude from Error Prone checking; maps to `-XepExcludedPaths`. Defaults to `null`.
+| `checks`                         | A map of check name to `CheckSeverity`, to configure which checks are enabled or disabled, and their severity; maps each entry to `-Xep:<key>:<value>`, or `-Xep:<key>` if the value is `CheckSeverity.DEFAULT`. Defaults to an empty map.
+| `checkOptions`                   | A map of check options to their value; maps each entry to `-XepOpt:<key>=<value>`. Use an explicit `"true"` value for a boolean option. Defaults to an empty map.
 | `errorproneArgs`                 | Additional arguments passed to Error Prone. Defaults to an empty list.
 | `errorproneArgumentProviders`    | A list of [`CommandLineArgumentProvider`] for additional arguments passed to Error Prone. Defaults to an empty list.
 
@@ -348,14 +348,14 @@ you cannot use `<<` or `+=` to add to lists for instance._
 
 | Method | Description
 | :----- | :----------
-| `enable(checkNames...)`           | Adds checks with their default severity. Useful in combination with `disableAllChecks` to selectively re-enable checks.
-| `disable(checkNames...)`          | Disable checks.
-| `warn(checkNames...)`             | Adds checks with warning severity.
-| `error(checkNames...)`            | Adds checks with error severity.
-| `check(checkName to severity...)` | (Kotlin DSL only) Adds pairs of check name to severity.
-| `check(checkName, severity)`      | Adds a check with a given severity. The severity can be passed as a provider for lazy configuration.
+| `enable(checkNames...)`           | Adds checks with their default severity. Useful in combination with `disableAllChecks` to selectively re-enable checks. Equivalent to `check(checkName, CheckSeverity.DEFAULT)` for each check name.
+| `disable(checkNames...)`          | Disable checks. Equivalent to `check(checkName, CheckSeverity.OFF)` for each check name.
+| `warn(checkNames...)`             | Adds checks with warning severity. Equivalent to `check(checkName, CheckSeverity.WARNING)` for each check name.
+| `error(checkNames...)`            | Adds checks with error severity. Equivalent to `check(checkName, CheckSeverity.OFF)` for each check name.
+| `check(checkName to severity...)` | (Kotlin DSL only) Adds pairs of check name to severity. Equivalent to `checks.put(first, second)` for each pair.
+| `check(checkName, severity)`      | Adds a check with a given severity. The severity can be passed as a provider for lazy configuration. Equivalent to `checks.put(checkName, severity)`.
 | `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, true)`.
-| `option(optionName, value)`       | Adds a check option with a given value. Value can be a boolean or a string, or a provider of string.
+| `option(optionName, value)`       | Adds a check option with a given value. Value can be a boolean or a string, or a provider of string. Equivalent to `checkOptions.put(name, value)`.
 
 A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.  
 Note that the `net.ltgt.gradle.errorprone.CheckSeverity` needs to be `import`ed into your build scripts (see examples above).
