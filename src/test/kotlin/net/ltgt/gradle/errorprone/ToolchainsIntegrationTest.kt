@@ -144,7 +144,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
             java {
                 toolchain {
-                    languageVersion.set(JavaLanguageVersion.of(6))
+                    languageVersion.set(JavaLanguageVersion.of(11))
                 }
             }
             """.trimIndent()
