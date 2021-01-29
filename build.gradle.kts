@@ -76,7 +76,7 @@ tasks {
         val testJavaToolchain = project.findProperty("test.java-toolchain")
         testJavaToolchain?.also {
             javaLauncher.set(
-                javaToolchains.launcherFor {
+                project.javaToolchains.launcherFor {
                     languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
                 }
             )

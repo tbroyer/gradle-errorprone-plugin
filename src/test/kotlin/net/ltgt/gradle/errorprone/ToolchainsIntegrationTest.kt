@@ -98,6 +98,12 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     override fun getMetadata(): JavaInstallationMetadata = object : JavaInstallationMetadata {
                         override fun getLanguageVersion(): JavaLanguageVersion = JavaLanguageVersion.of(7)
                         override fun getInstallationPath(): Directory = TODO()
+                        ${
+            if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("6.8")) {
+                "override fun getVendor(): String = TODO()"
+            } else {
+                ""
+            }}
                     }
                 })
             }
