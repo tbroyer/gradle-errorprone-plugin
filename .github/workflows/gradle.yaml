@@ -33,7 +33,7 @@ jobs:
           dependencies-cache-exact: true
 
       - name: Store reports
-        if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
+        if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v2
         with:
           name: linux-reports
@@ -58,7 +58,7 @@ jobs:
           dependencies-cache-exact: true
 
       - name: Store reports
-        if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
+        if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v2
         with:
           name: windows-reports
@@ -93,7 +93,7 @@ jobs:
           dependencies-cache-exact: true
 
       - name: Store reports
-        if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
+        if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v2
         with:
           name: gradle-${{ matrix.gradle }}-tests
@@ -136,7 +136,7 @@ jobs:
           dependencies-cache-exact: true
 
       - name: Store reports
-        if: steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure'
+        if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v2
         with:
           name: jdk-${{ matrix.java }}-tests
