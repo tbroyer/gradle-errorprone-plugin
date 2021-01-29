@@ -2,6 +2,7 @@ package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import org.junit.Test
@@ -45,6 +46,17 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
+        if (JavaVersion.current().isJava16Compatible && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0-milestone-3")) {
+            // https://melix.github.io/blog/2021/03/gradle-java16.html
+            buildFile.appendText(
+                """
+
+                tasks.withType<JavaCompile>().configureEach {
+                    options.isIncremental = false
+                }
+                """.trimIndent()
+            )
+        }
         writeFailureSource()
 
         // when
@@ -88,6 +100,17 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
+        if (JavaVersion.current().isJava16Compatible && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0-milestone-3")) {
+            // https://melix.github.io/blog/2021/03/gradle-java16.html
+            buildFile.appendText(
+                """
+
+                tasks.withType<JavaCompile>().configureEach {
+                    options.isIncremental = false
+                }
+                """.trimIndent()
+            )
+        }
         writeFailureSource()
 
         // Error Prone is disabled by default, so compilation should succeed.

@@ -54,6 +54,19 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         private val HAS_TOOLCHAINS = GradleVersion.current().baseVersion >= GradleVersion.version("6.7")
 
         internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 8"
+
+        internal val JVM_ARGS_STRONG_ENCAPSULATION = listOf(
+            "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"
+        )
     }
 
     override fun apply(project: Project) {
@@ -101,7 +114,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 .compilerArgumentProviders
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
 
-            if (HAS_TOOLCHAINS || JavaVersion.current().isJava8) {
+            if (HAS_TOOLCHAINS || JavaVersion.current().run { isJava8 || isJava16Compatible }) {
                 inputs.files(
                     providers.provider {
                         when {
@@ -125,10 +138,13 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                             when {
                                 targetVersion < 8 -> throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
                                 targetVersion == 8 -> configureErrorProneJavac()
+                                targetVersion >= 16 -> configureForJava16plus()
                             }
                         }
                         JavaVersion.current().isJava8 && (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null)) ->
                             configureErrorProneJavac()
+                        JavaVersion.current().isJava16Compatible && (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null)) ->
+                            configureForJava16plus()
                     }
                 }
             }
@@ -174,6 +190,16 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             }
         }
     }
+
+    private fun JavaCompile.configureForJava16plus() {
+        // https://github.com/google/error-prone/issues/1157#issuecomment-769289564
+        if (!options.isFork) {
+            options.isFork = true
+            // reset forkOptions in case they were configured
+            options.forkOptions = ForkOptions()
+        }
+        options.forkOptions.jvmArgs!!.addAll(JVM_ARGS_STRONG_ENCAPSULATION)
+    }
 }
 
 internal class ErrorProneCompilerArgumentProvider(
@@ -199,3 +225,6 @@ internal class ErrorProneCompilerArgumentProvider(
 
 internal val TEST_SOURCE_SET_NAME_REGEX =
     """^(t|.*T)est(\p{javaUpperCase}.*)?$""".toRegex()
+
+internal val JavaVersion.isJava16Compatible: Boolean
+    get() = this < JavaVersion.VERSION_HIGHER && this >= JavaVersion.toVersion(16)

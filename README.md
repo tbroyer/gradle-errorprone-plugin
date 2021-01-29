@@ -196,6 +196,23 @@ someTask.configure {
 [BaseForkOptions.getJvmArgs]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/BaseForkOptions.html#getJvmArgs--
 [ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
 
+## JDK 16+ support
+
+Starting with JDK 16, due to [JEP 396: Strongly Encapsulate JDK Internals by Default][jep396],
+`--add-opens` and `--add-exports` arguments need to be passed to the compiler's JVM.
+
+The plugin will automatically [use a forking compiler][CompileOptions.fork]
+and pass the necessary [JVM arguments][BaseForkOptions.getJvmArgs]
+whenever it detects such a JDK is being used and ErrorProne is enabled.
+
+That detection will only take into account the [toolchain][gradle-toolchains] used by the `JavaCompile` task,
+or the JDK used to run Gradle in case no toolchain is being used.
+This should also include toolchains set using `forkOptions.executable` or `forkOptions.javaHome`,
+but only in Gradle 6.7+ where Gradle should expose those as ad-hoc toolchains,
+and this hasn't been tested.
+
+[jep396]: https://openjdk.java.net/jeps/396
+
 ## Migration from [versions 0.0._x_]
 
 <details>

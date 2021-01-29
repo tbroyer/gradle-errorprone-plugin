@@ -21,6 +21,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             """$JVM_ARG_BOOTCLASSPATH.*${fileSeparator}com\.google\.errorprone${fileSeparator}javac$fileSeparator$escapedErrorproneJavacVersion$fileSeparator.*${fileSeparator}javac-$escapedErrorproneJavacVersion.jar[${File.pathSeparator}${System.lineSeparator()}]"""
                 .toPattern()
         }
+        private val JVM_ARGS_STRONG_ENCAPSULATION = ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(prefix = JVM_ARG, separator = JVM_ARG)
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
     }
@@ -137,7 +138,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
-    fun `does not configure forking in non-Java 8 VM`() {
+    fun `does not configure forking in non-Java 8 or 16+ VM`() {
         // given
         buildFile.appendText(
             """
@@ -213,7 +214,40 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
-    fun `does not configure forking if Error Prone is disabled`() {
+    fun `configure forking in Java 16+ VM`() {
+        // given
+        buildFile.appendText(
+            """
+
+            java {
+                toolchain {
+                    languageVersion.set(JavaLanguageVersion.of(16))
+                }
+            }
+            """.trimIndent()
+        )
+
+        // when
+        buildWithArgsAndFail("compileJava").also { result ->
+            // then
+            result.assumeToolchainAvailable()
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+            assertThat(result.output).contains(FORKED)
+            assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
+        }
+
+        // check that it doesn't mess with task avoidance
+
+        // when
+        buildWithArgsAndFail("compileJava").also { result ->
+            // then
+            result.assumeToolchainAvailable()
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+        }
+    }
+
+    @Test
+    fun `does not configure forking with JDK 8 if Error Prone is disabled`() {
         // given
         buildFile.appendText(
             """
@@ -227,6 +261,43 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             tasks.compileJava { options.errorprone.isEnabled.set(false) }
             """.trimIndent()
         )
+
+        // when
+        val result = buildWithArgsAndFail("compileJava")
+
+        // then
+        result.assumeToolchainAvailable()
+        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        assertThat(result.output).contains(NOT_FORKED)
+        assertThat(result.output).doesNotContain(JVM_ARG)
+    }
+
+    @Test
+    fun `does not configure forking with JDK 16+ if Error Prone is disabled`() {
+        // given
+        buildFile.appendText(
+            """
+
+            java {
+                toolchain {
+                    languageVersion.set(JavaLanguageVersion.of(16))
+                }
+            }
+
+            tasks.compileJava { options.errorprone.isEnabled.set(false) }
+            """.trimIndent()
+        )
+        if (GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0-milestone-3")) {
+            // https://melix.github.io/blog/2021/03/gradle-java16.html
+            buildFile.appendText(
+                """
+
+                tasks.withType<JavaCompile>().configureEach {
+                    options.isIncremental = false
+                }
+                """.trimIndent()
+            )
+        }
 
         // when
         val result = buildWithArgsAndFail("compileJava")

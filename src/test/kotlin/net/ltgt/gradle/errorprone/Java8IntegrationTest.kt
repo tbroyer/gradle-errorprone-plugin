@@ -21,6 +21,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             """$JVM_ARG_BOOTCLASSPATH.*${fileSeparator}com\.google\.errorprone${fileSeparator}javac$fileSeparator$escapedErrorproneJavacVersion$fileSeparator.*${fileSeparator}javac-$escapedErrorproneJavacVersion.jar[${File.pathSeparator}${System.lineSeparator()}]"""
                 .toPattern()
         }
+        private val JVM_ARGS_STRONG_ENCAPSULATION = ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(prefix = JVM_ARG, separator = JVM_ARG)
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
     }
@@ -53,12 +54,24 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             compileJava.finalizedBy(displayCompileJavaOptions)
             """.trimIndent()
         )
+        if (JavaVersion.current().isJava16Compatible && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0-milestone-3")) {
+            // https://melix.github.io/blog/2021/03/gradle-java16.html
+            buildFile.appendText(
+                """
+
+                tasks.withType<JavaCompile>().configureEach {
+                    options.isIncremental = false
+                }
+                """.trimIndent()
+            )
+        }
         writeSuccessSource()
     }
 
     @Test
-    fun `does not configure forking in non-Java 8 VM`() {
+    fun `does not configure forking in non-Java 8 or 16+ VM`() {
         assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isFalse()
+        assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isLessThan(JavaVersion.VERSION_16)
 
         // when
         buildWithArgs("compileJava").also { result ->
@@ -109,8 +122,29 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
+    fun `configure forking in Java 16+ VM`() {
+        assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isAtLeast(JavaVersion.VERSION_16)
+
+        // when
+        buildWithArgs("compileJava").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+            assertThat(result.output).contains(FORKED)
+            assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
+        }
+
+        // check that it doesn't mess with task avoidance
+
+        // when
+        buildWithArgs("compileJava").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+        }
+    }
+
+    @Test
     fun `does not configure forking if Error Prone is disabled`() {
-        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
+        assume().withMessage("isJava8Or16plus").that(JavaVersion.current().run { isJava8 || isJava16Compatible }).isTrue()
 
         // given
         buildFile.appendText(

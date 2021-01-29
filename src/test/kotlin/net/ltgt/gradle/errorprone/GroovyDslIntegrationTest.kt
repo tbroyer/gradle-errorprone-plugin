@@ -1,11 +1,19 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.TruthJUnit.assume
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.util.GradleVersion
 import org.junit.Test
 
 class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
     override fun setupProject() {
+        assume().that(
+            JavaVersion.current().isJava16Compatible &&
+                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0-milestone-3")
+        ).isFalse()
+
         settingsFile = testProjectDir.newFile("settings.gradle")
         buildFile = testProjectDir.newFile("build.gradle").apply {
             appendText(

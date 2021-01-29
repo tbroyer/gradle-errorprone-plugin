@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import java.io.File
 import java.util.Properties
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import org.junit.Before
@@ -15,6 +16,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     @Before
     fun setupAndroid() {
         assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.5"))
+        assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isLessThan(JavaVersion.VERSION_16)
         assertThat(androidSdkHome).isNotEmpty()
 
         Properties().apply {

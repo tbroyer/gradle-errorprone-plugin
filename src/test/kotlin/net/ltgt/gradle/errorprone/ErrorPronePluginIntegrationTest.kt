@@ -3,6 +3,7 @@ package net.ltgt.gradle.errorprone
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import java.io.File
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import org.junit.Before
@@ -27,6 +28,19 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
+        if (JavaVersion.current().isJava16Compatible && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0-milestone-3")) {
+            // https://melix.github.io/blog/2021/03/gradle-java16.html
+            buildFile.appendText(
+                """
+
+                allprojects {
+                    tasks.withType<JavaCompile>().configureEach {
+                        options.isIncremental = false
+                    }
+                }
+                """.trimIndent()
+            )
+        }
     }
 
     @Test
@@ -155,6 +169,10 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `is configuration-cache friendly`() {
         assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.6"))
+        assume().that(
+            JavaVersion.current().isJava16Compatible &&
+                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0-milestone-3")
+        ).isFalse()
 
         // given
         writeSuccessSource()
