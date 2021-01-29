@@ -1,18 +1,24 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.TruthJUnit.assume
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.util.GradleVersion
 import org.junit.Test
 
 class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `in non-java project with applied plugin`() {
+        // jvm-ecosystem plugin has been added in Gradle 6.7
+        assume().that(GradleVersion.version(testGradleVersion).baseVersion).isAtLeast(GradleVersion.version("6.7"))
+
         // given
         buildFile.appendText(
             """
             plugins {
                 id("${ErrorPronePlugin.PLUGIN_ID}")
+                `jvm-ecosystem`
             }
 
             repositories {

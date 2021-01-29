@@ -66,7 +66,7 @@ gradle.taskGraph.whenReady {
 // See https://github.com/gradle/gradle/issues/7974
 val additionalPluginClasspath by configurations.creating
 
-val errorproneVersion = "2.4.0"
+val errorproneVersion = "2.5.1"
 val errorproneJavacVersion = "9+181-r4173-1"
 
 repositories {
