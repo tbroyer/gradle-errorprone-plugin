@@ -14,7 +14,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Before
     fun setupAndroid() {
-        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("5.6.4"))
+        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.5"))
         assertThat(androidSdkHome).isNotEmpty()
 
         Properties().apply {
@@ -32,10 +32,10 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
             }
 
             android {
-                compileSdkVersion(28)
+                compileSdkVersion(30)
                 defaultConfig {
                     minSdkVersion(15)
-                    targetSdkVersion(28)
+                    targetSdkVersion(30)
                     versionCode = 1
                     versionName = "1.0"
                 }

@@ -2,7 +2,6 @@ package net.ltgt.gradle.errorprone
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.FeatureExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestExtension
 import com.android.build.gradle.TestedExtension
@@ -155,7 +154,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             }
         }
 
-        arrayOf("application", "library", "test", "dynamic-feature", /* deprecated plugins: */ "feature", "instantapp").forEach {
+        arrayOf("application", "library", "test", "dynamic-feature").forEach {
             project.plugins.withId("com.android.$it") {
                 fun BaseVariant.configure() {
                     annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
@@ -172,8 +171,6 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                     android.testVariants.configureEach(BaseVariant::configure)
                     android.unitTestVariants.configureEach(BaseVariant::configure)
                 }
-                // Deprecated
-                (android as? FeatureExtension)?.featureVariants?.configureEach(BaseVariant::configure)
             }
         }
     }
