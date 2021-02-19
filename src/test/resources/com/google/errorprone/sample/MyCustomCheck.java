@@ -23,7 +23,6 @@ import static com.google.errorprone.matchers.Description.NO_MATCH;
 import static com.google.errorprone.matchers.Matchers.instanceMethod;
 import static com.google.errorprone.matchers.method.MethodMatchers.staticMethod;
 
-import com.google.auto.service.AutoService;
 import com.google.common.collect.Iterables;
 import com.google.errorprone.BugPattern;
 import com.google.errorprone.VisitorState;
@@ -45,7 +44,6 @@ import java.util.List;
 import java.util.Objects;
 
 /** Matches on string formatting inside print methods. */
-@AutoService(BugChecker.class)
 @BugPattern(
     name = "MyCustomCheck",
     summary = "String formatting inside print method",
