@@ -92,11 +92,9 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText(
             """
 
-            afterEvaluate {
-                tasks.withType<JavaCompile>().configureEach {
-                    options.errorprone {
-                        disable("ArrayEquals")
-                    }
+            tasks.withType<JavaCompile>().configureEach {
+                options.errorprone {
+                    disable("ArrayEquals")
                 }
             }
             """.trimIndent()
@@ -116,10 +114,8 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText(
             """
 
-            afterEvaluate {
-                tasks.withType<JavaCompile>().configureEach {
-                    options.errorprone.isEnabled.set(false)
-                }
+            tasks.withType<JavaCompile>().configureEach {
+                options.errorprone.isEnabled.set(false)
             }
             """.trimIndent()
         )

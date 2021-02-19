@@ -121,28 +121,6 @@ tasks.register<JavaCompile>("compileCustom") {
 
 </details>
 
-In Android projects, tasks cannot be configured until `afterEvaluate`
-due to how the Android Plugin for Gradle works:
-```gradle
-afterEvaluate {
-    tasks.withType(JavaCompile).configureEach {
-        options.errorprone.disableWarningsInGeneratedCode = true
-    }
-}
-```
-<details>
-<summary>with Kotlin DSL</summary>
-
-```kotlin
-afterEvaluate {
-    tasks.withType<JavaCompile>().configureEach {
-        options.errorprone.disableWarningsInGeneratedCode.set(true)
-    }
-}
-```
-
-</details>
-
 ## JDK 8 support
 
 Error Prone requires at least a JDK 9 compiler.
