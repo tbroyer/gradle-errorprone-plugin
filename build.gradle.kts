@@ -15,10 +15,30 @@ buildscript {
         lockAllConfigurations()
         lockMode.set(LockMode.STRICT)
     }
+    configurations.all {
+        resolutionStrategy {
+            eachDependency {
+                // https://issuetracker.google.com/issues/109894262#comment9
+                if (requested.group == "org.jetbrains.trove4j" && requested.name == "trove4j" && requested.version == "20160824") {
+                    useTarget("org.jetbrains.intellij.deps:trove4j:1.0.20181211")
+                }
+            }
+        }
+    }
 }
 dependencyLocking {
     lockAllConfigurations()
     lockMode.set(LockMode.STRICT)
+}
+configurations.all {
+    resolutionStrategy {
+        eachDependency {
+            // https://issuetracker.google.com/issues/109894262#comment9
+            if (requested.group == "org.jetbrains.trove4j" && requested.name == "trove4j" && requested.version == "20160824") {
+                useTarget("org.jetbrains.intellij.deps:trove4j:1.0.20181211")
+            }
+        }
+    }
 }
 
 group = "net.ltgt.gradle"
@@ -52,11 +72,6 @@ val errorproneJavacVersion = "9+181-r4173-1"
 repositories {
     mavenCentral()
     google()
-    jcenter() {
-        mavenContent {
-            includeModule("org.jetbrains.trove4j", "trove4j")
-        }
-    }
 }
 dependencies {
     compileOnly("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
