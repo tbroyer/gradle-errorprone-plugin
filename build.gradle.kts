@@ -5,8 +5,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "0.11.0"
-    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("com.gradle.plugin-publish") version "0.13.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
     id("com.android.lint") version "4.1.3"
     id("org.nosphere.gradle.github.actions") version "1.2.0"
 }
@@ -77,8 +77,8 @@ dependencies {
     compileOnly("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
     additionalPluginClasspath("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
 
-    testImplementation("junit:junit:4.13")
-    testImplementation("com.google.truth:truth:1.0.1")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("com.google.truth:truth:1.1.2")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
