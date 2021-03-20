@@ -94,6 +94,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             }
         }
 
+        val providers = project.providers
         project.tasks.withType<JavaCompile>().configureEach {
             val errorproneOptions =
                 (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
@@ -102,7 +103,21 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
 
             if (HAS_TOOLCHAINS || JavaVersion.current().isJava8) {
-                inputs.files(javacConfiguration).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
+                inputs.files(
+                    providers.provider {
+                        when {
+                            !options.errorprone.isEnabled.getOrElse(false) -> emptyList()
+                            HAS_TOOLCHAINS && javaCompiler.isPresent -> {
+                                when (javaCompiler.get().metadata.languageVersion.asInt()) {
+                                    8 -> javacConfiguration
+                                    else -> emptyList()
+                                }
+                            }
+                            JavaVersion.current().isJava8 -> javacConfiguration
+                            else -> emptyList()
+                        }
+                    }
+                ).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
                 doFirst("configure errorprone in bootclasspath") {
                     when {
                         !options.errorprone.isEnabled.getOrElse(false) -> return@doFirst

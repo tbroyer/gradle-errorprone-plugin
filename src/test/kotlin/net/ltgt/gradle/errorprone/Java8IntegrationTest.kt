@@ -269,6 +269,27 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
+    fun `does not warn if Error Prone javac dependency is not configured with non-Java 8 VM`() {
+        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isFalse()
+
+        // given
+        // Remove the errorproneJavac dependency
+        buildFile.writeText(
+            buildFile.readLines().filterNot {
+                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
+            }.joinToString(separator = "\n")
+        )
+
+        // when
+        buildWithArgs("compileJava").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+            assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
+            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
+        }
+    }
+
+    @Test
     fun `is build-cache friendly`() {
         assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
