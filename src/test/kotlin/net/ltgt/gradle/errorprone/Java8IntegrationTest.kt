@@ -5,6 +5,7 @@ import com.google.common.truth.TruthJUnit.assume
 import java.io.File
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.util.GradleVersion
 import org.junit.Before
 import org.junit.Test
 
@@ -298,7 +299,13 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             buildCache {
-                local(DirectoryBuildCache::class.java) {
+                local${
+            if (GradleVersion.version(testGradleVersion) < GradleVersion.version("6.0")) {
+                "(DirectoryBuildCache::class.java)"
+            } else {
+                ""
+            }
+            } {
                     directory = file("build-cache")
                 }
             }
