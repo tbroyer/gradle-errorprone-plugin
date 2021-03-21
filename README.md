@@ -198,6 +198,9 @@ someTask.configure {
 
 ## Migration from [versions 0.0._x_]
 
+<details>
+<summary>Details</summary>
+
 If you relied on the default Error Prone dependency
 (which you shouldn't have, see warning above about changing versions),
 you'll have to configure it explicitly (see [above](#usage)).
@@ -238,9 +241,11 @@ In most cases, it can be replaced by disabling or enabling Error Prone on select
 
 [versions 0.0._x_]: https://github.com/tbroyer/gradle-errorprone-plugin-v0.0.x
 
+</details>
+
 ## Custom Error Prone checks
 
-**This requires Error Prone 2.3.0 or later.**
+*This requires Error Prone 2.3.0 or later.*
 
 [Custom Error Prone checks][custom checks] can be added to the `errorprone` configuration too:
 ```gradle
