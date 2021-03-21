@@ -268,4 +268,87 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         // Check that the configured jvm arg is preserved
         assertThat(result.output).contains(jvmArg("-XshowSettings"))
     }
+
+    @Test
+    fun `warns if Error Prone javac dependency is not configured`() {
+        // given
+        // Remove the errorproneJavac dependency
+        buildFile.writeText(
+            buildFile.readLines().filterNot {
+                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
+            }.joinToString(separator = "\n")
+        )
+        buildFile.appendText(
+            """
+
+            java {
+                toolchain {
+                    languageVersion.set(JavaLanguageVersion.of(8))
+                }
+            }
+            """.trimIndent()
+        )
+
+        // when
+        buildWithArgsAndFail("compileJava").also { result ->
+            // then
+            result.assumeToolchainAvailable()
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
+            assertThat(result.output).contains(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
+            assertThat(result.output).contains(FORKED)
+            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
+        }
+
+        // check that adding back the dependency fixes compilation (so it was indeed caused by missing dependency) and silences the warning
+
+        // given
+        buildFile.appendText(
+            """
+
+            dependencies {
+                errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
+            }
+            """.trimIndent()
+        )
+
+        // when
+        buildWithArgsAndFail("compileJava").also { result ->
+            // then
+            result.assumeToolchainAvailable()
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+            assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
+            assertThat(result.output).contains(FORKED)
+            assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
+        }
+    }
+
+    @Test
+    fun `does not warn if Error Prone javac dependency is not configured with non-Java 8 VM`() {
+        // given
+        // Remove the errorproneJavac dependency
+        buildFile.writeText(
+            buildFile.readLines().filterNot {
+                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
+            }.joinToString(separator = "\n")
+        )
+        buildFile.appendText(
+            """
+
+            java {
+                toolchain {
+                    languageVersion.set(JavaLanguageVersion.of(11))
+                }
+            }
+            """.trimIndent()
+        )
+
+        // when
+        buildWithArgsAndFail("compileJava").also { result ->
+            // then
+            result.assumeToolchainAvailable()
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+            assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
+            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
+        }
+    }
 }
