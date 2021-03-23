@@ -1,0 +1,6 @@
+# This is a Gradle generated file for dependency locking.
+# Manual edits can break the build and are not advised.
+# This file is expected to be part of source control.
+com.gradle.enterprise:com.gradle.enterprise.gradle.plugin:3.6=classpath
+com.gradle:gradle-enterprise-gradle-plugin:3.6=classpath
+empty=

@@ -14,6 +14,12 @@ pluginManagement {
 plugins {
     id("com.gradle.enterprise") version "3.6"
 }
+buildscript {
+    dependencyLocking {
+        lockAllConfigurations()
+        lockMode.set(LockMode.STRICT)
+    }
+}
 gradleEnterprise {
     buildScan {
         termsOfServiceUrl = "https://gradle.com/terms-of-service"
