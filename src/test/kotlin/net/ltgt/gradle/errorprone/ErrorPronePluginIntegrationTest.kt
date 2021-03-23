@@ -56,6 +56,18 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
+    fun `compilation succeeds Java 16`() {
+        // given
+        writeTimeZoneJava16Source()
+
+        // when
+        val result = buildWithArgs("compileJava")
+
+        // then
+        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    }
+
+    @Test
     fun `compilation fails`() {
         // given
         writeFailureSource()

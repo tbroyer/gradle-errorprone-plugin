@@ -77,6 +77,25 @@ abstract class AbstractPluginIntegrationTest {
         }
     }
 
+    protected fun writeTimeZoneJava16Source() {
+        File(testProjectDir.newFolder("src", "main", "java", "test"), "TimeZoneJava16.java").apply {
+            createNewFile()
+            writeText(
+                """
+                package test;
+
+                import java.util.TimeZone;
+
+                public class TimeZoneJava16 {
+                    public TimeZone foo() {
+                        return TimeZone.getTimeZone("PST");
+                    }
+                }
+                """.trimIndent()
+            )
+        }
+    }
+
     protected fun buildWithArgs(vararg tasks: String): BuildResult {
         return prepareBuild(*tasks)
             .build()
