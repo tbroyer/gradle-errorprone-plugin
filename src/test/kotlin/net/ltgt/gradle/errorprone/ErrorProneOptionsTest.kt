@@ -2,11 +2,9 @@ package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.TruthJUnit.assume
 import com.google.errorprone.ErrorProneOptions.Severity
 import com.google.errorprone.InvalidCommandLineOptionException
 import org.gradle.api.InvalidUserDataException
-import org.gradle.api.JavaVersion
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.SourceSet
@@ -30,9 +28,6 @@ class ErrorProneOptionsTest {
 
         @JvmStatic @BeforeClass
         fun setup() {
-            // FIXME: remove when updating to Gradle 7
-            assume().that(JavaVersion.current()).isLessThan(JavaVersion.VERSION_16)
-
             ProjectBuilder.builder().withProjectDir(projectDir.root).build().let { project ->
                 objects = project.objects
                 providers = project.providers

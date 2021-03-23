@@ -287,7 +287,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             tasks.compileJava { options.errorprone.isEnabled.set(false) }
             """.trimIndent()
         )
-        if (GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0-milestone-3")) {
+        if (GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
             // https://melix.github.io/blog/2021/03/gradle-java16.html
             buildFile.appendText(
                 """

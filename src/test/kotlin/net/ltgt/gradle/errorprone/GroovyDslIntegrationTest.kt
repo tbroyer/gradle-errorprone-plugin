@@ -11,7 +11,7 @@ class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
     override fun setupProject() {
         assume().that(
             JavaVersion.current().isJava16Compatible &&
-                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0-milestone-3")
+                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")
         ).isFalse()
 
         settingsFile = testProjectDir.newFile("settings.gradle")
