@@ -27,36 +27,44 @@ open class ErrorProneOptions constructor(
     @get:JvmName("getEnabled")
     @get:Input
     val isEnabled = objectFactory.property<Boolean>().convention(false)
+
     /**
      * Disable all Error Prone checks; maps to `-XepDisableAllChecks.
      *
      * This will be the first argument, so checks can then be re-enabled on a case-by-case basis.
      */
     @get:Input val disableAllChecks = objectFactory.property<Boolean>().convention(false)
+
     /**
      * Disables all Error Prone warnings; maps to `-XepDisableAllWarnings (since ErrorProne 2.4.0).
      *
      * This will be among the first arguments, so checks can then be re-enabled on a case-by-case basis.
      */
     @get:Input val disableAllWarnings = objectFactory.property<Boolean>().convention(false)
+
     /**
      * Turns all Error Prone errors into warnings; maps to `-XepAllErrorsAsWarnings`.
      *
      * This will be among the first arguments, so checks can then be promoted back to error on a case-by-case basis.
      */
     @get:Input val allErrorsAsWarnings = objectFactory.property<Boolean>().convention(false)
+
     /**
      * Enables all Error Prone checks, checks that are disabled by default are enabled as warnings; maps to `-XepAllDisabledChecksAsWarnings`.
      *
      * This will be among the first arguments, so checks can then be disabled again on a case-by-case basis.
      */
     @get:Input val allDisabledChecksAsWarnings = objectFactory.property<Boolean>().convention(false)
+
     /** Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`; maps to `-XepDisableWarningsInGeneratedCode`. */
     @get:Input val disableWarningsInGeneratedCode = objectFactory.property<Boolean>().convention(false)
+
     /** Tells Error Prone to ignore unknown check names in [checks]; maps to `-XepIgnoreUknownCheckNames`. */
     @get:Input val ignoreUnknownCheckNames = objectFactory.property<Boolean>().convention(false)
+
     /** Ignores suppression annotations, such as `@SuppressWarnings`; maps to `-XepIgnoreSuppressionAnnotations` (since Error Prone 2.3.3). */
     @get:Input val ignoreSuppressionAnnotations = objectFactory.property<Boolean>().convention(false)
+
     /**
      * Tells Error Prone that the compilation contains only test code; maps to `-XepCompilingTestOnlyCode`.
      *
@@ -65,9 +73,11 @@ open class ErrorProneOptions constructor(
     @get:JvmName("getCompilingTestOnlyCode")
     @get:Input
     val isCompilingTestOnlyCode = objectFactory.property<Boolean>().convention(false)
+
     /** A regular expression pattern (as a string) of file paths to exclude from Error Prone checking; maps to `-XepExcludedPaths`. */
     @get:Input @get:Optional
     val excludedPaths = objectFactory.property<String>()
+
     /**
      * A map of check name to [CheckSeverity], to configure which checks are enabled or disabled, and their severity.
      *
@@ -91,8 +101,10 @@ open class ErrorProneOptions constructor(
      * @see option
      */
     @get:Input val checkOptions = objectFactory.mapProperty<String, String>().empty()
+
     /** Additional arguments passed to Error Prone. */
     @get:Input val errorproneArgs = objectFactory.listProperty<String>().empty()
+
     /** A list of [CommandLineArgumentProvider] for additional arguments passed to Error Prone. */
     @get:Nested val errorproneArgumentProviders: MutableList<CommandLineArgumentProvider> = arrayListOf()
 
@@ -102,6 +114,7 @@ open class ErrorProneOptions constructor(
 
     @Deprecated("Renamed to enable", replaceWith = ReplaceWith("enable(*checkNames)"), level = DeprecationLevel.ERROR)
     fun check(vararg checkNames: String) = enable(*checkNames)
+
     /**
      * Adds pairs of check name to severity.
      *
@@ -110,6 +123,7 @@ open class ErrorProneOptions constructor(
      * @see checks
      */
     fun check(vararg pairs: Pair<String, CheckSeverity>) = pairs.forEach { (checkName, severity) -> check(checkName, severity) }
+
     /**
      * Adds a check with a given severity.
      *
@@ -121,6 +135,7 @@ open class ErrorProneOptions constructor(
         validateName(checkName)
         checks.put(checkName, severity)
     }
+
     /**
      * Adds a check with a given severity.
      *
@@ -144,6 +159,7 @@ open class ErrorProneOptions constructor(
      * @see checks
      */
     fun enable(vararg checkNames: String) = set(*checkNames, atSeverity = CheckSeverity.DEFAULT)
+
     /**
      * Disable checks.
      *
@@ -153,6 +169,7 @@ open class ErrorProneOptions constructor(
      * @see checks
      */
     fun disable(vararg checkNames: String) = set(*checkNames, atSeverity = CheckSeverity.OFF)
+
     /**
      * Adds checks with warning severity.
      *
@@ -162,6 +179,7 @@ open class ErrorProneOptions constructor(
      * @see checks
      */
     fun warn(vararg checkNames: String) = set(*checkNames, atSeverity = CheckSeverity.WARN)
+
     /**
      * Adds checks with error severity.
      *
@@ -185,6 +203,7 @@ open class ErrorProneOptions constructor(
      * @see checkOptions
      */
     @JvmOverloads fun option(name: String, value: Boolean = true) = option(name, value.toString())
+
     /**
      * Adds a check option with a given value.
      *
@@ -195,6 +214,7 @@ open class ErrorProneOptions constructor(
     fun option(name: String, value: String) {
         checkOptions.put(name, value)
     }
+
     /**
      * Adds a check option with a given value.
      *

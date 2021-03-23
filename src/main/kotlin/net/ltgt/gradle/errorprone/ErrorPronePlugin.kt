@@ -8,7 +8,6 @@ import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
 import com.android.build.gradle.api.UnitTestVariant
-import java.util.concurrent.atomic.AtomicBoolean
 import org.gradle.api.JavaVersion
 import org.gradle.api.Named
 import org.gradle.api.Plugin
@@ -27,6 +26,7 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.util.GradleVersion
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * A [Plugin] that configures [JavaCompile] tasks to use the [Error Prone compiler](https://errorprone.info/).

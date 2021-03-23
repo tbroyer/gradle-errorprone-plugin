@@ -2,12 +2,12 @@ package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
-import java.io.File
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import org.junit.Before
 import org.junit.Test
+import java.io.File
 
 class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 

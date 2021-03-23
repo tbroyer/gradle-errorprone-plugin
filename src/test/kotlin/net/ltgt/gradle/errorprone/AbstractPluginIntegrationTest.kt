@@ -1,12 +1,12 @@
 package net.ltgt.gradle.errorprone
 
-import java.io.File
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.util.GradleVersion
 import org.junit.Before
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import java.io.File
 
 abstract class AbstractPluginIntegrationTest {
 
