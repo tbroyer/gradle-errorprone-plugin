@@ -28,3 +28,5 @@ gradleEnterprise {
 }
 
 rootProject.name = "gradle-errorprone-plugin"
+
+enableFeaturePreview("ONE_LOCKFILE_PER_PROJECT")
