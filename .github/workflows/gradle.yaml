@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        gradle: [ '7.0.2', '6.8.3', '6.7.1', '6.6.1', '6.5.1', '6.4.1', '6.3', '6.2.2', '6.1.1', '6.0.1', '5.6.4', '5.5.1', '5.4.1', '5.3.1', '5.2.1' ]
+        gradle: [ '7.1', '7.0.2', '6.8.3', '6.7.1', '6.6.1', '6.5.1', '6.4.1', '6.3', '6.2.2', '6.1.1', '6.0.1', '5.6.4', '5.5.1', '5.4.1', '5.3.1', '5.2.1' ]
     steps:
       - uses: actions/checkout@v2
 
@@ -145,6 +145,9 @@ jobs:
   test-jdk16-gradle7:
     needs: linux
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        gradle: [ '7.1', '7.0.2' ]
     steps:
       - uses: actions/checkout@v2
 
@@ -167,7 +170,7 @@ jobs:
         id: gradle-build
         uses: eskatos/gradle-command-action@v1
         with:
-          arguments: --scan test -Ptest.java-toolchain=16 -Ptest.gradle-version=7.0.2
+          arguments: --scan test -Ptest.java-toolchain=16 "-Ptest.gradle-version=${{ matrix.gradle }}"
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
           dependencies-cache-key: '**/*gradle.lockfile'
@@ -177,5 +180,5 @@ jobs:
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v2
         with:
-          name: jdk16-gradle7-tests
+          name: jdk16-gradle-${{ matrix.gradle }}-tests
           path: build/reports/tests/test/

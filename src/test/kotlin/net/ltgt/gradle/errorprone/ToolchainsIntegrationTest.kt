@@ -105,6 +105,13 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             } else {
                 ""
             }}
+                        ${
+            if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("7.1")) {
+                """override fun getJavaRuntimeVersion(): String = TODO()
+                   override fun getJvmVersion(): String = TODO()"""
+            } else {
+                ""
+            }}
                     }
                 })
             }
