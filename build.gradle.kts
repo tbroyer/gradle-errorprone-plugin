@@ -5,8 +5,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "0.13.0"
-    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
+    id("com.gradle.plugin-publish") version "0.15.0"
+    id("org.jlleitschuh.gradle.ktlint") version "10.1.0"
     id("com.android.lint") version "4.1.3"
     id("org.nosphere.gradle.github.actions") version "1.2.0"
 }
@@ -63,7 +63,7 @@ gradle.taskGraph.whenReady {
 // See https://github.com/gradle/gradle/issues/7974
 val additionalPluginClasspath by configurations.creating
 
-val errorproneVersion = "2.5.1"
+val errorproneVersion = "2.7.1"
 val errorproneJavacVersion = "9+181-r4173-1"
 
 repositories {
@@ -75,7 +75,7 @@ dependencies {
     additionalPluginClasspath("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("com.google.truth:truth:1.1.2")
+    testImplementation("com.google.truth:truth:1.1.3")
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
