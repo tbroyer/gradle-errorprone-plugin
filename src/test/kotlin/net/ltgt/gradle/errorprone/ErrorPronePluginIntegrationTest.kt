@@ -175,15 +175,29 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
         ).isFalse()
 
         // given
-        writeSuccessSource()
+        // Use a failing check to make sure that the configuration is properly persisted/reloaded
+        buildFile.appendText(
+            """
+
+            tasks.withType<JavaCompile>().configureEach {
+                options.errorprone {
+                    disable("ArrayEquals")
+                }
+            }
+            """.trimIndent()
+        )
+        writeFailureSource()
 
         // Prime the configuration cache
         buildWithArgs("--configuration-cache", "compileJava")
 
         // when
-        val result = buildWithArgs("--configuration-cache", "compileJava")
+        val result = buildWithArgs("--configuration-cache", "--rerun-tasks", "--debug", "compileJava")
 
         // then
         assertThat(result.output).contains("Reusing configuration cache.")
+        // Check that the second run indeed used ErrorProne.
+        // As it didn't fail, it means the rest of the configuration was properly persisted/reloaded.
+        assertThat(result.output).contains("-Xplugin:ErrorProne")
     }
 }

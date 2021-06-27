@@ -118,13 +118,12 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 inputs.files(
                     providers.provider {
                         when {
-                            !options.errorprone.isEnabled.getOrElse(false) -> emptyList()
-                            HAS_TOOLCHAINS && javaCompiler.isPresent -> {
+                            !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
+                            HAS_TOOLCHAINS && javaCompiler.isPresent ->
                                 when (javaCompiler.get().metadata.languageVersion.asInt()) {
                                     8 -> javacConfiguration
                                     else -> emptyList()
                                 }
-                            }
                             JavaVersion.current().isJava8 -> javacConfiguration
                             else -> emptyList()
                         }
@@ -132,7 +131,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 ).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
                 doFirst("configure errorprone in bootclasspath") {
                     when {
-                        !options.errorprone.isEnabled.getOrElse(false) -> return@doFirst
+                        !errorproneOptions.isEnabled.getOrElse(false) -> return@doFirst
                         HAS_TOOLCHAINS && javaCompiler.isPresent -> {
                             val targetVersion = javaCompiler.get().metadata.languageVersion.asInt()
                             when {
