@@ -11,7 +11,7 @@ on:
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-# First build on Linux with JDK 8 and Windows with JDK 11
+# First build on Linux and Windows with JDK 8
 # Then run tests with various Gradle and JDKs versions (Linux only)
 jobs:
   linux:
@@ -45,7 +45,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup environment
-        run: echo "JAVA_HOME=${Env:JAVA_HOME_11_X64}" | Tee-Object -FilePath $env:GITHUB_ENV -Append
+        run: echo "JAVA_HOME=${Env:JAVA_HOME_8_X64}" | Tee-Object -FilePath $env:GITHUB_ENV -Append
 
       - name: Build with Gradle
         id: gradle-build
