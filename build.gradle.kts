@@ -74,8 +74,17 @@ dependencies {
     compileOnly("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
     additionalPluginClasspath("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("com.google.truth:truth:1.1.3")
+    testImplementation("com.google.truth:truth:1.1.3") {
+        // See https://github.com/google/truth/issues/333
+        exclude(group = "junit", module = "junit")
+    }
+    testRuntimeOnly("junit:junit:4.13.2") {
+        // See https://github.com/google/truth/issues/333
+        because("Truth needs it")
+    }
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+
     testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
 }
 
@@ -108,6 +117,7 @@ tasks {
             exclude("**/*Android*")
         }
 
+        useJUnitPlatform()
         testLogging {
             showExceptions = true
             showStackTraces = true

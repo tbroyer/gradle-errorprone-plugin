@@ -14,29 +14,27 @@ import org.gradle.internal.component.external.model.TestFixturesSupport
 import org.gradle.kotlin.dsl.property
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Assert.fail
-import org.junit.BeforeClass
-import org.junit.ClassRule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.Assertions.fail
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ErrorProneOptionsTest {
-    companion object {
-        @JvmField @ClassRule
-        val projectDir = TemporaryFolder()
 
-        lateinit var objects: ObjectFactory
-        lateinit var providers: ProviderFactory
+    lateinit var objects: ObjectFactory
+    lateinit var providers: ProviderFactory
 
-        @JvmStatic @BeforeClass
-        fun setup() {
-            // FIXME: remove when updating to Gradle 7
-            assume().that(JavaVersion.current()).isLessThan(JavaVersion.VERSION_16)
+    @BeforeAll
+    fun setup(@TempDir projectDir: File) {
+        // FIXME: remove when updating to Gradle 7
+        assume().that(JavaVersion.current()).isLessThan(JavaVersion.VERSION_16)
 
-            ProjectBuilder.builder().withProjectDir(projectDir.root).build().let { project ->
-                objects = project.objects
-                providers = project.providers
-            }
+        ProjectBuilder.builder().withProjectDir(projectDir).build().let { project ->
+            objects = project.objects
+            providers = project.providers
         }
     }
 

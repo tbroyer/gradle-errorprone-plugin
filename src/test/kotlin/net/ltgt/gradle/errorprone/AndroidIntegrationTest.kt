@@ -5,15 +5,15 @@ import com.google.common.truth.TruthJUnit.assume
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
 import java.util.Properties
 
 class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     private val androidSdkHome = System.getProperty("test.android-sdk-home")
 
-    @Before
+    @BeforeEach
     fun setupAndroid() {
         assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.5"))
         assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isLessThan(JavaVersion.VERSION_16)
@@ -21,7 +21,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
 
         Properties().apply {
             set("sdk.dir", androidSdkHome)
-            testProjectDir.newFile("local.properties").outputStream().use {
+            testProjectDir.resolve("local.properties").outputStream().use {
                 store(it, null)
             }
         }
@@ -54,7 +54,7 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
             """.trimIndent()
         )
 
-        File(testProjectDir.newFolder("src", "main"), "AndroidManifest.xml").writeText(
+        File(testProjectDir.resolve("src/main").apply { mkdirs() }, "AndroidManifest.xml").writeText(
             """
             <?xml version="1.0" encoding="utf-8"?>
             <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example">
@@ -66,10 +66,10 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `compilation succeeds`() {
         // given
-        writeSuccessSource()
+        testProjectDir.writeSuccessSource()
 
         // when
-        val result = buildWithArgs("compileReleaseJavaWithJavac")
+        val result = testProjectDir.buildWithArgs("compileReleaseJavaWithJavac")
 
         // then
         assertThat(result.task(":compileReleaseJavaWithJavac")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -78,10 +78,10 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `compilation fails`() {
         // given
-        writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // when
-        val result = buildWithArgsAndFail("compileReleaseJavaWithJavac")
+        val result = testProjectDir.buildWithArgsAndFail("compileReleaseJavaWithJavac")
 
         // then
         assertThat(result.task(":compileReleaseJavaWithJavac")?.outcome).isEqualTo(TaskOutcome.FAILED)
@@ -101,10 +101,10 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // when
-        val result = buildWithArgs("compileReleaseJavaWithJavac")
+        val result = testProjectDir.buildWithArgs("compileReleaseJavaWithJavac")
 
         // then
         assertThat(result.task(":compileReleaseJavaWithJavac")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -121,10 +121,10 @@ class AndroidIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // when
-        val result = buildWithArgs("compileReleaseJavaWithJavac")
+        val result = testProjectDir.buildWithArgs("compileReleaseJavaWithJavac")
 
         // then
         assertThat(result.task(":compileReleaseJavaWithJavac")?.outcome).isEqualTo(TaskOutcome.SUCCESS)

@@ -5,13 +5,13 @@ import com.google.common.truth.TruthJUnit.assume
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
 
 class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 
-    @Before
+    @BeforeEach
     fun setup() {
         buildFile.appendText(
             """
@@ -46,10 +46,10 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `compilation succeeds`() {
         // given
-        writeSuccessSource()
+        testProjectDir.writeSuccessSource()
 
         // when
-        val result = buildWithArgs("compileJava")
+        val result = testProjectDir.buildWithArgs("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -58,10 +58,10 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `compilation fails`() {
         // given
-        writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // when
-        val result = buildWithArgsAndFail("compileJava")
+        val result = testProjectDir.buildWithArgsAndFail("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
@@ -81,10 +81,10 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // when
-        val result = buildWithArgs("compileJava")
+        val result = testProjectDir.buildWithArgs("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -101,10 +101,10 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // when
-        val result = buildWithArgs("compileJava")
+        val result = testProjectDir.buildWithArgs("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -119,7 +119,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             include(":customCheck")
             """.trimIndent()
         )
-        File(testProjectDir.newFolder("customCheck"), "build.gradle.kts").writeText(
+        File(testProjectDir.resolve("customCheck").apply { mkdirs() }, "build.gradle.kts").writeText(
             """
             plugins {
                 java
@@ -133,11 +133,11 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             """.trimIndent()
         )
         File(
-            testProjectDir.newFolder("customCheck", "src", "main", "resources", "META-INF", "services"),
+            testProjectDir.resolve("customCheck/src/main/resources/META-INF/services").apply { mkdirs() },
             "com.google.errorprone.bugpatterns.BugChecker"
         ).writeText("com.google.errorprone.sample.MyCustomCheck")
         File(
-            testProjectDir.newFolder("customCheck", "src", "main", "java", "com", "google", "errorprone", "sample"),
+            testProjectDir.resolve("customCheck/src/main/java/com/google/errorprone/sample").apply { mkdirs() },
             "MyCustomCheck.java"
         ).writeText(javaClass.getResource("/com/google/errorprone/sample/MyCustomCheck.java").readText())
 
@@ -154,12 +154,12 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         File(
-            testProjectDir.newFolder("src", "main", "java", "com", "google", "errorprone", "sample"),
+            testProjectDir.resolve("src/main/java/com/google/errorprone/sample").apply { mkdirs() },
             "Hello.java"
         ).writeText(javaClass.getResource("/com/google/errorprone/sample/Hello.java").readText())
 
         // when
-        val result = buildWithArgsAndFail("compileJava")
+        val result = testProjectDir.buildWithArgsAndFail("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
@@ -186,13 +186,13 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // Prime the configuration cache
-        buildWithArgs("--configuration-cache", "compileJava")
+        testProjectDir.buildWithArgs("--configuration-cache", "compileJava")
 
         // when
-        val result = buildWithArgs("--configuration-cache", "--rerun-tasks", "--debug", "compileJava")
+        val result = testProjectDir.buildWithArgs("--configuration-cache", "--rerun-tasks", "--debug", "compileJava")
 
         // then
         assertThat(result.output).contains("Reusing configuration cache.")

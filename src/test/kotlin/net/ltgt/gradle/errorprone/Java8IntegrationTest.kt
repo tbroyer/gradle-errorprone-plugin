@@ -5,8 +5,8 @@ import com.google.common.truth.TruthJUnit.assume
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
 
 class Java8IntegrationTest : AbstractPluginIntegrationTest() {
@@ -26,7 +26,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
     }
 
-    @Before
+    @BeforeEach
     fun setup() {
         buildFile.appendText(
             """
@@ -65,7 +65,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
                 """.trimIndent()
             )
         }
-        writeSuccessSource()
+        testProjectDir.writeSuccessSource()
     }
 
     @Test
@@ -74,7 +74,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isLessThan(JavaVersion.VERSION_16)
 
         // when
-        buildWithArgs("compileJava").also { result ->
+        testProjectDir.buildWithArgs("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(NOT_FORKED)
@@ -92,7 +92,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgs("compileJava").also { result ->
+        testProjectDir.buildWithArgs("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
@@ -105,7 +105,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
         // when
-        buildWithArgs("compileJava").also { result ->
+        testProjectDir.buildWithArgs("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
@@ -115,7 +115,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // check that it doesn't mess with task avoidance
 
         // when
-        buildWithArgs("compileJava").also { result ->
+        testProjectDir.buildWithArgs("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
         }
@@ -126,7 +126,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isAtLeast(JavaVersion.VERSION_16)
 
         // when
-        buildWithArgs("compileJava").also { result ->
+        testProjectDir.buildWithArgs("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
@@ -136,7 +136,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // check that it doesn't mess with task avoidance
 
         // when
-        buildWithArgs("compileJava").also { result ->
+        testProjectDir.buildWithArgs("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
         }
@@ -155,7 +155,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        val result = buildWithArgs("compileJava")
+        val result = testProjectDir.buildWithArgs("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -178,7 +178,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             """.trimIndent()
         )
         // when
-        val result = buildWithArgs("compileJava")
+        val result = testProjectDir.buildWithArgs("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -214,7 +214,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        val result = buildWithArgsAndFail("compileJava")
+        val result = testProjectDir.buildWithArgsAndFail("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isNotNull()
@@ -252,7 +252,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        val result = buildWithArgsAndFail("compileJava")
+        val result = testProjectDir.buildWithArgsAndFail("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isNotNull()
@@ -273,7 +273,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
             assertThat(result.output).contains(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
@@ -294,7 +294,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgs("compileJava").also { result ->
+        testProjectDir.buildWithArgs("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
@@ -316,7 +316,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgs("compileJava").also { result ->
+        testProjectDir.buildWithArgs("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
@@ -349,7 +349,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // Prime the build cache
 
         // when
-        buildWithArgs("--build-cache", "compileJava").also { result ->
+        testProjectDir.buildWithArgs("--build-cache", "compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
@@ -380,9 +380,9 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        testProjectDir.root.resolve("build/").deleteRecursively()
-        testProjectDir.root.resolve("javac/").deleteRecursively()
-        buildWithArgs("--build-cache", "compileJava").also { result ->
+        testProjectDir.resolve("build/").deleteRecursively()
+        testProjectDir.resolve("javac/").deleteRecursively()
+        testProjectDir.buildWithArgs("--build-cache", "compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FROM_CACHE)
         }

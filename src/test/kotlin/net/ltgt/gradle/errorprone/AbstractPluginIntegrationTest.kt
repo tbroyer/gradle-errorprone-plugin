@@ -1,23 +1,22 @@
 package net.ltgt.gradle.errorprone
 
-import org.junit.Before
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 abstract class AbstractPluginIntegrationTest {
 
-    @JvmField
-    @Rule
-    val testProjectDir = TemporaryFolder()
-
+    @TempDir
+    lateinit var testProjectDir: File
     lateinit var settingsFile: File
     lateinit var buildFile: File
 
-    @Before
+    @BeforeEach
     open fun setupProject() {
-        settingsFile = testProjectDir.newFile("settings.gradle.kts")
-        buildFile = testProjectDir.newFile("build.gradle.kts").apply {
+        settingsFile = testProjectDir.resolve("settings.gradle.kts").apply {
+            createNewFile()
+        }
+        buildFile = testProjectDir.resolve("build.gradle.kts").apply {
             writeText(
                 """
                 import net.ltgt.gradle.errorprone.*
@@ -26,12 +25,4 @@ abstract class AbstractPluginIntegrationTest {
             )
         }
     }
-
-    protected fun writeSuccessSource() = testProjectDir.root.writeSuccessSource()
-
-    protected fun writeFailureSource() = testProjectDir.root.writeFailureSource()
-
-    protected fun buildWithArgs(vararg tasks: String) = testProjectDir.root.buildWithArgs(*tasks)
-
-    protected fun buildWithArgsAndFail(vararg tasks: String) = testProjectDir.root.buildWithArgsAndFail(*tasks)
 }

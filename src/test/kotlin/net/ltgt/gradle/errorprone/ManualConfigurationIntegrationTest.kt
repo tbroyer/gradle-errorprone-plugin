@@ -5,7 +5,7 @@ import com.google.common.truth.TruthJUnit.assume
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
 
@@ -57,10 +57,10 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 """.trimIndent()
             )
         }
-        writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // when
-        val result = buildWithArgsAndFail("--info", "compileJava")
+        val result = testProjectDir.buildWithArgsAndFail("--info", "compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
@@ -111,12 +111,12 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 """.trimIndent()
             )
         }
-        writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // Error Prone is disabled by default, so compilation should succeed.
 
         // when
-        val result = buildWithArgs("customCompileJava")
+        val result = testProjectDir.buildWithArgs("customCompileJava")
 
         // then
         assertThat(result.task(":customCompileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -132,7 +132,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        val result2 = buildWithArgsAndFail("customCompileJava")
+        val result2 = testProjectDir.buildWithArgsAndFail("customCompileJava")
 
         // then
         assertThat(result2.task(":customCompileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)

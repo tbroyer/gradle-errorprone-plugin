@@ -5,30 +5,29 @@ import com.google.common.truth.TruthJUnit.assume
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class GroovyDslIntegrationTest {
 
-    @JvmField
-    @Rule
-    val testProjectDir = TemporaryFolder()
-
+    @TempDir
+    lateinit var testProjectDir: File
     lateinit var settingsFile: File
     lateinit var buildFile: File
 
-    @Before
+    @BeforeEach
     fun setupProject() {
         assume().that(
             JavaVersion.current().isJava16Compatible &&
                 GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")
         ).isFalse()
 
-        settingsFile = testProjectDir.newFile("settings.gradle")
-        buildFile = testProjectDir.newFile("build.gradle").apply {
+        settingsFile = testProjectDir.resolve("settings.gradle").apply {
+            createNewFile()
+        }
+        buildFile = testProjectDir.resolve("build.gradle").apply {
             appendText(
                 """
                 plugins {
@@ -58,10 +57,10 @@ class GroovyDslIntegrationTest {
             }
             """.trimIndent()
         )
-        testProjectDir.root.writeFailureSource()
+        testProjectDir.writeFailureSource()
 
         // when
-        val result = testProjectDir.root.buildWithArgs("compileJava")
+        val result = testProjectDir.buildWithArgs("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -91,10 +90,10 @@ class GroovyDslIntegrationTest {
             }
             """.trimIndent()
         )
-        testProjectDir.root.writeSuccessSource()
+        testProjectDir.writeSuccessSource()
 
         // when
-        val result = testProjectDir.root.buildWithArgs("compileJava")
+        val result = testProjectDir.buildWithArgs("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)

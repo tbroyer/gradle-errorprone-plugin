@@ -5,8 +5,8 @@ import com.google.common.truth.TruthJUnit.assume
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
 
 class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
@@ -26,11 +26,11 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
     }
 
-    @Before
+    @BeforeEach
     fun setup() {
         assume().that(GradleVersion.version(testGradleVersion).baseVersion).isAtLeast(GradleVersion.version("6.7"))
 
-        testProjectDir.newFile("gradle.properties").appendText(
+        testProjectDir.resolve("gradle.properties").appendText(
             """
             org.gradle.java.installations.auto-download=false
             """.trimIndent()
@@ -72,7 +72,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        writeSuccessSource()
+        testProjectDir.writeSuccessSource()
     }
 
     private fun BuildResult.assumeToolchainAvailable() {
@@ -121,7 +121,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         // First test that it's disabled by default
 
         // when
-        buildWithArgsAndFail("displayCompileJavaOptions").also { result ->
+        testProjectDir.buildWithArgsAndFail("displayCompileJavaOptions").also { result ->
             // then
             assertThat(result.task(":displayCompileJavaOptions")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains("ErrorProne: disabled")
@@ -137,7 +137,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
             assertThat(result.output).contains(ErrorPronePlugin.TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
@@ -159,7 +159,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -178,7 +178,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -202,7 +202,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -213,7 +213,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         // check that it doesn't mess with task avoidance
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
@@ -235,7 +235,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -246,7 +246,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         // check that it doesn't mess with task avoidance
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
@@ -270,7 +270,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        val result = buildWithArgsAndFail("compileJava")
+        val result = testProjectDir.buildWithArgsAndFail("compileJava")
 
         // then
         result.assumeToolchainAvailable()
@@ -307,7 +307,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         }
 
         // when
-        val result = buildWithArgsAndFail("compileJava")
+        val result = testProjectDir.buildWithArgsAndFail("compileJava")
 
         // then
         result.assumeToolchainAvailable()
@@ -336,7 +336,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        val result = buildWithArgsAndFail("compileJava")
+        val result = testProjectDir.buildWithArgsAndFail("compileJava")
 
         // then
         result.assumeToolchainAvailable()
@@ -368,7 +368,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
@@ -390,7 +390,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -421,7 +421,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         )
 
         // when
-        buildWithArgsAndFail("compileJava").also { result ->
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
