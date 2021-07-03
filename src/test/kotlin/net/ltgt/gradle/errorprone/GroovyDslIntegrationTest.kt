@@ -5,10 +5,23 @@ import com.google.common.truth.TruthJUnit.assume
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
+import java.io.File
 
-class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
-    override fun setupProject() {
+class GroovyDslIntegrationTest {
+
+    @JvmField
+    @Rule
+    val testProjectDir = TemporaryFolder()
+
+    lateinit var settingsFile: File
+    lateinit var buildFile: File
+
+    @Before
+    fun setupProject() {
         assume().that(
             JavaVersion.current().isJava16Compatible &&
                 GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")
@@ -45,10 +58,10 @@ class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        writeFailureSource()
+        testProjectDir.root.writeFailureSource()
 
         // when
-        val result = buildWithArgs("compileJava")
+        val result = testProjectDir.root.buildWithArgs("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -78,10 +91,10 @@ class GroovyDslIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        writeSuccessSource()
+        testProjectDir.root.writeSuccessSource()
 
         // when
-        val result = buildWithArgs("compileJava")
+        val result = testProjectDir.root.buildWithArgs("compileJava")
 
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
