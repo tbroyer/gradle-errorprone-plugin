@@ -21,6 +21,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.compile.CompileOptions
 import org.gradle.api.tasks.compile.ForkOptions
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
@@ -120,7 +121,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                                     8 -> javacConfiguration
                                     else -> emptyList()
                                 }
-                            JavaVersion.current().isJava8 -> javacConfiguration
+                            JavaVersion.current().isJava8 && !options.isCommandLine -> javacConfiguration
                             else -> emptyList()
                         }
                     }
@@ -136,9 +137,9 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                                 targetVersion >= 16 -> configureForJava16plus()
                             }
                         }
-                        JavaVersion.current().isJava8 && (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null)) ->
+                        JavaVersion.current().isJava8 && !options.isCommandLine ->
                             configureErrorProneJavac()
-                        JavaVersion.current().isJava16Compatible && (!options.isFork || (options.forkOptions.javaHome == null && options.forkOptions.executable == null)) ->
+                        JavaVersion.current().isJava16Compatible && !options.isCommandLine ->
                             configureForJava16plus()
                     }
                 }
@@ -230,3 +231,6 @@ internal val TEST_SOURCE_SET_NAME_REGEX =
 
 internal val JavaVersion.isJava16Compatible: Boolean
     get() = this < JavaVersion.VERSION_HIGHER && this >= JavaVersion.toVersion(16)
+
+private val CompileOptions.isCommandLine
+    get() = isFork && (forkOptions.javaHome != null || forkOptions.executable != null)
