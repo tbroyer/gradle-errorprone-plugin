@@ -92,11 +92,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
 
         val noJavacDependencyNotified = AtomicBoolean()
         fun JavaCompile.configureErrorProneJavac() {
-            if (!options.isFork) {
-                options.isFork = true
-                // reset forkOptions in case they were configured
-                options.forkOptions = ForkOptions()
-            }
+            ensureForking()
             javacConfiguration.asPath.also {
                 if (it.isNotBlank()) {
                     options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:$it")
@@ -190,13 +186,20 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
         }
     }
 
-    private fun JavaCompile.configureForJava16plus() {
-        // https://github.com/google/error-prone/issues/1157#issuecomment-769289564
+    private fun JavaCompile.ensureForking() {
         if (!options.isFork) {
             options.isFork = true
-            // reset forkOptions in case they were configured
-            options.forkOptions = ForkOptions()
+            // See org.gradle.api.internal.tasks.compile.AbstractJavaCompileSpecFactory#isCurrentVmOurToolchain
+            // reset forkOptions in case they were configured, but only when not using a toolchain
+            if (!HAS_TOOLCHAINS || !javaCompiler.isPresent) {
+                options.forkOptions = ForkOptions()
+            }
         }
+    }
+
+    private fun JavaCompile.configureForJava16plus() {
+        // https://github.com/google/error-prone/issues/1157#issuecomment-769289564
+        ensureForking()
         options.forkOptions.jvmArgs!!.addAll(JVM_ARGS_STRONG_ENCAPSULATION)
     }
 }

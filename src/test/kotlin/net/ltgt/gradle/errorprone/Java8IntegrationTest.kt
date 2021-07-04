@@ -52,6 +52,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
                 }
             }
             compileJava.finalizedBy(displayCompileJavaOptions)
+            compileJava.options.forkOptions.jvmArgs!!.add("-XshowSettings")
             """.trimIndent()
         )
         if (JavaVersion.current().isJava16Compatible && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
@@ -78,7 +79,8 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(NOT_FORKED)
-            assertThat(result.output).doesNotContain(JVM_ARG)
+            // Check that the configured jvm arg is preserved
+            assertThat(result.output).contains(jvmArg("-XshowSettings"))
         }
 
         // Test a forked task
@@ -96,7 +98,9 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
-            assertThat(result.output).doesNotContain(JVM_ARG)
+            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
+            // Check that the configured jvm arg is preserved
+            assertThat(result.output).contains(jvmArg("-XshowSettings"))
         }
     }
 
@@ -131,6 +135,8 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
             assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
+            // Check that the configured jvm arg is removed
+            assertThat(result.output).doesNotContain(jvmArg("-XshowSettings"))
         }
 
         // check that it doesn't mess with task avoidance
@@ -160,7 +166,9 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // then
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
         assertThat(result.output).contains(NOT_FORKED)
-        assertThat(result.output).doesNotContain(JVM_ARG)
+        assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
+        // Check that the configured jvm arg is preserved
+        assertThat(result.output).contains(jvmArg("-XshowSettings"))
     }
 
     @Test
@@ -173,7 +181,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
             compileJava.apply {
                 options.isFork = true
-                options.forkOptions.jvmArgs!!.add("-XshowSettings")
             }
             """.trimIndent()
         )
@@ -219,7 +226,9 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         // then
         assertThat(result.task(":compileJava")?.outcome).isNotNull()
         assertThat(result.output).contains(FORKED)
-        assertThat(result.output).doesNotContain(JVM_ARG)
+        assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
+        // Check that the configured jvm arg is preserved
+        assertThat(result.output).contains(jvmArg("-XshowSettings"))
     }
 
     @Test
@@ -258,6 +267,8 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         assertThat(result.task(":compileJava")?.outcome).isNotNull()
         assertThat(result.output).contains(FORKED)
         assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
+        // Check that the configured jvm arg is preserved
+        assertThat(result.output).contains(jvmArg("-XshowSettings"))
     }
 
     @Test
@@ -279,6 +290,8 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             assertThat(result.output).contains(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
             assertThat(result.output).contains(FORKED)
             assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
+            // Check that the configured jvm arg is removed
+            assertThat(result.output).doesNotContain(jvmArg("-XshowSettings"))
         }
 
         // check that adding back the dependency fixes compilation (so it was indeed caused by missing dependency) and silences the warning
@@ -300,6 +313,8 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
             assertThat(result.output).contains(FORKED)
             assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
+            // Check that the configured jvm arg is removed
+            assertThat(result.output).doesNotContain(jvmArg("-XshowSettings"))
         }
     }
 
@@ -354,6 +369,8 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
             assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
+            // Check that the configured jvm arg is removed
+            assertThat(result.output).doesNotContain(jvmArg("-XshowSettings"))
         }
 
         // Move the errorproneJavac dependency: first remove it, then add it back… differently
