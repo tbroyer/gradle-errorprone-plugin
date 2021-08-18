@@ -351,7 +351,7 @@ you cannot use `<<` or `+=` to add to lists for instance._
 | `enable(checkNames...)`           | Adds checks with their default severity. Useful in combination with `disableAllChecks` to selectively re-enable checks. Equivalent to `check(checkName, CheckSeverity.DEFAULT)` for each check name.
 | `disable(checkNames...)`          | Disable checks. Equivalent to `check(checkName, CheckSeverity.OFF)` for each check name.
 | `warn(checkNames...)`             | Adds checks with warning severity. Equivalent to `check(checkName, CheckSeverity.WARNING)` for each check name.
-| `error(checkNames...)`            | Adds checks with error severity. Equivalent to `check(checkName, CheckSeverity.OFF)` for each check name.
+| `error(checkNames...)`            | Adds checks with error severity. Equivalent to `check(checkName, CheckSeverity.ERROR)` for each check name.
 | `check(checkName to severity...)` | (Kotlin DSL only) Adds pairs of check name to severity. Equivalent to `checks.put(first, second)` for each pair.
 | `check(checkName, severity)`      | Adds a check with a given severity. The severity can be passed as a provider for lazy configuration. Equivalent to `checks.put(checkName, severity)`.
 | `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, true)`.
