@@ -24,10 +24,10 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v1
         with:
           arguments: --scan build
-          wrapper-cache-enabled: true
+          distributions-cache-enabled: true
           dependencies-cache-enabled: true
           dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
@@ -49,10 +49,10 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v1
         with:
           arguments: --scan build
-          wrapper-cache-enabled: true
+          distributions-cache-enabled: true
           dependencies-cache-enabled: true
           dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
@@ -84,10 +84,10 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v1
         with:
           arguments: --scan test "-Ptest.gradle-version=${{ matrix.gradle }}"
-          wrapper-cache-enabled: true
+          distributions-cache-enabled: true
           dependencies-cache-enabled: true
           dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
@@ -127,10 +127,10 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v1
         with:
           arguments: --scan test "-Ptest.java-toolchain=${{ matrix.java }}"
-          wrapper-cache-enabled: true
+          distributions-cache-enabled: true
           dependencies-cache-enabled: true
           dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
@@ -168,10 +168,10 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        uses: eskatos/gradle-command-action@v1
+        uses: gradle/gradle-build-action@v1
         with:
           arguments: --scan test -Ptest.java-toolchain=16 "-Ptest.gradle-version=${{ matrix.gradle }}"
-          wrapper-cache-enabled: true
+          distributions-cache-enabled: true
           dependencies-cache-enabled: true
           dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
