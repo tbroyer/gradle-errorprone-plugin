@@ -29,7 +29,7 @@ jobs:
           arguments: --scan build
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*gradle.lockfile'
+          dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
 
       - name: Store reports
@@ -54,7 +54,7 @@ jobs:
           arguments: --scan build
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*gradle.lockfile'
+          dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
 
       - name: Store reports
@@ -89,7 +89,7 @@ jobs:
           arguments: --scan test "-Ptest.gradle-version=${{ matrix.gradle }}"
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*gradle.lockfile'
+          dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
 
       - name: Store reports
@@ -132,7 +132,7 @@ jobs:
           arguments: --scan test "-Ptest.java-toolchain=${{ matrix.java }}"
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*gradle.lockfile'
+          dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
 
       - name: Store reports
@@ -173,7 +173,7 @@ jobs:
           arguments: --scan test -Ptest.java-toolchain=16 "-Ptest.gradle-version=${{ matrix.gradle }}"
           wrapper-cache-enabled: true
           dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*gradle.lockfile'
+          dependencies-cache-key: '**/*.lockfile'
           dependencies-cache-exact: true
 
       - name: Store reports
