@@ -104,15 +104,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 11, 16 ]
+        java: [ 11, 17 ]
     steps:
       - uses: actions/checkout@v2
 
       - name: Setup JDK ${{ matrix.java }}
         id: setup-test-java
         if: matrix.java != 11
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
+          distribution: temurin
           java-version: ${{ matrix.java }}
 
       - name: Setup JAVA_HOME_${{ matrix.java }}_X64 environment variable
@@ -142,35 +143,36 @@ jobs:
           name: jdk-${{ matrix.java }}-tests
           path: build/reports/tests/test/
 
-  test-jdk16-gradle7:
+  test-jdk17-gradle7:
     needs: linux
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        gradle: [ '7.2', '7.1.1', '7.0.2' ]
+        gradle: [ '7.2' ]
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup JDK 16
+      - name: Setup JDK 17
         id: setup-test-java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
-          java-version: 16
+          distribution: temurin
+          java-version: 17
 
-      - name: Setup JAVA_HOME_16_X64 environment variable
-        run: echo "JAVA_HOME_16_X64=${{ steps.setup-test-java.outputs.path }}" | tee -a $GITHUB_ENV
+      - name: Setup JAVA_HOME_17_X64 environment variable
+        run: echo "JAVA_HOME_17_X64=${{ steps.setup-test-java.outputs.path }}" | tee -a $GITHUB_ENV
 
       - name: Setup environment
         run: |
           echo "JAVA_HOME=${JAVA_HOME_8_X64}" | tee -a $GITHUB_ENV
           echo "org.gradle.java.installations.auto-download=false" | tee -a gradle.properties
-          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_16_X64" | tee -a gradle.properties
+          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_17_X64" | tee -a gradle.properties
 
       - name: Build with Gradle
         id: gradle-build
         uses: gradle/gradle-build-action@v1
         with:
-          arguments: --scan test -Ptest.java-toolchain=16 "-Ptest.gradle-version=${{ matrix.gradle }}"
+          arguments: --scan test -Ptest.java-toolchain=17 "-Ptest.gradle-version=${{ matrix.gradle }}"
           distributions-cache-enabled: true
           dependencies-cache-enabled: true
           dependencies-cache-key: '**/*.lockfile'
@@ -180,5 +182,5 @@ jobs:
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v2
         with:
-          name: jdk16-gradle-${{ matrix.gradle }}-tests
+          name: jdk17-gradle-${{ matrix.gradle }}-tests
           path: build/reports/tests/test/
