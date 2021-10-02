@@ -6,7 +6,7 @@ This plugin configures `JavaCompile` tasks to use the [Error Prone compiler].
 
 ## Requirements
 
-This plugin requires using at least Gradle 5.2.
+This plugin requires using at least Gradle 6.8.
 
 While JDK 8 is supported, it is recommended to use at least a JDK 9 compiler.
 See [note below](#jdk-8-support) about JDK 8 support.
@@ -18,8 +18,6 @@ plugins {
     id("net.ltgt.errorprone") version "<plugin version>"
 }
 ```
-
-_Note: snippets in this guide use features from the latest Gradle version, so beware if copy/pasting._
 
 This plugin creates a configuration named `errorprone`,
 and configures the `<sourceSet>AnnotationProcessor` configuration for each source set to extend it.
@@ -61,16 +59,20 @@ tasks.withType<JavaCompile>().configureEach {
 
 and can also be disabled altogether:
 ```gradle
-tasks.named("compileTestJava").configure {
-    options.errorprone.enabled = false
+tasks {
+    compileTestJava {
+        options.errorprone.enabled = false
+    }
 }
 ```
 <details>
 <summary>with Kotlin DSL</summary>
 
 ```kotlin
-tasks.named<JavaCompile>("compileTestJava") {
-    options.errorprone.isEnabled.set(false)
+tasks {
+    compileTestJava {
+        options.errorprone.isEnabled.set(false)
+    }
 }
 ```
 
@@ -134,13 +136,13 @@ and the plugin will configure the `JavaCompile` tasks to [use a forking compiler
 and will override the compiler by prepending the dependencies to the bootstrap classpath
 (using a `-Xbootclasspath/p:` [JVM argument][BaseForkOptions.getJvmArgs]).
 
-Starting with Gradle 6.7, you can [configure `JavaCompile` tasks][gradle-toolchains] to use a specific JDK compiler,
+You can [configure `JavaCompile` tasks][gradle-toolchains] to use a specific JDK compiler,
 independently of the JDK used to run Gradle itself.
 The plugin will use the toolchain version, if any is specified, to configure the task.
 This allows you to enforce compilation with JDK 8 (properly configured for Error Prone!) while running Gradle with e.g. JDK 11,
 or the reverse: enforce compilation with JDK 11 while running Gradle with JDK 8.
 
-Alternatively, or for previous versions of Gradle, you can [configure `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK while still using JDK 8 for running Gradle:
+Alternatively, you can [configure `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK while still using JDK 8 for running Gradle:
 ```gradle
 tasks.withType(JavaCompile).configureEach {
     options.fork(javaHome: project.getProperty("jdk11home"))
@@ -191,7 +193,7 @@ someTask.configure {
 
 (if you're using `forkOptions.executable`, then use `-J-Xbootclasspath/p:` instead.)
 
-[gradle-toolchains]: https://docs.gradle.org/6.7/userguide/toolchains.html
+[gradle-toolchains]: https://docs.gradle.org/current/userguide/toolchains.html
 [CompileOptions.fork]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:fork
 [BaseForkOptions.getJvmArgs]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/BaseForkOptions.html#getJvmArgs--
 [ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
@@ -236,7 +238,7 @@ tasks.withType(JavaCompile).configureEach {
         option("NullAway:AnnotatedPackages", "net.ltgt")
     }
 }
-tasks.named("compileJava").configure {
+tasks.compileJava {
     // The check defaults to a warning, bump it up to an error for the main sources
     options.errorprone.error("NullAway")
 }
@@ -250,7 +252,7 @@ tasks.withType<JavaCompile>().configureEach {
         option("NullAway:AnnotatedPackages", "net.ltgt")
     }
 }
-tasks.named("compileJava", JavaCompile::class) {
+tasks.compileJava {
     // The check defaults to a warning, bump it up to an error for the main sources
     options.errorprone.error("NullAway")
 }

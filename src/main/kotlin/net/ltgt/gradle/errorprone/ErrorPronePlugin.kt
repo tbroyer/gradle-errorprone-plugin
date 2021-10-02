@@ -52,8 +52,6 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
     }
 """
 
-        private val HAS_TOOLCHAINS = GradleVersion.current().baseVersion >= GradleVersion.version("6.7")
-
         internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 8"
 
         internal val JVM_ARGS_STRONG_ENCAPSULATION = listOf(
@@ -71,8 +69,8 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
     }
 
     override fun apply(project: Project) {
-        if (GradleVersion.current() < GradleVersion.version("5.2")) {
-            throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 5.2")
+        if (GradleVersion.current() < GradleVersion.version("6.8")) {
+            throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 6.8")
         }
 
         val errorproneConfiguration = project.configurations.create(CONFIGURATION_NAME) {
@@ -111,48 +109,42 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
                 .compilerArgumentProviders
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
 
-            if (HAS_TOOLCHAINS || JavaVersion.current().run { isJava8 || isJava16Compatible }) {
-                inputs.files(
-                    providers.provider {
-                        when {
-                            !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
-                            HAS_TOOLCHAINS && javaCompiler.isPresent ->
-                                when (javaCompiler.get().metadata.languageVersion.asInt()) {
-                                    8 -> javacConfiguration
-                                    else -> emptyList()
-                                }
-                            JavaVersion.current().isJava8 && !options.isCommandLine -> javacConfiguration
-                            else -> emptyList()
-                        }
-                    }
-                ).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
-                doFirst("configure errorprone in bootclasspath") {
+            inputs.files(
+                providers.provider {
                     when {
-                        !errorproneOptions.isEnabled.getOrElse(false) -> return@doFirst
-                        HAS_TOOLCHAINS && javaCompiler.isPresent -> {
-                            val targetVersion = javaCompiler.get().metadata.languageVersion.asInt()
-                            when {
-                                targetVersion < 8 -> throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
-                                targetVersion == 8 -> configureErrorProneJavac()
-                                targetVersion >= 16 -> configureForJava16plus()
+                        !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
+                        javaCompiler.isPresent ->
+                            when (javaCompiler.get().metadata.languageVersion.asInt()) {
+                                8 -> javacConfiguration
+                                else -> emptyList()
                             }
-                        }
-                        JavaVersion.current().isJava8 && !options.isCommandLine ->
-                            configureErrorProneJavac()
-                        JavaVersion.current().isJava16Compatible && !options.isCommandLine ->
-                            configureForJava16plus()
+                        JavaVersion.current().isJava8 && !options.isCommandLine -> javacConfiguration
+                        else -> emptyList()
                     }
+                }
+            ).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
+            doFirst("configure errorprone in bootclasspath") {
+                when {
+                    !errorproneOptions.isEnabled.getOrElse(false) -> return@doFirst
+                    javaCompiler.isPresent -> {
+                        val targetVersion = javaCompiler.get().metadata.languageVersion.asInt()
+                        when {
+                            targetVersion < 8 -> throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
+                            targetVersion == 8 -> configureErrorProneJavac()
+                            targetVersion >= 16 -> configureForJava16plus()
+                        }
+                    }
+                    JavaVersion.current().isJava8 && !options.isCommandLine ->
+                        configureErrorProneJavac()
+                    JavaVersion.current() >= JavaVersion.VERSION_16 && !options.isCommandLine ->
+                        configureForJava16plus()
                 }
             }
         }
 
         val enableErrorProne: JavaCompile.(Boolean) -> Unit = { testOnly ->
             options.errorprone {
-                if (HAS_TOOLCHAINS) {
-                    isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 8 }.orElse(true))
-                } else {
-                    isEnabled.convention(true)
-                }
+                isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 8 }.orElse(true))
                 isCompilingTestOnlyCode.convention(testOnly)
             }
         }
@@ -192,7 +184,7 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             options.isFork = true
             // See org.gradle.api.internal.tasks.compile.AbstractJavaCompileSpecFactory#isCurrentVmOurToolchain
             // reset forkOptions in case they were configured, but only when not using a toolchain
-            if (!HAS_TOOLCHAINS || !javaCompiler.isPresent) {
+            if (!javaCompiler.isPresent) {
                 options.forkOptions = ForkOptions()
             }
         }
@@ -228,9 +220,6 @@ internal class ErrorProneCompilerArgumentProvider(
 
 internal val TEST_SOURCE_SET_NAME_REGEX =
     """^(t|.*T)est(\p{javaUpperCase}.*)?$""".toRegex()
-
-internal val JavaVersion.isJava16Compatible: Boolean
-    get() = this < JavaVersion.VERSION_HIGHER && this >= JavaVersion.toVersion(16)
 
 private val CompileOptions.isCommandLine
     get() = isFork && (forkOptions.javaHome != null || forkOptions.executable != null)

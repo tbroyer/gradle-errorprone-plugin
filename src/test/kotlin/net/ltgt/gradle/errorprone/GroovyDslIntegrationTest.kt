@@ -20,7 +20,7 @@ class GroovyDslIntegrationTest {
     @BeforeEach
     fun setupProject() {
         assume().that(
-            JavaVersion.current().isJava16Compatible &&
+            JavaVersion.current() >= JavaVersion.VERSION_16 &&
                 GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")
         ).isFalse()
 

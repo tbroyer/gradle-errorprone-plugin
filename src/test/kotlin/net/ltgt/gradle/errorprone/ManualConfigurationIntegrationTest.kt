@@ -1,7 +1,6 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.TruthJUnit.assume
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
@@ -11,9 +10,6 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `in non-java project with applied plugin`() {
-        // jvm-ecosystem plugin has been added in Gradle 6.7
-        assume().that(GradleVersion.version(testGradleVersion).baseVersion).isAtLeast(GradleVersion.version("6.7"))
-
         // given
         buildFile.appendText(
             """
@@ -46,7 +42,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        if (JavaVersion.current().isJava16Compatible && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
+        if (JavaVersion.current() >= JavaVersion.VERSION_16 && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
             // https://melix.github.io/blog/2021/03/gradle-java16.html
             buildFile.appendText(
                 """
@@ -100,7 +96,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        if (JavaVersion.current().isJava16Compatible && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
+        if (JavaVersion.current() >= JavaVersion.VERSION_16 && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
             // https://melix.github.io/blog/2021/03/gradle-java16.html
             buildFile.appendText(
                 """

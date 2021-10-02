@@ -28,8 +28,6 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
     @BeforeEach
     fun setup() {
-        assume().that(GradleVersion.version(testGradleVersion).baseVersion).isAtLeast(GradleVersion.version("6.7"))
-
         testProjectDir.resolve("gradle.properties").appendText(
             """
             org.gradle.java.installations.auto-download=false
@@ -100,12 +98,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     override fun getMetadata(): JavaInstallationMetadata = object : JavaInstallationMetadata {
                         override fun getLanguageVersion(): JavaLanguageVersion = JavaLanguageVersion.of(7)
                         override fun getInstallationPath(): Directory = TODO()
-                        ${
-            if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("6.8")) {
-                "override fun getVendor(): String = TODO()"
-            } else {
-                ""
-            }}
+                        override fun getVendor(): String = TODO()
                         ${
             if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("7.1")) {
                 """override fun getJavaRuntimeVersion(): String = TODO()

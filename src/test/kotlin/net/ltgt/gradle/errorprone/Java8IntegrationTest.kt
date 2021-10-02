@@ -55,7 +55,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             compileJava.options.forkOptions.jvmArgs!!.add("-XshowSettings")
             """.trimIndent()
         )
-        if (JavaVersion.current().isJava16Compatible && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
+        if (JavaVersion.current() >= JavaVersion.VERSION_16 && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
             // https://melix.github.io/blog/2021/03/gradle-java16.html
             buildFile.appendText(
                 """
@@ -150,7 +150,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking if Error Prone is disabled`() {
-        assume().withMessage("isJava8Or16plus").that(JavaVersion.current().run { isJava8 || isJava16Compatible }).isTrue()
+        assume().withMessage("isJava8Or16plus").that(JavaVersion.current().run { isJava8 || this >= JavaVersion.VERSION_16 }).isTrue()
 
         // given
         buildFile.appendText(
@@ -348,13 +348,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             buildCache {
-                local${
-            if (GradleVersion.version(testGradleVersion) < GradleVersion.version("6.0")) {
-                "(DirectoryBuildCache::class.java)"
-            } else {
-                ""
-            }
-            } {
+                local {
                     directory = file("build-cache")
                 }
             }

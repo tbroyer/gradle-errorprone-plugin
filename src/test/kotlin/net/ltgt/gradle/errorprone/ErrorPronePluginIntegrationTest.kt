@@ -28,7 +28,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             }
             """.trimIndent()
         )
-        if (JavaVersion.current().isJava16Compatible && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
+        if (JavaVersion.current() >= JavaVersion.VERSION_16 && GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
             // https://melix.github.io/blog/2021/03/gradle-java16.html
             buildFile.appendText(
                 """
@@ -168,9 +168,8 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `is configuration-cache friendly`() {
-        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("6.6"))
         assume().that(
-            JavaVersion.current().isJava16Compatible &&
+            JavaVersion.current() >= JavaVersion.VERSION_16 &&
                 GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")
         ).isFalse()
 
