@@ -286,6 +286,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking with JDK 16+ if Error Prone is disabled`() {
+        // https://github.com/gradle/gradle/issues/16857#issuecomment-931610187
+        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("7.0"))
+
         // given
         buildFile.appendText(
             """
@@ -299,17 +302,6 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             tasks.compileJava { options.errorprone.isEnabled.set(false) }
             """.trimIndent()
         )
-        if (GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")) {
-            // https://melix.github.io/blog/2021/03/gradle-java16.html
-            buildFile.appendText(
-                """
-
-                tasks.withType<JavaCompile>().configureEach {
-                    options.isIncremental = false
-                }
-                """.trimIndent()
-            )
-        }
 
         // when
         val result = testProjectDir.buildWithArgsAndFail("compileJava")
