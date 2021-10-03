@@ -79,7 +79,6 @@ class ErrorPronePlugin : Plugin<Project> {
         }
 
         fun JavaCompile.configureErrorProneJavac() {
-            options.isFork = true
             options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:${javacConfiguration.asPath}")
         }
 
@@ -95,31 +94,20 @@ class ErrorPronePlugin : Plugin<Project> {
                 providers.provider {
                     when {
                         !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
-                        javaCompiler.isPresent ->
-                            when (javaCompiler.get().metadata.languageVersion.asInt()) {
-                                8 -> javacConfiguration
-                                else -> emptyList()
-                            }
-                        JavaVersion.current().isJava8 && !options.isCommandLine -> javacConfiguration
+                        compilerVersion == JavaVersion.VERSION_1_8 -> javacConfiguration
                         else -> emptyList()
                     }
                 }
             ).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
-            doFirst("configure errorprone in bootclasspath") {
-                when {
-                    !errorproneOptions.isEnabled.getOrElse(false) -> return@doFirst
-                    javaCompiler.isPresent -> {
-                        val targetVersion = javaCompiler.get().metadata.languageVersion.asInt()
-                        when {
-                            targetVersion < 8 -> throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
-                            targetVersion == 8 -> configureErrorProneJavac()
-                            targetVersion >= 16 -> configureForJava16plus()
-                        }
+            doFirst("configure JVM arguments and forking for errorprone") {
+                if (!errorproneOptions.isEnabled.getOrElse(false)) return@doFirst
+                compilerVersion?.let {
+                    if (it < JavaVersion.VERSION_1_8) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
+                    if (it.needsForking) options.isFork = true
+                    when {
+                        it == JavaVersion.VERSION_1_8 -> configureErrorProneJavac()
+                        it >= JavaVersion.VERSION_16 -> configureForJava16plus()
                     }
-                    JavaVersion.current().isJava8 && !options.isCommandLine ->
-                        configureErrorProneJavac()
-                    JavaVersion.current() >= JavaVersion.VERSION_16 && !options.isCommandLine ->
-                        configureForJava16plus()
                 }
             }
         }
@@ -161,9 +149,16 @@ class ErrorPronePlugin : Plugin<Project> {
         }
     }
 
+    private val JavaCompile.compilerVersion get() =
+        javaCompiler
+            .map { JavaVersion.toVersion(it.metadata.languageVersion.asInt()) }
+            .orNull ?: if (options.isCommandLine) null else JavaVersion.current()
+
+    private val JavaVersion.needsForking get() =
+        this == JavaVersion.VERSION_1_8 || this >= JavaVersion.VERSION_16
+
     private fun JavaCompile.configureForJava16plus() {
         // https://github.com/google/error-prone/issues/1157#issuecomment-769289564
-        options.isFork = true
         options.forkOptions.jvmArgs!!.addAll(JVM_ARGS_STRONG_ENCAPSULATION)
     }
 }
