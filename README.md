@@ -207,9 +207,10 @@ whenever it detects such a JDK is being used and ErrorProne is enabled.
 
 That detection will only take into account the [toolchain][gradle-toolchains] used by the `JavaCompile` task,
 or the JDK used to run Gradle in case no toolchain is being used.
-This should also include toolchains set using `forkOptions.executable` or `forkOptions.javaHome`,
-but only in Gradle 6.7+ where Gradle should expose those as ad-hoc toolchains,
-and this hasn't been tested.
+The plugin will ignore any task that forks and defines either a `javaHome` or an `executable`,
+so you would have to configure those JVM arguments yourself in this case.
+See [the ErrorProne docs](https://errorprone.info/docs/installation#java-9-and-newer) for the full list of `--add-opens` and `--add-exports` needed
+(use `-J--add-opens` if using `executable`, `--add-opens` if using `javaHome`).
 
 [jep396]: https://openjdk.java.net/jeps/396
 
