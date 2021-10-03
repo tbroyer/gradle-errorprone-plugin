@@ -208,6 +208,9 @@ so you would have to configure those JVM arguments yourself in this case.
 See [the ErrorProne docs](https://errorprone.info/docs/installation#java-9-and-newer) for the full list of `--add-opens` and `--add-exports` needed
 (use `-J--add-opens` if using `executable`, `--add-opens` if using `javaHome`).
 
+Note that the plugin also configures the JVM arguments for any JDK between 9 and 15 to silence related warnings,
+but they will then only be used if the task is explicitly configured for forking.
+
 [jep396]: https://openjdk.java.net/jeps/396
 
 ## Custom Error Prone checks

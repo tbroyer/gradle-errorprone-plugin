@@ -95,7 +95,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             // then
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
-            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
+            assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
             // Check that the configured jvm arg is preserved
             assertThat(result.output).contains(jvmArg("-XshowSettings"))
         }

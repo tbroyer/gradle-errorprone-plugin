@@ -157,7 +157,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(NOT_FORKED)
             assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
-            assertThat(result.output).doesNotContain(JVM_ARGS_STRONG_ENCAPSULATION)
+            assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
             // Check that the configured jvm arg is preserved
             assertThat(result.output).contains(jvmArg("-XshowSettings"))
         }
@@ -179,7 +179,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
             assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
-            assertThat(result.output).doesNotContain(JVM_ARGS_STRONG_ENCAPSULATION)
+            assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
             // Check that the configured jvm arg is preserved
             assertThat(result.output).contains(jvmArg("-XshowSettings"))
         }

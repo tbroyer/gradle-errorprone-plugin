@@ -104,9 +104,10 @@ class ErrorPronePlugin : Plugin<Project> {
                 compilerVersion?.let {
                     if (it < JavaVersion.VERSION_1_8) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
                     if (it.needsForking) options.isFork = true
-                    when {
-                        it == JavaVersion.VERSION_1_8 -> configureErrorProneJavac()
-                        it >= JavaVersion.VERSION_16 -> configureForJava16plus()
+                    if (it == JavaVersion.VERSION_1_8) {
+                        configureErrorProneJavac()
+                    } else {
+                        configureForJava9plus()
                     }
                 }
             }
@@ -157,8 +158,8 @@ class ErrorPronePlugin : Plugin<Project> {
     private val JavaVersion.needsForking get() =
         this == JavaVersion.VERSION_1_8 || this >= JavaVersion.VERSION_16
 
-    private fun JavaCompile.configureForJava16plus() {
-        // https://github.com/google/error-prone/issues/1157#issuecomment-769289564
+    private fun JavaCompile.configureForJava9plus() {
+        // https://errorprone.info/docs/installation#java-9-and-newer
         options.forkOptions.jvmArgs!!.addAll(JVM_ARGS_STRONG_ENCAPSULATION)
     }
 }
