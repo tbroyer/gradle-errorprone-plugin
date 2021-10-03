@@ -133,64 +133,18 @@ and will override the compiler by prepending the Error Prone javac to the bootst
 You can [configure `JavaCompile` tasks][gradle-toolchains] to use a specific JDK compiler,
 independently of the JDK used to run Gradle itself.
 The plugin will use the toolchain version, if any is specified, to configure the task.
-This allows you to enforce compilation with JDK 8 (properly configured for Error Prone!) while running Gradle with e.g. JDK 11,
-or the reverse: enforce compilation with JDK 11 while running Gradle with JDK 8.
+This allows you to enforce compilation with JDK 11 while running Gradle with JDK 8.
+(In case you would want to enforce compilation with JDK 8 instead,
+the plugin would detect it and properly configure the bootstrap classpath as described above)
 
-Alternatively, you can [configure `JavaCompile` tasks][ForkOptions.setJavaHome] to use such a JDK while still using JDK 8 for running Gradle:
-```gradle
-tasks.withType(JavaCompile).configureEach {
-    options.fork(javaHome: project.getProperty("jdk11home"))
-}
-```
-<details>
-<summary>with Kotlin DSL</summary>
-
-```kotlin
-tasks.withType<JavaCompile>().configureEach {
-    options.fork = true
-    options.forkOptions.javaHome = project.getProperty("jdk11home")
-}
-```
-
-</details>
-
-The plugin will try to detect those cases and won't configure the bootstrap classpath in this case,
-but to play safe it will actually ignore any task that forks and defines either a `javaHome` or an `executable`
-(this also means that it won't configure the bootstrap classpath if you're e.g. running Gradle with a more recent JDK and forking the compilation tasks to use JDK 8).
-
-If you need it, you can configure the bootstrap classpath manually for those tasks that the plugin would have skipped:
-```gradle
-someTask.configure {
-    // …
-
-    inputs.files(configurations.errorproneJavac).withNormalizer(ClasspathNormalizer)
-    doFirst {
-        options.forkOptions.jvmArgs += "-Xbootclasspath/p:${configurations.errorproneJavac.asPath}"
-    }
-}
-```
-<details>
-<summary>with Kotlin DSL</summary>
-
-```kotlin
-someTask.configure {
-    // …
-
-    inputs.files(configurations.errorproneJavac).withNormalizer(ClasspathNormalizer::class)
-    doFirst {
-        options.forkOptions.jvmArgs.add("-Xbootclasspath/p:${configurations["errorproneJavac"].asPath}")
-    }
-}
-```
-
-</details>
-
-(if you're using `forkOptions.executable`, then use `-J-Xbootclasspath/p:` instead.)
+Note that the plugin will ignore any task that forks and defines either [a `javaHome`][ForkOptions.setJavaHome] or [an `executable`][ForkOptions.setExecutable],
+and thus won't configure the bootstrap classpath if you're e.g. running Gradle with a more recent JDK and forking the compilation tasks to use JDK 8.
 
 [gradle-toolchains]: https://docs.gradle.org/current/userguide/toolchains.html
 [CompileOptions.fork]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:fork
 [BaseForkOptions.getJvmArgs]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/BaseForkOptions.html#getJvmArgs--
 [ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
+[ForkOptions.setExecutable]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setExecutable-java.lang.String-
 
 ## JDK 16+ support
 
@@ -203,10 +157,8 @@ whenever it detects such a JDK is being used and ErrorProne is enabled.
 
 That detection will only take into account the [toolchain][gradle-toolchains] used by the `JavaCompile` task,
 or the JDK used to run Gradle in case no toolchain is being used.
-The plugin will ignore any task that forks and defines either a `javaHome` or an `executable`,
-so you would have to configure those JVM arguments yourself in this case.
-See [the ErrorProne docs](https://errorprone.info/docs/installation#java-9-and-newer) for the full list of `--add-opens` and `--add-exports` needed
-(use `-J--add-opens` if using `executable`, `--add-opens` if using `javaHome`).
+The plugin will ignore any task that forks and defines either [a `javaHome`][ForkOptions.setJavaHome] or [an `executable`][ForkOptions.setExecutable],
+and thus won't configure the JVM arguments if you're e.g. running Gradle with an older JDK and forking the compilation tasks to use JDK 17.
 
 Note that the plugin also configures the JVM arguments for any JDK between 9 and 15 to silence related warnings,
 but they will then only be used if the task is explicitly configured for forking.
