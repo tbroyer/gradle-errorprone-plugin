@@ -22,6 +22,8 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         private val JVM_ARGS_STRONG_ENCAPSULATION = ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(prefix = JVM_ARG, separator = JVM_ARG)
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
+
+        private val ALL_JVM_ARGS = if (GradleVersion.version(testGradleVersion) >= GradleVersion.version("7.1")) "allJvmArgs" else "jvmArgs?"
     }
 
     @BeforeEach
@@ -56,7 +58,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     doFirst {
                         println("ErrorProne: ${'$'}{if (compileJava.get().options.errorprone.isEnabled.getOrElse(false)) "enabled" else "disabled"}")
                         println("Fork: ${'$'}{compileJava.get().options.isFork}")
-                        compileJava.get().options.forkOptions.jvmArgs?.forEach { arg ->
+                        compileJava.get().options.forkOptions.$ALL_JVM_ARGS.forEach { arg ->
                             println("JVM Arg: ${'$'}arg")
                         }
                     }

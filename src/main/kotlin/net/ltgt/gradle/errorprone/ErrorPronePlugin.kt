@@ -15,7 +15,9 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.ClasspathNormalizer
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
@@ -39,6 +41,8 @@ class ErrorPronePlugin : Plugin<Project> {
         const val JAVAC_CONFIGURATION_NAME = "errorproneJavac"
 
         internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 8"
+
+        private val HAS_JVM_ARGUMENT_PROVIDERS = GradleVersion.current() >= GradleVersion.version("7.1")
 
         internal val JVM_ARGS_STRONG_ENCAPSULATION = listOf(
             "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
@@ -78,10 +82,6 @@ class ErrorPronePlugin : Plugin<Project> {
             }
         }
 
-        fun JavaCompile.configureErrorProneJavac() {
-            options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:${javacConfiguration.asPath}")
-        }
-
         val providers = project.providers
         project.tasks.withType<JavaCompile>().configureEach {
             val errorproneOptions =
@@ -90,25 +90,25 @@ class ErrorPronePlugin : Plugin<Project> {
                 .compilerArgumentProviders
                 .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
 
-            inputs.files(
-                providers.provider {
-                    when {
-                        !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
-                        compilerVersion == JavaVersion.VERSION_1_8 -> javacConfiguration
-                        else -> emptyList()
-                    }
+            val jvmArgumentProvider = ErrorProneJvmArgumentProvider(this, errorproneOptions, javacConfiguration)
+            if (HAS_JVM_ARGUMENT_PROVIDERS) {
+                options.forkOptions.jvmArgumentProviders.add(jvmArgumentProvider)
+            } else {
+                inputs.property("errorprone.compilerVersion", providers.provider { jvmArgumentProvider.compilerVersion })
+                    .optional(true)
+                inputs.files(providers.provider { jvmArgumentProvider.bootstrapClasspath })
+                    .withPropertyName("errorprone.bootstrapClasspath")
+                    .withNormalizer(ClasspathNormalizer::class)
+                    .optional()
+                doFirst("Configure JVM arguments for errorprone") {
+                    options.forkOptions.jvmArgs!!.addAll(jvmArgumentProvider.asArguments())
                 }
-            ).withPropertyName(JAVAC_CONFIGURATION_NAME).withNormalizer(ClasspathNormalizer::class)
-            doFirst("configure JVM arguments and forking for errorprone") {
+            }
+            doFirst("Configure forking for errorprone") {
                 if (!errorproneOptions.isEnabled.getOrElse(false)) return@doFirst
-                compilerVersion?.let {
+                jvmArgumentProvider.compilerVersion?.let {
                     if (it < JavaVersion.VERSION_1_8) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
-                    if (it.needsForking) options.isFork = true
-                    if (it == JavaVersion.VERSION_1_8) {
-                        configureErrorProneJavac()
-                    } else {
-                        configureForJava9plus()
-                    }
+                    if (it == JavaVersion.VERSION_1_8 || it >= JavaVersion.VERSION_16) options.isFork = true
                 }
             }
         }
@@ -149,18 +149,37 @@ class ErrorPronePlugin : Plugin<Project> {
             }
         }
     }
+}
 
-    private val JavaCompile.compilerVersion get() =
-        javaCompiler
+internal class ErrorProneJvmArgumentProvider(
+    private val task: JavaCompile,
+    private val errorproneOptions: ErrorProneOptions,
+    private val javacConfiguration: FileCollection
+) : CommandLineArgumentProvider, Named {
+
+    @Internal override fun getName(): String = "errorprone"
+
+    @get:Input
+    @get:Optional
+    val compilerVersion by lazy {
+        task.javaCompiler
             .map { JavaVersion.toVersion(it.metadata.languageVersion.asInt()) }
-            .orNull ?: if (options.isCommandLine) null else JavaVersion.current()
+            .orNull ?: if (task.options.isCommandLine) null else JavaVersion.current()
+    }
 
-    private val JavaVersion.needsForking get() =
-        this == JavaVersion.VERSION_1_8 || this >= JavaVersion.VERSION_16
+    @get:Classpath
+    @get:Optional
+    val bootstrapClasspath get() = javacConfiguration.takeIf {
+        errorproneOptions.isEnabled.getOrElse(false) &&
+            compilerVersion == JavaVersion.VERSION_1_8
+    }
 
-    private fun JavaCompile.configureForJava9plus() {
-        // https://errorprone.info/docs/installation#java-9-and-newer
-        options.forkOptions.jvmArgs!!.addAll(JVM_ARGS_STRONG_ENCAPSULATION)
+    override fun asArguments(): Iterable<String> = when {
+        !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
+        compilerVersion == null -> emptyList()
+        compilerVersion == JavaVersion.VERSION_1_8 -> listOf("-Xbootclasspath/p:${javacConfiguration.asPath}")
+        compilerVersion!! > JavaVersion.VERSION_1_8 -> ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION
+        else -> emptyList()
     }
 }
 
