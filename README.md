@@ -216,8 +216,6 @@ See [the ErrorProne docs](https://errorprone.info/docs/installation#java-9-and-n
 
 ## Custom Error Prone checks
 
-*This requires Error Prone 2.3.0 or later.*
-
 [Custom Error Prone checks][custom checks] can be added to the `errorprone` configuration too:
 ```gradle
 dependencies {
