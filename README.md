@@ -214,53 +214,6 @@ See [the ErrorProne docs](https://errorprone.info/docs/installation#java-9-and-n
 
 [jep396]: https://openjdk.java.net/jeps/396
 
-## Migration from [versions 0.0._x_]
-
-<details>
-<summary>Details</summary>
-
-If you relied on the default Error Prone dependency
-(which you shouldn't have, see warning above about changing versions),
-you'll have to configure it explicitly (see [above](#usage)).
-If you need to support building with JDK 8,
-you'll need to configure the Error Prone javac dependency (see [above](#jdk-8-support)).
-
-Contrary to [versions 0.0._x_],
-later versions use a DSL to configure Error Prone,
-and passing Error Prone-specific arguments to `options.compilerArgs` won't work.
-As an easy migration step,
-you can pass those arguments to `options.errorprone.errorproneArgs` instead:
-```diff
-  tasks.withType(JavaCompile).configureEach {
--     options.compilerArgs << "-Xlint:all" << "-Werror" << "-XepDisableWarningsInGeneratedCode"
--     options.compilerArgs << "-Xep:NullAway:ERROR" << "-XepOpt:NullAway:AnnotatedPackages=net.ltgt"
-+     options.compilerArgs << "-Xlint:all" << "-Werror"
-+     options.errorprone.errorproneArgs.add("-XepDisableWarningsInGeneratedCode")
-+     options.errorprone.errorproneArgs.addAll("-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.uber")
-  }
-```
-
-The next (optional) step would be to move to using the DSL:
-```diff
-  tasks.withType(JavaCompile).configureEach {
-      options.compilerArgs << "-Xlint:all" << "-Werror"
--     options.errorprone.errorproneArgs.add("-XepDisableWarningsInGeneratedCode")
--     options.errorprone.errorproneArgs.addAll("-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.uber")
-+     options.errorprone {
-+         disableWarningsInGeneratedCode = true
-+         error("NullAway")
-+         option("NullAway:AnnotatedPackages", "net.ltgt")
-+     }
-  }
-```
-
-Finally, the `net.ltgt.errorprone-base` plugin is removed without replacement.
-In most cases, it can be replaced by disabling or enabling Error Prone on selected tasks.
-
-[versions 0.0._x_]: https://github.com/tbroyer/gradle-errorprone-plugin-v0.0.x
-
-</details>
-
 ## Custom Error Prone checks
 
 *This requires Error Prone 2.3.0 or later.*
