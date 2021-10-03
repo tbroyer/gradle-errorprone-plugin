@@ -64,7 +64,6 @@ gradle.taskGraph.whenReady {
 val additionalPluginClasspath by configurations.creating
 
 val errorproneVersion = "2.10.0"
-val errorproneJavacVersion = "9+181-r4173-1"
 
 repositories {
     mavenCentral()
@@ -111,7 +110,6 @@ tasks {
         androidSdkHome?.also { systemProperty("test.android-sdk-home", androidSdkHome) }
 
         systemProperty("errorprone.version", errorproneVersion)
-        systemProperty("errorprone-javac.version", errorproneJavacVersion)
 
         if (project.findProperty("test.skipAndroid").toString().toBoolean()) {
             exclude("**/*Android*")

@@ -126,14 +126,8 @@ tasks.register<JavaCompile>("compileCustom") {
 ## JDK 8 support
 
 Error Prone requires at least a JDK 9 compiler.
-When using a JDK 8 compiler, you can configure a dependency on the Error Prone javac in the `errorproneJavac` configuration:
-```gradle
-dependencies {
-    errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
-}
-```
-and the plugin will configure the `JavaCompile` tasks to [use a forking compiler][CompileOptions.fork]
-and will override the compiler by prepending the dependencies to the bootstrap classpath
+When using a JDK 8 compiler, the plugin will configure the `JavaCompile` tasks to [use a forking compiler][CompileOptions.fork]
+and will override the compiler by prepending the Error Prone javac to the bootstrap classpath
 (using a `-Xbootclasspath/p:` [JVM argument][BaseForkOptions.getJvmArgs]).
 
 You can [configure `JavaCompile` tasks][gradle-toolchains] to use a specific JDK compiler,

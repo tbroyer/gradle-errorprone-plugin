@@ -13,7 +13,6 @@ import org.gradle.api.Named
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.tasks.ClasspathNormalizer
@@ -26,7 +25,6 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.util.GradleVersion
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * A [Plugin] that configures [JavaCompile] tasks to use the [Error Prone compiler](https://errorprone.info/).
@@ -39,17 +37,6 @@ class ErrorPronePlugin : Plugin<Project> {
         const val CONFIGURATION_NAME = "errorprone"
 
         const val JAVAC_CONFIGURATION_NAME = "errorproneJavac"
-
-        private val LOGGER = Logging.getLogger(ErrorPronePlugin::class.java)
-
-        internal const val NO_JAVAC_DEPENDENCY_WARNING_MESSAGE =
-"""No dependency was configured in configuration $JAVAC_CONFIGURATION_NAME, compilation with Error Prone will likely fail as a result.
-Add a dependency to com.google.errorprone:javac with the appropriate version corresponding to the version of Error Prone you're using:
-
-    dependencies {
-        $JAVAC_CONFIGURATION_NAME("com.google.errorprone:javac:${'$'}errorproneJavacVersion")
-    }
-"""
 
         internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 8"
 
@@ -86,18 +73,14 @@ Add a dependency to com.google.errorprone:javac with the appropriate version cor
             isVisible = false
             isCanBeConsumed = false
             isCanBeResolved = true
+            defaultDependencies {
+                add(project.dependencies.create("com.google.errorprone:javac:9+181-r4173-1"))
+            }
         }
 
-        val noJavacDependencyNotified = AtomicBoolean()
         fun JavaCompile.configureErrorProneJavac() {
             options.isFork = true
-            javacConfiguration.asPath.also {
-                if (it.isNotBlank()) {
-                    options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:$it")
-                } else if (noJavacDependencyNotified.compareAndSet(false, true)) {
-                    LOGGER.warn(NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
-                }
-            }
+            options.forkOptions.jvmArgs!!.add("-Xbootclasspath/p:${javacConfiguration.asPath}")
         }
 
         val providers = project.providers

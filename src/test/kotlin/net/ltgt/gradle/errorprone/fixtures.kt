@@ -8,7 +8,6 @@ import java.io.File
 val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
 
 val errorproneVersion = System.getProperty("errorprone.version")!!
-val errorproneJavacVersion = System.getProperty("errorprone-javac.version")!!
 
 const val FAILURE_SOURCE_COMPILATION_ERROR = "Failure.java:6: error: [ArrayEquals]"
 

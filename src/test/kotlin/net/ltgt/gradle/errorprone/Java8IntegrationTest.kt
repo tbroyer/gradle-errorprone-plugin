@@ -16,11 +16,9 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
         private val NOT_FORKED = "${System.lineSeparator()}Fork: false${System.lineSeparator()}"
         private val JVM_ARG = "${System.lineSeparator()}JVM Arg: "
         private val JVM_ARG_BOOTCLASSPATH = jvmArg("-Xbootclasspath/p:")
-        private val JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC = Regex.escape(File.separator).let { fileSeparator ->
-            val escapedErrorproneJavacVersion = Regex.escape(errorproneJavacVersion)
-            """$JVM_ARG_BOOTCLASSPATH.*${fileSeparator}com\.google\.errorprone${fileSeparator}javac$fileSeparator$escapedErrorproneJavacVersion$fileSeparator.*${fileSeparator}javac-$escapedErrorproneJavacVersion.jar[${File.pathSeparator}${System.lineSeparator()}]"""
+        private val JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC =
+            """\Q$JVM_ARG_BOOTCLASSPATH\E.*\Q${File.separator}com.google.errorprone${File.separator}javac${File.separator}9+181-r4173-1${File.separator}\E.*\Q${File.separator}javac-9+181-r4173-1.jar\E(?:\Q${File.pathSeparator}\E|${Regex.escape(System.lineSeparator())})"""
                 .toPattern()
-        }
         private val JVM_ARGS_STRONG_ENCAPSULATION = ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(prefix = JVM_ARG, separator = JVM_ARG)
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
@@ -39,7 +37,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
-                errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
             }
 
             val compileJava: JavaCompile by tasks
@@ -272,74 +269,6 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
-    fun `warns if Error Prone javac dependency is not configured`() {
-        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
-
-        // given
-        // Remove the errorproneJavac dependency
-        buildFile.writeText(
-            buildFile.readLines().filterNot {
-                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
-            }.joinToString(separator = "\n")
-        )
-
-        // when
-        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
-            // then
-            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
-            assertThat(result.output).contains(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
-            assertThat(result.output).contains(FORKED)
-            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
-            // Check that the configured jvm arg is preserved
-            assertThat(result.output).contains(jvmArg("-XshowSettings"))
-        }
-
-        // check that adding back the dependency fixes compilation (so it was indeed caused by missing dependency) and silences the warning
-
-        // given
-        buildFile.appendText(
-            """
-
-            dependencies {
-                errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
-            }
-            """.trimIndent()
-        )
-
-        // when
-        testProjectDir.buildWithArgs("compileJava").also { result ->
-            // then
-            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-            assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
-            assertThat(result.output).contains(FORKED)
-            assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
-            // Check that the configured jvm arg is preserved
-            assertThat(result.output).contains(jvmArg("-XshowSettings"))
-        }
-    }
-
-    @Test
-    fun `does not warn if Error Prone javac dependency is not configured with non-Java 8 VM`() {
-        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isFalse()
-
-        // given
-        // Remove the errorproneJavac dependency
-        buildFile.writeText(
-            buildFile.readLines().filterNot {
-                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
-            }.joinToString(separator = "\n")
-        )
-
-        // when
-        testProjectDir.buildWithArgs("compileJava").also { result ->
-            // then
-            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-            assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
-            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
-        }
-    }
-
-    @Test
     fun `is build-cache friendly`() {
         assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
 
@@ -367,27 +296,22 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             assertThat(result.output).contains(jvmArg("-XshowSettings"))
         }
 
-        // Move the errorproneJavac dependency: first remove it, then add it back… differently
-        buildFile.writeText(
-            buildFile.readLines().filterNot {
-                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
-            }.joinToString(
-                separator = "\n",
-                postfix = """
+        // Add the errorproneJavac dependency… differently
+        buildFile.appendText(
+            """
 
-                    val epJavac by configurations.creating
-                    val moveEpJavac by tasks.creating(Copy::class) {
-                        from(epJavac)
-                        // destinationDir chosen to match JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC
-                        into(file("javac/com.google.errorprone/javac/$errorproneJavacVersion/foo/"))
-                        rename { "renamed-${'$'}it" }
-                    }
-                    dependencies {
-                        epJavac("com.google.errorprone:javac:$errorproneJavacVersion")
-                        errorproneJavac(fileTree(moveEpJavac.destinationDir).builtBy(moveEpJavac))
-                    }
-                """.trimIndent()
-            )
+            val epJavac by configurations.creating
+            val moveEpJavac by tasks.creating(Copy::class) {
+                from(epJavac)
+                // destinationDir chosen to match JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC
+                into(file("javac/com.google.errorprone/javac/9+181-r4173-1/foo/"))
+                rename { "renamed-${'$'}it" }
+            }
+            dependencies {
+                epJavac("com.google.errorprone:javac:9+181-r4173-1")
+                errorproneJavac(fileTree(moveEpJavac.destinationDir).builtBy(moveEpJavac))
+            }
+            """.trimIndent()
         )
 
         // when

@@ -16,11 +16,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         private val NOT_FORKED = "${System.lineSeparator()}Fork: false${System.lineSeparator()}"
         private val JVM_ARG = "${System.lineSeparator()}JVM Arg: "
         private val JVM_ARG_BOOTCLASSPATH = jvmArg("-Xbootclasspath/p:")
-        private val JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC = Regex.escape(File.separator).let { fileSeparator ->
-            val escapedErrorproneJavacVersion = Regex.escape(errorproneJavacVersion)
-            """$JVM_ARG_BOOTCLASSPATH.*${fileSeparator}com\.google\.errorprone${fileSeparator}javac$fileSeparator$escapedErrorproneJavacVersion$fileSeparator.*${fileSeparator}javac-$escapedErrorproneJavacVersion.jar[${File.pathSeparator}${System.lineSeparator()}]"""
+        private val JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC =
+            """\Q$JVM_ARG_BOOTCLASSPATH\E.*\Q${File.separator}com.google.errorprone${File.separator}javac${File.separator}9+181-r4173-1${File.separator}\E.*\Q${File.separator}javac-9+181-r4173-1.jar\E(?:\Q${File.pathSeparator}\E|${Regex.escape(System.lineSeparator())})"""
                 .toPattern()
-        }
         private val JVM_ARGS_STRONG_ENCAPSULATION = ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(prefix = JVM_ARG, separator = JVM_ARG)
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
@@ -45,7 +43,6 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             }
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
-                errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
             }
 
             tasks {
@@ -355,94 +352,5 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
         // Check that the configured jvm arg is preserved
         assertThat(result.output).contains(jvmArg("-XshowSettings"))
-    }
-
-    @Test
-    fun `warns if Error Prone javac dependency is not configured`() {
-        // given
-        // Remove the errorproneJavac dependency
-        buildFile.writeText(
-            buildFile.readLines().filterNot {
-                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
-            }.joinToString(separator = "\n")
-        )
-        buildFile.appendText(
-            """
-
-            java {
-                toolchain {
-                    languageVersion.set(JavaLanguageVersion.of(8))
-                }
-            }
-            """.trimIndent()
-        )
-
-        // when
-        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
-            // then
-            result.assumeToolchainAvailable()
-            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
-            assertThat(result.output).contains(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
-            assertThat(result.output).contains(FORKED)
-            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
-            // Check that the configured jvm arg is preserved
-            assertThat(result.output).contains(jvmArg("-XshowSettings"))
-        }
-
-        // check that adding back the dependency fixes compilation (so it was indeed caused by missing dependency) and silences the warning
-
-        // given
-        buildFile.appendText(
-            """
-
-            dependencies {
-                errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")
-            }
-            """.trimIndent()
-        )
-
-        // when
-        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
-            // then
-            result.assumeToolchainAvailable()
-            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-            assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
-            assertThat(result.output).contains(FORKED)
-            assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
-            // Check that the configured jvm arg is preserved
-            assertThat(result.output).contains(jvmArg("-XshowSettings"))
-        }
-    }
-
-    @Test
-    fun `does not warn if Error Prone javac dependency is not configured with non-Java 8 VM`() {
-        // given
-        // Remove the errorproneJavac dependency
-        buildFile.writeText(
-            buildFile.readLines().filterNot {
-                it.contains("""errorproneJavac("com.google.errorprone:javac:$errorproneJavacVersion")""")
-            }.joinToString(separator = "\n")
-        )
-        buildFile.appendText(
-            """
-
-            java {
-                toolchain {
-                    languageVersion.set(JavaLanguageVersion.of(11))
-                }
-            }
-            """.trimIndent()
-        )
-
-        // when
-        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
-            // then
-            result.assumeToolchainAvailable()
-            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-            assertThat(result.output).doesNotContain(ErrorPronePlugin.NO_JAVAC_DEPENDENCY_WARNING_MESSAGE)
-            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
-            // Check that the configured jvm arg is preserved
-            assertThat(result.output).contains(jvmArg("-XshowSettings"))
-        }
     }
 }
