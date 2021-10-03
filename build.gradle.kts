@@ -43,10 +43,6 @@ configurations.all {
 
 group = "net.ltgt.gradle"
 
-kotlinDslPluginOptions {
-    experimentalWarning.set(false)
-}
-
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions.allWarningsAsErrors = true
 }

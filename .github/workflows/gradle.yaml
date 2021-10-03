@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        gradle: [ '7.5', '7.4.2', '7.3.3', '7.2', '7.1.1', '7.0.2', '6.8.3' ]
+        gradle: [ '7.4.2', '7.3.3', '7.2', '7.1.1', '7.0.2', '6.9.1', '6.8.3' ]
     steps:
       - uses: actions/checkout@v2
 
@@ -129,36 +129,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: jdk-${{ matrix.java }}-tests
-          path: build/reports/tests/test/
-
-  test-jdk17-gradle7:
-    needs: linux
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        gradle: [ '7.5', '7.4.2', '7.3.3', '7.2' ]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup environment
-        run: |
-          echo "JAVA_HOME=${JAVA_HOME_8_X64}" | tee -a $GITHUB_ENV
-          echo "org.gradle.java.installations.auto-download=false" | tee -a gradle.properties
-          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_17_X64" | tee -a gradle.properties
-
-      - name: Build with Gradle
-        id: gradle-build
-        uses: gradle/gradle-build-action@v1
-        with:
-          arguments: --scan test -Ptest.java-toolchain=17 "-Ptest.gradle-version=${{ matrix.gradle }}"
-          distributions-cache-enabled: true
-          dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*.lockfile'
-          dependencies-cache-exact: true
-
-      - name: Store reports
-        if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
-        uses: actions/upload-artifact@v2
-        with:
-          name: jdk17-gradle-${{ matrix.gradle }}-tests
           path: build/reports/tests/test/
