@@ -11,6 +11,7 @@ on:
 env:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   CACHE_DEBUG_ENABLED: true
+  CACHE_KEY_PREFIX: 'A-'
 
 # First build on Linux and Windows with JDK 8
 # Then run tests with various Gradle and JDKs versions (Linux only)
@@ -65,12 +66,6 @@ jobs:
         gradle: [ '7.2', '7.1.1', '7.0.2', '6.8.3', '6.7.1', '6.6.1', '6.5.1', '6.4.1', '6.3', '6.2.2', '6.1.1', '6.0.1', '5.6.4', '5.5.1', '5.4.1', '5.3.1', '5.2.1' ]
     steps:
       - uses: actions/checkout@v2
-
-      - name: Cache Gradle test wrapper (${{ matrix.gradle }})
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/wrapper/dists/gradle-${{ matrix.gradle }}-bin/
-          key: wrapper-${{ matrix.gradle }}
 
       - name: Setup environment
         run: echo "JAVA_HOME=${JAVA_HOME_8_X64}" | tee -a $GITHUB_ENV
