@@ -1,19 +1,26 @@
 package net.ltgt.gradle.errorprone
 
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.compile.CompileOptions
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
+import java.io.IOException
+import java.util.Locale
+import java.util.Properties
+import kotlin.collections.HashMap
 
 open class ErrorProneOptions constructor(
-    objectFactory: ObjectFactory
+    objectFactory: ObjectFactory,
+    providers: ProviderFactory
 ) {
     /**
      * Allows disabling Error Prone altogether for the task.
@@ -79,6 +86,14 @@ open class ErrorProneOptions constructor(
     val excludedPaths = objectFactory.property<String>()
 
     /**
+     * File to read the initial check configurations from.
+     *
+     * If present, the contents of the given properties file will be populated into [checks].
+     */
+    @get:Input @get:Optional
+    val checksPropertyFile = objectFactory.fileProperty()
+
+    /**
      * A map of check name to [CheckSeverity], to configure which checks are enabled or disabled, and their severity.
      *
      * Maps each entry to `-Xep:<key>:<value>`, or `-Xep:<key>` when the value is [CheckSeverity.DEFAULT].
@@ -89,7 +104,37 @@ open class ErrorProneOptions constructor(
      * @see error
      * @see warn
      */
-    @get:Input val checks = objectFactory.mapProperty<String, CheckSeverity>().empty()
+    @get:Input val checks = objectFactory.mapProperty<String, CheckSeverity>().value(
+        providers.provider {
+            if (checksPropertyFile.isPresent) {
+                val file = checksPropertyFile.get().asFile
+                try {
+                    val checksMap = HashMap<String, CheckSeverity>()
+                    file.reader().use {
+                        val rules = Properties()
+                        rules.load(it)
+                        rules.forEach { k, v ->
+                            val key = k as String
+                            val value = v as String
+                            if (key.isNotEmpty() && value.isNotEmpty()) {
+                                try {
+                                    val severity = CheckSeverity.valueOf(value.trim().toUpperCase(Locale.ROOT))
+                                    checksMap[key.trim()] = severity
+                                } catch (e: IllegalArgumentException) {
+                                    throw GradleException("Invalid errorprone severity '$value' for check '$key' in properties file '$file', possible severity values: ${CheckSeverity.values().toList()}")
+                                }
+                            }
+                        }
+                    }
+                    checksMap
+                } catch (e: IOException) {
+                    throw GradleException("Failed to read errorprone checks from properties file: $e")
+                }
+            } else {
+                emptyMap()
+            }
+        }
+    )
 
     /**
      * A map of [check options](https://errorprone.info/docs/flags#pass-additional-info-to-bugcheckers) to their value.

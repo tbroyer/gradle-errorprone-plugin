@@ -289,7 +289,8 @@ you cannot use `<<` or `+=` to add to lists for instance._
 | `ignoreSuppressionAnnotations`   | Maps to `-XepIgnoreSuppressionAnnotations` (since Error Prone 2.3.3). Defaults to `false`.
 | `compilingTestOnlyCode`          | (`isCompilingTestOnlyCode` with Kotlin DSL) Maps to `-XepCompilingTestOnlyCode`. Defaults to `false`. (defaults to `true` for a source set inferred as a test source set)
 | `excludedPaths`                  | A regular expression pattern (as a string) of file paths to exclude from Error Prone checking; maps to `-XepExcludedPaths`. Defaults to `null`.
-| `checks`                         | A map of check name to `CheckSeverity`, to configure which checks are enabled or disabled, and their severity; maps each entry to `-Xep:<key>:<value>`, or `-Xep:<key>` if the value is `CheckSeverity.DEFAULT`. Defaults to an empty map.
+| `checks`                         | A map of check name to `CheckSeverity`, to configure which checks are enabled or disabled, and their severity; maps each entry to `-Xep:<key>:<value>`, or `-Xep:<key>` if the value is `CheckSeverity.DEFAULT`. Defaults to an empty map. Can be pre-populated via `checksPropertyFile`.
+| `checksPropertyFile`             | Optional: properties file containing the initial check names to  `CheckSeverity` mapping. The contents of this properties file is the initial content of the `checks` map.
 | `checkOptions`                   | A map of check options to their value; maps each entry to `-XepOpt:<key>=<value>`. Use an explicit `"true"` value for a boolean option. Defaults to an empty map.
 | `errorproneArgs`                 | Additional arguments passed to Error Prone. Defaults to an empty list.
 | `errorproneArgumentProviders`    | A list of [`CommandLineArgumentProvider`] for additional arguments passed to Error Prone. Defaults to an empty list.
@@ -309,5 +310,5 @@ you cannot use `<<` or `+=` to add to lists for instance._
 | `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, true)`.
 | `option(optionName, value)`       | Adds a check option with a given value. Value can be a boolean or a string, or a provider of string. Equivalent to `checkOptions.put(name, value)`.
 
-A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.  
+A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.
 Note that the `net.ltgt.gradle.errorprone.CheckSeverity` needs to be `import`ed into your build scripts (see examples above).

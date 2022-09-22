@@ -5,6 +5,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import com.google.errorprone.ErrorProneOptions.Severity
 import com.google.errorprone.InvalidCommandLineOptionException
+import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.JavaVersion
 import org.gradle.api.model.ObjectFactory
@@ -18,8 +19,10 @@ import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.util.Properties
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ErrorProneOptionsTest {
@@ -36,6 +39,101 @@ class ErrorProneOptionsTest {
             objects = project.objects
             providers = project.providers
         }
+    }
+
+    @Test
+    fun `no checks properties file`() {
+        val options = ErrorProneOptions(objects, providers)
+        assertThat(emptyMap<String, CheckSeverity>()).isEqualTo(options.checks.get())
+    }
+
+    @Test
+    fun `checks only from properties file`(@TempDir dir: File) {
+        val props = Properties()
+        props["UseCorrectAssertInTests"] = "ERROR"
+        props["VoidMissingNullable"] = "DEFAULT"
+        props["UnnecessaryBoxedAssignment"] = "WARN"
+        props["BigDecimalLiteralDouble"] = "OFF"
+        val propertiesFile = File(dir, "checks.properties")
+        propertiesFile.writer(Charsets.UTF_8).use { out ->
+            props.store(out, "foo")
+        }
+
+        val options = ErrorProneOptions(objects, providers).apply {
+            checksPropertyFile.set(propertiesFile)
+        }
+
+        assertThat(
+            mapOf(
+                "UseCorrectAssertInTests" to CheckSeverity.ERROR,
+                "VoidMissingNullable" to CheckSeverity.DEFAULT,
+                "UnnecessaryBoxedAssignment" to CheckSeverity.WARN,
+                "BigDecimalLiteralDouble" to CheckSeverity.OFF
+            )
+        ).isEqualTo(options.checks.get())
+    }
+
+    @Test
+    fun `properties file and checks`(@TempDir dir: File) {
+        val props = Properties()
+        props["UseCorrectAssertInTests"] = "ERROR"
+        props["VoidMissingNullable"] = "DEFAULT"
+        props["UnnecessaryBoxedAssignment"] = "WARN"
+        props["BigDecimalLiteralDouble"] = "OFF"
+        val propertiesFile = File(dir, "checks.properties")
+        propertiesFile.writer(Charsets.UTF_8).use { out ->
+            props.store(out, "foo")
+        }
+
+        val options = ErrorProneOptions(objects, providers).apply {
+            checks.put("TryFailRefactoring", CheckSeverity.ERROR)
+            checksPropertyFile.set(propertiesFile)
+        }
+        assertThat(
+            mapOf(
+                "UseCorrectAssertInTests" to CheckSeverity.ERROR,
+                "VoidMissingNullable" to CheckSeverity.DEFAULT,
+                "UnnecessaryBoxedAssignment" to CheckSeverity.WARN,
+                "BigDecimalLiteralDouble" to CheckSeverity.OFF,
+                "TryFailRefactoring" to CheckSeverity.ERROR
+            )
+        ).isEqualTo(options.checks.get())
+    }
+
+    @Test
+    fun `invalid properties file`(@TempDir dir: File) {
+        val props = Properties()
+        props["UseCorrectAssertInTests"] = "NOT_AN_ERROR"
+        props["VoidMissingNullable"] = "DEFAULT_TO_WHAT"
+        props["UnnecessaryBoxedAssignment"] = "WARN_ON_RANDOM_STUFF"
+        props["BigDecimalLiteralDouble"] = "OFF_AND_ON"
+        val propertiesFile = File(dir, "checks.properties")
+        propertiesFile.writer(Charsets.UTF_8).use { out ->
+            props.store(out, "foo")
+        }
+
+        val options = ErrorProneOptions(objects, providers).apply {
+            checks.put("TryFailRefactoring", CheckSeverity.ERROR)
+            checksPropertyFile.set(propertiesFile)
+        }
+        val msg = assertThrows<GradleException> { options.checks.get() }.message
+        assertThat(msg).startsWith("Invalid errorprone severity ")
+        assertThat(msg).contains(" for check ")
+        assertThat(msg).contains(" in properties file ")
+        assertThat(msg).contains("possible severity values: [DEFAULT, OFF, WARN, ERROR]")
+    }
+
+    @Test
+    fun `non existing properties file`(@TempDir dir: File) {
+        val propertiesFile = File(dir, "checks.properties")
+
+        val options = ErrorProneOptions(objects, providers).apply {
+            checks.put("TryFailRefactoring", CheckSeverity.ERROR)
+            checksPropertyFile.set(propertiesFile)
+        }
+        val msg = assertThrows<GradleException> { options.checks.get() }.message
+        assertThat(msg).startsWith("Failed to read errorprone checks from properties file")
+        assertThat(msg).contains("java.io.FileNotFoundException")
     }
 
     @Test
@@ -96,7 +194,7 @@ class ErrorProneOptionsTest {
     }
 
     private fun doTestOptions(configure: ErrorProneOptions.() -> Unit) {
-        val options = ErrorProneOptions(objects).apply(configure)
+        val options = ErrorProneOptions(objects, providers).apply(configure)
         val parsedOptions = parseOptions(options)
         assertOptionsEqual(options, parsedOptions)
     }
@@ -166,8 +264,8 @@ class ErrorProneOptionsTest {
     }
 
     private fun doTestOptions(configure: ErrorProneOptions.() -> Unit, reference: ErrorProneOptions.() -> Unit) {
-        val options = ErrorProneOptions(objects).apply(reference)
-        val parsedOptions = parseOptions(ErrorProneOptions(objects).apply(configure))
+        val options = ErrorProneOptions(objects, providers).apply(reference)
+        val parsedOptions = parseOptions(ErrorProneOptions(objects, providers).apply(configure))
         assertOptionsEqual(options, parsedOptions)
     }
 
@@ -187,7 +285,7 @@ class ErrorProneOptionsTest {
 
     private fun doTestSpaces(argPrefix: String, configure: ErrorProneOptions.() -> Unit) {
         try {
-            ErrorProneOptions(objects).apply(configure).toString()
+            ErrorProneOptions(objects, providers).apply(configure).toString()
             fail("Should have thrown")
         } catch (e: InvalidUserDataException) {
             assertThat(e).hasMessageThat().startsWith("""Error Prone options cannot contain white space: "$argPrefix""")
@@ -197,7 +295,7 @@ class ErrorProneOptionsTest {
     @Test
     fun `rejects colon in check name`() {
         try {
-            ErrorProneOptions(objects).apply({ enable("ArrayEquals:OFF") }).toString()
+            ErrorProneOptions(objects, providers).apply({ enable("ArrayEquals:OFF") }).toString()
             fail("Should have thrown")
         } catch (e: InvalidUserDataException) {
             assertThat(e).hasMessageThat()
@@ -208,7 +306,7 @@ class ErrorProneOptionsTest {
         // This test asserts that we're not being too restrictive, and only try to fail early.
         try {
             parseOptions(
-                ErrorProneOptions(objects).apply {
+                ErrorProneOptions(objects, providers).apply {
                     ignoreUnknownCheckNames.set(true)
                     errorproneArgs.add("-Xep:Foo:Bar")
                 }
