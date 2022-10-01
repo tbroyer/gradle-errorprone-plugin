@@ -1,13 +1,5 @@
 package net.ltgt.gradle.errorprone
 
-import com.android.build.gradle.AppExtension
-import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.TestExtension
-import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.api.TestVariant
-import com.android.build.gradle.api.UnitTestVariant
 import org.gradle.api.JavaVersion
 import org.gradle.api.Named
 import org.gradle.api.Plugin
@@ -113,38 +105,14 @@ class ErrorPronePlugin : Plugin<Project> {
             }
         }
 
-        val enableErrorProne: JavaCompile.(Boolean) -> Unit = { testOnly ->
-            options.errorprone {
-                isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 8 }.orElse(true))
-                isCompilingTestOnlyCode.convention(testOnly)
-            }
-        }
-
         project.plugins.withType<JavaBasePlugin> {
             project.extensions.getByName<SourceSetContainer>("sourceSets").configureEach {
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
                 project.tasks.named<JavaCompile>(compileJavaTaskName) {
-                    enableErrorProne(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
-                }
-            }
-        }
-
-        arrayOf("application", "library", "test", "dynamic-feature").forEach {
-            project.plugins.withId("com.android.$it") {
-                fun BaseVariant.configure() {
-                    annotationProcessorConfiguration.extendsFrom(errorproneConfiguration)
-                    javaCompileProvider.configure {
-                        enableErrorProne(this@configure is TestVariant || this@configure is UnitTestVariant)
+                    options.errorprone {
+                        isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 8 }.orElse(true))
+                        isCompilingTestOnlyCode.convention(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
                     }
-                }
-
-                val android = project.extensions.getByName<BaseExtension>("android")
-                (android as? AppExtension)?.applicationVariants?.configureEach(BaseVariant::configure)
-                (android as? LibraryExtension)?.libraryVariants?.configureEach(BaseVariant::configure)
-                (android as? TestExtension)?.applicationVariants?.configureEach(BaseVariant::configure)
-                if (android is TestedExtension) {
-                    android.testVariants.configureEach(BaseVariant::configure)
-                    android.unitTestVariants.configureEach(BaseVariant::configure)
                 }
             }
         }

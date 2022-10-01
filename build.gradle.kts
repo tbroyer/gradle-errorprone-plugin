@@ -1,4 +1,3 @@
-import com.android.Version
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -36,19 +35,17 @@ gradle.taskGraph.whenReady {
     }
 }
 
-// See https://github.com/gradle/gradle/issues/7974
-val additionalPluginClasspath by configurations.creating
-
 val errorproneVersion = "2.10.0"
 
 repositories {
     mavenCentral()
-    google()
+    google {
+        mavenContent {
+            onlyForConfigurations("lintClassPath")
+        }
+    }
 }
 dependencies {
-    compileOnly("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
-    additionalPluginClasspath("com.android.tools.build:gradle:${Version.ANDROID_GRADLE_PLUGIN_VERSION}")
-
     testImplementation("com.google.truth:truth:1.1.3") {
         // See https://github.com/google/truth/issues/333
         exclude(group = "junit", module = "junit")
@@ -64,10 +61,6 @@ dependencies {
 }
 
 tasks {
-    pluginUnderTestMetadata {
-        this.pluginClasspath.from(additionalPluginClasspath)
-    }
-
     test {
         val testJavaToolchain = project.findProperty("test.java-toolchain")
         testJavaToolchain?.also {
@@ -81,15 +74,7 @@ tasks {
         val testGradleVersion = project.findProperty("test.gradle-version")
         testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
 
-        val androidSdkHome = project.findProperty("test.android-sdk-home")
-            ?: System.getenv("ANDROID_SDK_ROOT") ?: System.getenv("ANDROID_HOME")
-        androidSdkHome?.also { systemProperty("test.android-sdk-home", androidSdkHome) }
-
         systemProperty("errorprone.version", errorproneVersion)
-
-        if (project.findProperty("test.skipAndroid").toString().toBoolean()) {
-            exclude("**/*Android*")
-        }
 
         useJUnitPlatform()
         testLogging {
