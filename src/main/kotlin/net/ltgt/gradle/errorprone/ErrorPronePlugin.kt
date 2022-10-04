@@ -7,6 +7,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.api.tasks.Input
@@ -19,11 +20,14 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.util.GradleVersion
+import javax.inject.Inject
 
 /**
  * A [Plugin] that configures [JavaCompile] tasks to use the [Error Prone compiler](https://errorprone.info/).
  */
-class ErrorPronePlugin : Plugin<Project> {
+class ErrorPronePlugin @Inject constructor(
+    private val providers: ProviderFactory
+) : Plugin<Project> {
 
     companion object {
         const val PLUGIN_ID = "net.ltgt.errorprone"
@@ -74,7 +78,6 @@ class ErrorPronePlugin : Plugin<Project> {
             }
         }
 
-        val providers = project.providers
         project.tasks.withType<JavaCompile>().configureEach {
             val errorproneOptions =
                 (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
