@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "0.21.0"
+    id("com.gradle.plugin-publish") version "1.0.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
     id("com.android.lint") version "4.2.2"
     id("org.nosphere.gradle.github.actions") version "1.3.2"
@@ -100,11 +100,6 @@ pluginBundle {
     vcsUrl = "https://github.com/tbroyer/gradle-errorprone-plugin"
     description = "Gradle plugin to use the error-prone compiler for Java"
     tags = listOf("javac", "error-prone")
-
-    mavenCoordinates {
-        groupId = project.group.toString()
-        artifactId = project.name
-    }
 }
 
 ktlint {
