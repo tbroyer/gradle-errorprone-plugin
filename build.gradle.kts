@@ -46,7 +46,7 @@ repositories {
     mavenCentral()
     google {
         mavenContent {
-            onlyForConfigurations("lintClassPath")
+            onlyForConfigurations(configurations.lintClassPath.name)
         }
     }
 }
