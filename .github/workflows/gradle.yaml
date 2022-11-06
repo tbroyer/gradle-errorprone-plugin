@@ -26,13 +26,9 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        uses: gradle/gradle-build-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: --scan build
-          distributions-cache-enabled: true
-          dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*.lockfile'
-          dependencies-cache-exact: true
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
@@ -53,13 +49,9 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        uses: gradle/gradle-build-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: --scan build
-          distributions-cache-enabled: true
-          dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*.lockfile'
-          dependencies-cache-exact: true
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
@@ -77,12 +69,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Cache Gradle test wrapper (${{ matrix.gradle }})
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/wrapper/dists/gradle-${{ matrix.gradle }}-bin/
-          key: wrapper-${{ matrix.gradle }}
-
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
@@ -90,13 +76,9 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        uses: gradle/gradle-build-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: --scan test "-Ptest.gradle-version=${{ matrix.gradle }}"
-          distributions-cache-enabled: true
-          dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*.lockfile'
-          dependencies-cache-exact: true
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
@@ -128,13 +110,9 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        uses: gradle/gradle-build-action@v1
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: --scan test "-Ptest.java-toolchain=${{ matrix.java }}"
-          distributions-cache-enabled: true
-          dependencies-cache-enabled: true
-          dependencies-cache-key: '**/*.lockfile'
-          dependencies-cache-exact: true
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')

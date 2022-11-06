@@ -9,16 +9,6 @@ plugins {
     id("com.android.lint") version "4.2.2"
     id("org.nosphere.gradle.github.actions") version "1.3.2"
 }
-buildscript {
-    dependencyLocking {
-        lockAllConfigurations()
-        lockMode.set(LockMode.STRICT)
-    }
-}
-dependencyLocking {
-    lockAllConfigurations()
-    lockMode.set(LockMode.STRICT)
-}
 
 group = "net.ltgt.gradle"
 
