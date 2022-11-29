@@ -8,8 +8,8 @@ on:
     paths-ignore:
       - '**/*.md'
 
-# First build on Linux and Windows with JDK 8
-# Then run tests with various Gradle and JDKs versions (Linux only)
+# First build on Linux and Windows with JDK 11
+# Then run tests with various Gradle and JDK versions (Linux only)
 jobs:
   linux:
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '8'
+          java-version: '11'
 
       - name: Build with Gradle
         id: gradle-build
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '8'
+          java-version: '11'
 
       - name: Build with Gradle
         id: gradle-build
@@ -69,7 +69,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '8'
+          java-version: '11'
 
       - name: Build with Gradle
         id: gradle-build
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 11, 17 ]
+        java: [ 8, 17 ]
     steps:
       - uses: actions/checkout@v3
 
@@ -98,7 +98,7 @@ jobs:
           distribution: 'temurin'
           java-version: |
             ${{ matrix.java }}
-            8
+            11
 
       - name: Setup environment
         run: |

@@ -6,7 +6,7 @@ plugins {
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "1.0.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
-    id("com.android.lint") version "4.2.2"
+    id("com.android.lint") version "7.3.1"
     id("org.nosphere.gradle.github.actions") version "1.3.2"
 }
 
@@ -34,11 +34,7 @@ val errorproneVersion = "2.10.0"
 
 repositories {
     mavenCentral()
-    google {
-        mavenContent {
-            onlyForConfigurations(configurations.lintClassPath.name)
-        }
-    }
+    google()
 }
 dependencies {
     testImplementation("com.google.truth:truth:1.1.3") {
