@@ -75,7 +75,8 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
     private fun BuildResult.assumeToolchainAvailable() {
         if (task("alwaysFail") == null &&
-            output.contains("No compatible toolchains found for request filter")
+            // XXX: some Gradle versions use "request filter", others (7.6+) use "request specification"
+            output.contains("No compatible toolchains found for request ")
         ) {
             assume().withMessage("No compatible toolchains found").fail()
         }
