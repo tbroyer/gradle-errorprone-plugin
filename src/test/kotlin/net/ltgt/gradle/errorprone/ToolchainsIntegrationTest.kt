@@ -107,6 +107,12 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             } else {
                 ""
             }}
+                        ${
+            if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.0")) {
+                "override fun isCurrentJvm() = false"
+            } else {
+                ""
+            }}
                     }
                 })
             }
