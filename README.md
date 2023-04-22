@@ -13,7 +13,7 @@ See [note below](#jdk-8-support) about JDK 8 support.
 
 ## Usage
 
-```gradle
+```kotlin
 plugins {
     id("net.ltgt.errorprone") version "<plugin version>"
 }
@@ -24,7 +24,7 @@ and configures the `<sourceSet>AnnotationProcessor` configuration for each sourc
 This allows configuring Error Prone dependencies from a single place.
 
 Error Prone needs to be added as a dependency in this configuration:
-```gradle
+```kotlin
 repositories {
     mavenCentral()
 }
@@ -39,14 +39,6 @@ means that your build could fail at any time,
 if a new version of Error Prone adds or enables new checks that your code would trigger.
 
 Error Prone can then be [configured](#configuration) on the `JavaCompile` tasks:
-```gradle
-tasks.withType(JavaCompile).configureEach {
-    options.errorprone.disableWarningsInGeneratedCode = true
-}
-```
-<details>
-<summary>with Kotlin DSL</summary>
-
 ```kotlin
 import net.ltgt.gradle.errorprone.errorprone
 
@@ -54,24 +46,32 @@ tasks.withType<JavaCompile>().configureEach {
     options.errorprone.disableWarningsInGeneratedCode.set(true)
 }
 ```
+<details>
+<summary>with Groovy DSL</summary>
+
+```gradle
+tasks.withType(JavaCompile).configureEach {
+    options.errorprone.disableWarningsInGeneratedCode = true
+}
+```
 
 </details>
 
 and can also be disabled altogether:
-```gradle
-tasks {
-    compileTestJava {
-        options.errorprone.enabled = false
-    }
-}
-```
-<details>
-<summary>with Kotlin DSL</summary>
-
 ```kotlin
 tasks {
     compileTestJava {
         options.errorprone.isEnabled.set(false)
+    }
+}
+```
+<details>
+<summary>with Groovy DSL</summary>
+
+```gradle
+tasks {
+    compileTestJava {
+        options.errorprone.enabled = false
     }
 }
 ```
@@ -83,26 +83,6 @@ Note that this plugin only enables Error Prone on tasks for source sets
 and `compileIntegTestJava` for a custom `integTest` source set).
 If you're creating custom `JavaCompile` tasks,
 then you'll have to configure them manually to enable Error Prone:
-```gradle
-tasks.register("compileCustom", JavaCompile) {
-    source "src/custom/"
-    include "**/*.java"
-    classpath = configurations.custom
-    sourceCompatibility = "8"
-    targetCompatibility = "8"
-    destinationDir = file("$buildDir/classes/custom")
-
-    // Error Prone must be available in the annotation processor path
-    options.annotationProcessorPath = configurations.errorprone
-    // Enable Error Prone
-    options.errorprone.enabled = true
-    // It can then be configured for the task
-    options.errorprone.disableWarningsInGeneratedCode = true
-}
-```
-<details>
-<summary>with Kotlin DSL</summary>
-
 ```kotlin
 tasks.register<JavaCompile>("compileCustom") {
     source("src/custom/")
@@ -118,6 +98,26 @@ tasks.register<JavaCompile>("compileCustom") {
     options.errorprone.isEnabled.set(true)
     // It can then be configured for the task
     options.errorprone.disableWarningsInGeneratedCode.set(true)
+}
+```
+<details>
+<summary>with Groovy DSL</summary>
+
+```gradle
+tasks.register("compileCustom", JavaCompile) {
+    source "src/custom/"
+    include "**/*.java"
+    classpath = configurations.custom
+    sourceCompatibility = "8"
+    targetCompatibility = "8"
+    destinationDir = file("$buildDir/classes/custom")
+
+    // Error Prone must be available in the annotation processor path
+    options.annotationProcessorPath = configurations.errorprone
+    // Enable Error Prone
+    options.errorprone.enabled = true
+    // It can then be configured for the task
+    options.errorprone.disableWarningsInGeneratedCode = true
 }
 ```
 
@@ -168,21 +168,21 @@ but they will then only be used if the task is explicitly configured for forking
 ## Custom Error Prone checks
 
 [Custom Error Prone checks][custom checks] can be added to the `errorprone` configuration too:
-```gradle
+```kotlin
 dependencies {
     errorprone("com.uber.nullaway:nullaway:$nullawayVersion")
 }
 ```
 or alternatively to the `<sourceSet>AnnotationProcessor` configuration,
 if they only need to be enabled for a given source set:
-```gradle
+```kotlin
 dependencies {
     annotationProcessor("com.google.guava:guava-beta-checker:$betaCheckerVersion")
 }
 ```
 and can then be configured on the tasks; for example:
-```gradle
-tasks.withType(JavaCompile).configureEach {
+```kotlin
+tasks.withType<JavaCompile>().configureEach {
     options.errorprone {
         option("NullAway:AnnotatedPackages", "net.ltgt")
     }
@@ -193,10 +193,10 @@ tasks.compileJava {
 }
 ```
 <details>
-<summary>with Kotlin DSL</summary>
+<summary>with Groovy DSL</summary>
 
-```kotlin
-tasks.withType<JavaCompile>().configureEach {
+```gradle
+tasks.withType(JavaCompile).configureEach {
     options.errorprone {
         option("NullAway:AnnotatedPackages", "net.ltgt")
     }
@@ -214,7 +214,7 @@ tasks.compileJava {
 ## Configuration
 
 As noted above, this plugin adds an `errorprone` extension to the `JavaCompile.options`.
-It can be configured either as a property (`options.errorprone.xxx = …`)
+It can be configured either as a property (`options.errorprone.xxx`)
 or script block (`options.errorprone { … }`).
 
 In a `*.gradle.kts` script, the Kotlin extensions need to be imported:
@@ -230,7 +230,7 @@ you cannot use `<<` or `+=` to add to lists for instance._
 
 | Property | Description
 | :------- | :----------
-| `enabled`                        | (`isEnabled` with Kotlin DSL) Allows disabling Error Prone altogether for the task. Error Prone will still be in the annotation processor path, but `-Xplugin:ErrorProne` won't be passed as a compiler argument. Defaults to `true` for source set tasks, `false` otherwise.
+| `isEnabled`                      | (`enabled` with Groovy DSL) Allows disabling Error Prone altogether for the task. Error Prone will still be in the annotation processor path, but `-Xplugin:ErrorProne` won't be passed as a compiler argument. Defaults to `true` for source set tasks, `false` otherwise.
 | `disableAllChecks`               | Disable all Error Prone checks; maps to `-XepDisableAllChecks`. This will be the first argument, so checks can then be re-enabled on a case-by-case basis. Defaults to `false`.
 | `disableAllWarnings`             | Maps to `-XepDisableAllWarnings` (since ErrorProne 2.4.0). Defaults to `false`.
 | `allErrorsAsWarnings`            | Maps to `-XepAllErrorsAsWarnings`. Defaults to `false`.
@@ -238,7 +238,7 @@ you cannot use `<<` or `+=` to add to lists for instance._
 | `disableWarningsInGeneratedCode` | Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`; maps to `-XepDisableWarningsInGeneratedCode`. Defaults to `false`.
 | `ignoreUnknownCheckNames`        | Maps to `-XepIgnoreUnknownCheckNames`. Defaults to `false`.
 | `ignoreSuppressionAnnotations`   | Maps to `-XepIgnoreSuppressionAnnotations` (since Error Prone 2.3.3). Defaults to `false`.
-| `compilingTestOnlyCode`          | (`isCompilingTestOnlyCode` with Kotlin DSL) Maps to `-XepCompilingTestOnlyCode`. Defaults to `false`. (defaults to `true` for a source set inferred as a test source set)
+| `isCompilingTestOnlyCode`        | (`compilingTestOnlyCode` with Groovy DSL) Maps to `-XepCompilingTestOnlyCode`. Defaults to `false`. (defaults to `true` for a source set inferred as a test source set)
 | `excludedPaths`                  | A regular expression pattern (as a string) of file paths to exclude from Error Prone checking; maps to `-XepExcludedPaths`. Defaults to `null`.
 | `checks`                         | A map of check name to `CheckSeverity`, to configure which checks are enabled or disabled, and their severity; maps each entry to `-Xep:<key>:<value>`, or `-Xep:<key>` if the value is `CheckSeverity.DEFAULT`. Defaults to an empty map.
 | `checkOptions`                   | A map of check options to their value; maps each entry to `-XepOpt:<key>=<value>`. Use an explicit `"true"` value for a boolean option. Defaults to an empty map.
