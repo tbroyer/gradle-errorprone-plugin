@@ -81,8 +81,11 @@ tasks {
 Note that this plugin only enables Error Prone on tasks for source sets
 (i.e. `compileJava` for the `main` source set, `compileTestJava` for the `test` source set,
 and `compileIntegTestJava` for a custom `integTest` source set).
-If you're creating custom `JavaCompile` tasks,
-then you'll have to configure them manually to enable Error Prone:
+
+<details>
+<summary>If you're creating custom compile tasks,
+then you'll have to configure them manually to enable Error Prone</summary>
+
 ```kotlin
 tasks.register<JavaCompile>("compileCustom") {
     source("src/custom/")
@@ -121,6 +124,7 @@ tasks.register("compileCustom", JavaCompile) {
 }
 ```
 
+</details>
 </details>
 
 ## JDK 8 support
