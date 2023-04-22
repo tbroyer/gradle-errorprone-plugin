@@ -2,6 +2,7 @@ package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
@@ -230,7 +231,10 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
-    fun `configure forking in Java 16+ VM`() {
+    fun `configure forking in Java 16+ VM (unless implicitly forked by incompatible toolchain)`() {
+        // https://github.com/gradle/gradle/issues/16857#issuecomment-931610187
+        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("7.0"))
+
         // given
         buildFile.appendText(
             """
@@ -248,7 +252,53 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-            assertThat(result.output).contains(FORKED)
+            assertThat(result.output).contains(if (JavaVersion.current() == JavaVersion.VERSION_17) FORKED else NOT_FORKED)
+            assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
+            // Check that the configured jvm arg is preserved
+            assertThat(result.output).contains(jvmArg("-XshowSettings"))
+        }
+
+        // check that it doesn't mess with task avoidance
+
+        // when
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
+            // then
+            result.assumeToolchainAvailable()
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+        }
+    }
+
+    @Test
+    fun `does not configure forking in Java 16+ VM if current JVM has appropriate JVM args`() {
+        // https://github.com/gradle/gradle/issues/16857#issuecomment-931610187
+        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("7.0"))
+        assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isAtLeast(JavaVersion.VERSION_16)
+
+        testProjectDir.resolve("gradle.properties").appendText(
+            """
+
+            org.gradle.jvmargs=-Xmx512m "-XX:MaxMetaspaceSize=384m" ${ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(" ")}
+            """.trimIndent()
+        )
+
+        // given
+        buildFile.appendText(
+            """
+
+            java {
+                toolchain {
+                    languageVersion.set(JavaLanguageVersion.of(${JavaVersion.current().majorVersion}))
+                }
+            }
+            """.trimIndent()
+        )
+
+        // when
+        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
+            // then
+            result.assumeToolchainAvailable()
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+            assertThat(result.output).contains(NOT_FORKED)
             assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
             // Check that the configured jvm arg is preserved
             assertThat(result.output).contains(jvmArg("-XshowSettings"))

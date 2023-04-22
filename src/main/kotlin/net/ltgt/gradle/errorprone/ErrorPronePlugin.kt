@@ -52,6 +52,39 @@ class ErrorPronePlugin @Inject constructor(
             "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
             "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
         )
+
+        private val CURRENT_JVM_NEEDS_FORKING by lazy {
+            // Needs bootclasspath
+            JavaVersion.current() == JavaVersion.VERSION_1_8 || (
+                // Needs --add-exports and --add-opens
+                JavaVersion.current() >= JavaVersion.VERSION_16 &&
+                    try {
+                        sequenceOf(
+                            "com.sun.tools.javac.api.BasicJavacTask",
+                            "com.sun.tools.javac.api.JavacTrees",
+                            "com.sun.tools.javac.file.JavacFileManager",
+                            "com.sun.tools.javac.main.JavaCompiler",
+                            "com.sun.tools.javac.model.JavacElements",
+                            "com.sun.tools.javac.parser.JavacParser",
+                            "com.sun.tools.javac.processing.JavacProcessingEnvironment",
+                            "com.sun.tools.javac.tree.JCTree",
+                            "com.sun.tools.javac.util.JCDiagnostic"
+                        ).any {
+                            val klass = Class.forName(it)
+                            return@any !klass.module.isExported(klass.packageName, this::class.java.classLoader.unnamedModule)
+                        } &&
+                            sequenceOf(
+                                "com.sun.tools.javac.code.Symbol",
+                                "com.sun.tools.javac.comp.Enter"
+                            ).any {
+                                val klass = Class.forName(it)
+                                return@any !klass.module.isOpen(klass.packageName, this::class.java.classLoader.unnamedModule)
+                            }
+                    } catch (e: ClassNotFoundException) {
+                        true
+                    }
+                )
+        }
     }
 
     override fun apply(project: Project) {
@@ -103,7 +136,7 @@ class ErrorPronePlugin @Inject constructor(
                 if (!errorproneOptions.isEnabled.getOrElse(false)) return@doFirst
                 jvmArgumentProvider.compilerVersion?.let {
                     if (it < JavaVersion.VERSION_1_8) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
-                    if (it == JavaVersion.VERSION_1_8 || it >= JavaVersion.VERSION_16) options.isFork = true
+                    if (it == JavaVersion.VERSION_1_8 || (it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING)) options.isFork = true
                 }
             }
         }

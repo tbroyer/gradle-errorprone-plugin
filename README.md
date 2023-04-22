@@ -157,17 +157,20 @@ Starting with JDK 16, due to [JEP 396: Strongly Encapsulate JDK Internals by Def
 
 The plugin will automatically [use a forking compiler][CompileOptions.fork]
 and pass the necessary [JVM arguments][BaseForkOptions.getJvmArgs]
-whenever it detects such a JDK is being used and ErrorProne is enabled.
+whenever it detects such a JDK is being used and ErrorProne is enabled
+(unless the Gradle daemon's JVM already was given the appropriate options [through `org.gradle.jvmargs`][org.gradle.jvmargs]).
 
 That detection will only take into account the [toolchain][gradle-toolchains] used by the `JavaCompile` task,
 or the JDK used to run Gradle in case no toolchain is being used.
 The plugin will ignore any task that forks and defines either [a `javaHome`][ForkOptions.setJavaHome] or [an `executable`][ForkOptions.setExecutable],
 and thus won't configure the JVM arguments if you're e.g. running Gradle with an older JDK and forking the compilation tasks to use JDK 17.
 
-Note that the plugin also configures the JVM arguments for any JDK between 9 and 15 to silence related warnings,
-but they will then only be used if the task is explicitly configured for forking.
+Note that the plugin also configures the JVM arguments for any JDK above version 9 to silence related warnings,
+but they will then only be used if the task is explicitly configured for forking
+(or if the configured toolchain is incompatible with the JDK used to run Gradle, which will then implicitly fork a compiler daemon).
 
 [jep396]: https://openjdk.java.net/jeps/396
+[org.gradle.jvmargs]: https://docs.gradle.org/current/userguide/build_environment.html#sec:configuring_jvm_memory
 
 ## Custom Error Prone checks
 
