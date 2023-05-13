@@ -30,49 +30,81 @@ gradle.taskGraph.whenReady {
     }
 }
 
-val errorproneVersion = "2.10.0"
+val errorproneVersion = "2.19.1"
 
 repositories {
     mavenCentral()
     google()
 }
-dependencies {
-    testImplementation("com.google.truth:truth:1.1.3") {
-        // See https://github.com/google/truth/issues/333
-        exclude(group = "junit", module = "junit")
-    }
-    testRuntimeOnly("junit:junit:4.13.2") {
-        // See https://github.com/google/truth/issues/333
-        because("Truth needs it")
-    }
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
 
-    testImplementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
-}
-
-tasks {
-    test {
-        val testJavaToolchain = project.findProperty("test.java-toolchain")
-        testJavaToolchain?.also {
-            javaLauncher.set(
-                project.javaToolchains.launcherFor {
-                    languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
+testing {
+    suites {
+        withType<JvmTestSuite>().configureEach {
+            useJUnitJupiter("5.9.3")
+            dependencies {
+                implementation("com.google.truth:truth:1.1.3") {
+                    // See https://github.com/google/truth/issues/333
+                    exclude(group = "junit", module = "junit")
                 }
-            )
+                runtimeOnly("junit:junit:4.13.2") {
+                    // See https://github.com/google/truth/issues/333
+                    because("Truth needs it")
+                }
+            }
+            targets.configureEach {
+                testTask {
+                    testLogging {
+                        showExceptions = true
+                        showStackTraces = true
+                        exceptionFormat = TestExceptionFormat.FULL
+                    }
+                }
+            }
         }
 
-        val testGradleVersion = project.findProperty("test.gradle-version")
-        testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
-
-        systemProperty("errorprone.version", errorproneVersion)
-
-        useJUnitPlatform()
-        testLogging {
-            showExceptions = true
-            showStackTraces = true
-            exceptionFormat = TestExceptionFormat.FULL
+        val test by getting(JvmTestSuite::class) {
+            dependencies {
+                implementation(project())
+                implementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
+            }
         }
+        register<JvmTestSuite>("integrationTest") {
+            dependencies {
+                implementation(project()) { because("Test code calls constants") }
+                implementation(gradleTestKit())
+                runtimeOnly(gradleKotlinDsl()) { because("Needed by ErrorPronePlugin, usually provided by Gradle at runtime") }
+            }
+            // associate with main Kotlin compilation to access internal constants
+            kotlin.target.compilations.named(name) {
+                associateWith(kotlin.target.compilations["main"])
+            }
+            // make plugin-under-test-metadata.properties accessible to TestKit
+            gradlePlugin.testSourceSet(sources)
+            targets.configureEach {
+                testTask {
+                    shouldRunAfter(test)
+
+                    val testJavaToolchain = project.findProperty("test.java-toolchain")
+                    testJavaToolchain?.also {
+                        javaLauncher.set(
+                            project.javaToolchains.launcherFor {
+                                languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
+                            }
+                        )
+                    }
+
+                    val testGradleVersion = project.findProperty("test.gradle-version")
+                    testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
+
+                    systemProperty("errorprone.version", errorproneVersion)
+                }
+            }
+        }
+    }
+}
+tasks {
+    check {
+        dependsOn(testing.suites)
     }
 }
 

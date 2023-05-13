@@ -116,6 +116,17 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             dependencies {
                 compileOnly("com.google.errorprone:error_prone_check_api:$errorproneVersion")
             }
+            ${if (JavaVersion.current().isJava8) "" else """
+                tasks {
+                    compileJava {
+                        options.compilerArgs.addAll(listOf(
+                            "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                            "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                            "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+                            ))
+                    }
+                }
+            """.trimIndent()}
             """.trimIndent()
         )
         File(

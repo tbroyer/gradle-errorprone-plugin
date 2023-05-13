@@ -1,5 +1,6 @@
 package net.ltgt.gradle.errorprone
 
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.util.GradleVersion
@@ -7,7 +8,9 @@ import java.io.File
 
 val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
 
-val errorproneVersion = System.getProperty("errorprone.version")!!
+const val MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION = "2.10.0"
+
+val errorproneVersion = if (JavaVersion.current().isJava8) MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION else System.getProperty("errorprone.version")!!
 
 const val FAILURE_SOURCE_COMPILATION_ERROR = "Failure.java:6: error: [ArrayEquals]"
 

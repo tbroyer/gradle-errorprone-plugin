@@ -8,6 +8,7 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInfo
 import java.io.File
 
 class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
@@ -28,7 +29,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @BeforeEach
-    fun setup() {
+    fun setup(testInfo: TestInfo) {
         testProjectDir.resolve("gradle.properties").appendText(
             """
             org.gradle.java.installations.auto-download=false
@@ -45,7 +46,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                 mavenCentral()
             }
             dependencies {
-                errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
+                errorprone("com.google.errorprone:error_prone_core:${if (testInfo.displayName.contains("JDK 8 VM")) MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION else errorproneVersion}")
             }
 
             tasks {
@@ -196,7 +197,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
-    fun `configure forking in Java 8 VM`() {
+    fun `configure forking in JDK 8 VM`() {
         // given
         buildFile.appendText(
             """
@@ -376,7 +377,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
-    fun `configure bootclasspath for already-forked tasks`() {
+    fun `configure bootclasspath for already-forked tasks with JDK 8 VM`() {
         // given
         buildFile.appendText(
             """
