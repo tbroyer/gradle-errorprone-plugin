@@ -28,7 +28,7 @@ fun File.writeSuccessSource() {
                         return a.equals(b);
                     }
                 }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 }
@@ -46,7 +46,7 @@ fun File.writeFailureSource() {
                         return a.equals(b);
                     }
                 }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 }

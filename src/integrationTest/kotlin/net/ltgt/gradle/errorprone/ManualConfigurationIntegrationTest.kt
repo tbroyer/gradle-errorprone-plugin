@@ -37,7 +37,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                     error("ArrayEquals")
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         testProjectDir.writeFailureSource()
 
@@ -79,7 +79,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                     error("ArrayEquals")
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         testProjectDir.writeFailureSource()
 
@@ -98,7 +98,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             customCompileJava.options.errorprone.isEnabled.set(true)
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when

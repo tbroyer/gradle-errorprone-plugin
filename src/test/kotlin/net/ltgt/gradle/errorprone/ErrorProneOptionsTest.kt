@@ -105,7 +105,7 @@ class ErrorProneOptionsTest {
 
         doTestOptions(
             { errorproneArgs.set(mutableListOf("-XepDisableAllChecks", "-Xep:BetaApi")) },
-            { disableAllChecks.set(true); enable("BetaApi") }
+            { disableAllChecks.set(true); enable("BetaApi") },
         )
 
         doTestOptions(
@@ -114,15 +114,15 @@ class ErrorProneOptionsTest {
                     CommandLineArgumentProvider {
                         listOf(
                             "-Xep:NullAway:ERROR",
-                            "-XepOpt:NullAway:AnnotatedPackages=net.ltgt.gradle.errorprone"
+                            "-XepOpt:NullAway:AnnotatedPackages=net.ltgt.gradle.errorprone",
                         )
-                    }
+                    },
                 )
             },
             {
                 check("NullAway", CheckSeverity.ERROR)
                 option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone")
-            }
+            },
         )
     }
 
@@ -134,7 +134,7 @@ class ErrorProneOptionsTest {
             },
             {
                 error("NullAway")
-            }
+            },
         )
 
         doTestOptions(
@@ -145,7 +145,7 @@ class ErrorProneOptionsTest {
             {
                 isCompilingTestOnlyCode.set(true)
                 warn("NullAway")
-            }
+            },
         )
 
         doTestOptions(
@@ -156,7 +156,7 @@ class ErrorProneOptionsTest {
             },
             {
                 option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone")
-            }
+            },
         )
     }
 
@@ -206,7 +206,7 @@ class ErrorProneOptionsTest {
                 ErrorProneOptions(objects).apply {
                     ignoreUnknownCheckNames.set(true)
                     errorproneArgs.add("-Xep:Foo:Bar")
-                }
+                },
             )
             fail("Should have thrown")
         } catch (ignore: InvalidCommandLineOptionException) {}
@@ -221,7 +221,7 @@ class ErrorProneOptionsTest {
 
     private fun assertOptionsEqual(
         options: ErrorProneOptions,
-        parsedOptions: com.google.errorprone.ErrorProneOptions
+        parsedOptions: com.google.errorprone.ErrorProneOptions,
     ) {
         assertThat(parsedOptions.isDisableAllChecks).isEqualTo(options.disableAllChecks.get())
         assertThat(parsedOptions.isDisableAllWarnings).isEqualTo(options.disableAllWarnings.get())

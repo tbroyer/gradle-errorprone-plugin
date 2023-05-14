@@ -21,7 +21,7 @@ class GroovyDslIntegrationTest {
     fun setupProject() {
         assume().that(
             JavaVersion.current() >= JavaVersion.VERSION_16 &&
-                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")
+                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0"),
         ).isFalse()
 
         settingsFile = testProjectDir.resolve("settings.gradle").apply {
@@ -40,7 +40,7 @@ class GroovyDslIntegrationTest {
                 dependencies {
                     errorprone "com.google.errorprone:error_prone_core:$errorproneVersion"
                 }
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }
@@ -54,7 +54,7 @@ class GroovyDslIntegrationTest {
             tasks.withType(JavaCompile).configureEach {
                 options.errorprone.enabled = false
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         testProjectDir.writeFailureSource()
 
@@ -87,7 +87,7 @@ class GroovyDslIntegrationTest {
                     enable("ArrayEquals")
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         testProjectDir.writeSuccessSource()
 

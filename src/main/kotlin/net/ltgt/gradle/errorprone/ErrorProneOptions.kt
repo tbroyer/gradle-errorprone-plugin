@@ -13,7 +13,7 @@ import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 
 open class ErrorProneOptions constructor(
-    objectFactory: ObjectFactory
+    objectFactory: ObjectFactory,
 ) {
     /**
      * Allows disabling Error Prone altogether for the task.
@@ -237,7 +237,7 @@ open class ErrorProneOptions constructor(
                 booleanOption("-XepIgnoreUnknownCheckNames", ignoreUnknownCheckNames),
                 booleanOption("-XepIgnoreSuppressionAnnotations", ignoreSuppressionAnnotations),
                 booleanOption("-XepCompilingTestOnlyCode", isCompilingTestOnlyCode),
-                stringOption("-XepExcludedPaths", excludedPaths)
+                stringOption("-XepExcludedPaths", excludedPaths),
             ).filterNotNull() +
                 checks.getOrElse(emptyMap()).asSequence().map { (name, severity) -> validateName(name); "-Xep:$name${severity.asArg}" } +
                 checkOptions.getOrElse(emptyMap()).asSequence().map { (name, value) -> "-XepOpt:$name=$value" } +

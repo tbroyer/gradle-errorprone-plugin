@@ -25,7 +25,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -65,7 +65,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
                     disable("ArrayEquals")
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         testProjectDir.writeFailureSource()
 
@@ -85,7 +85,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             tasks.withType<JavaCompile>().configureEach {
                 options.errorprone.isEnabled.set(false)
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         testProjectDir.writeFailureSource()
 
@@ -103,7 +103,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             include(":customCheck")
-            """.trimIndent()
+            """.trimIndent(),
         )
         File(testProjectDir.resolve("customCheck").apply { mkdirs() }, "build.gradle.kts").writeText(
             """
@@ -116,7 +116,10 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             dependencies {
                 compileOnly("com.google.errorprone:error_prone_check_api:$errorproneVersion")
             }
-            ${if (JavaVersion.current().isJava8) "" else """
+            ${if (JavaVersion.current().isJava8) {
+                ""
+            } else {
+                """
                 tasks {
                     compileJava {
                         options.compilerArgs.addAll(listOf(
@@ -126,16 +129,17 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
                             ))
                     }
                 }
-            """.trimIndent()}
-            """.trimIndent()
+                """.trimIndent()
+            }}
+            """.trimIndent(),
         )
         File(
             testProjectDir.resolve("customCheck/src/main/resources/META-INF/services").apply { mkdirs() },
-            "com.google.errorprone.bugpatterns.BugChecker"
+            "com.google.errorprone.bugpatterns.BugChecker",
         ).writeText("com.google.errorprone.sample.MyCustomCheck")
         File(
             testProjectDir.resolve("customCheck/src/main/java/com/google/errorprone/sample").apply { mkdirs() },
-            "MyCustomCheck.java"
+            "MyCustomCheck.java",
         ).writeText(javaClass.getResource("/com/google/errorprone/sample/MyCustomCheck.java").readText())
 
         buildFile.appendText(
@@ -147,12 +151,12 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             tasks.withType<JavaCompile>().configureEach {
                 options.errorprone.error("MyCustomCheck")
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         File(
             testProjectDir.resolve("src/main/java/com/google/errorprone/sample").apply { mkdirs() },
-            "Hello.java"
+            "Hello.java",
         ).writeText(javaClass.getResource("/com/google/errorprone/sample/Hello.java").readText())
 
         // when
@@ -167,7 +171,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     fun `is configuration-cache friendly`() {
         assume().that(
             JavaVersion.current() >= JavaVersion.VERSION_16 &&
-                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0")
+                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0"),
         ).isFalse()
 
         // given
@@ -180,7 +184,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
                     disable("ArrayEquals")
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         testProjectDir.writeFailureSource()
 

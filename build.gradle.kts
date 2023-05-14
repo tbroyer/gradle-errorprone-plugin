@@ -4,9 +4,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "1.1.0"
-    id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
-    id("com.android.lint") version "7.3.1"
+    id("com.gradle.plugin-publish") version "1.2.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
+    id("com.android.lint") version "7.4.2"
     id("org.nosphere.gradle.github.actions") version "1.3.2"
 }
 
@@ -89,7 +89,7 @@ testing {
                         javaLauncher.set(
                             project.javaToolchains.launcherFor {
                                 languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
-                            }
+                            },
                         )
                     }
 
@@ -123,7 +123,7 @@ gradlePlugin {
 }
 
 ktlint {
-    version.set("0.45.2")
+    version.set("0.48.2")
     enableExperimentalRules.set(true)
     outputToConsole.set(true)
 }

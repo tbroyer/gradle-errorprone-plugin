@@ -52,7 +52,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             }
             compileJava.finalizedBy(displayCompileJavaOptions)
             compileJava.options.forkOptions.jvmArgs!!.add("-XshowSettings")
-            """.trimIndent()
+            """.trimIndent(),
         )
         testProjectDir.writeSuccessSource()
     }
@@ -78,7 +78,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             compileJava.options.isFork = true
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -145,7 +145,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             compileJava.options.errorprone.isEnabled.set(false)
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -170,7 +170,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             compileJava.apply {
                 options.isFork = true
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         // when
         val result = testProjectDir.buildWithArgs("compileJava")
@@ -196,7 +196,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
                 options.isFork = true
                 options.forkOptions.javaHome = File(""${'"'}${javaHome.replace("\$", "\${'\$'}")}${'"'}"")
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         // XXX: make it fail always, even with non-Java 8
         buildFile.appendText(
@@ -205,7 +205,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             compileJava.doLast {
                 error("Forced failure")
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -236,7 +236,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
                 options.isFork = true
                 options.forkOptions.executable = ""${'"'}${javaHome.replace("\$", "\${'\$'}")}${File.separator}bin${File.separator}javac$ext${'"'}""
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         // XXX: make it fail always, in case our executable above is actually wrong (such as java.home pointing to a JRE, not a JDK)
         buildFile.appendText(
@@ -245,7 +245,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
             compileJava.doLast {
                 error("Forced failure")
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -272,7 +272,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
                     directory = file("build-cache")
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // Prime the build cache
@@ -302,7 +302,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
                 epJavac("com.google.errorprone:javac:9+181-r4173-1")
                 errorproneJavac(fileTree(moveEpJavac.destinationDir).builtBy(moveEpJavac))
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when

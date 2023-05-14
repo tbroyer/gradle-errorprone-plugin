@@ -33,7 +33,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         testProjectDir.resolve("gradle.properties").appendText(
             """
             org.gradle.java.installations.auto-download=false
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         buildFile.appendText(
@@ -70,7 +70,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     options.forkOptions.jvmArgs!!.add("-XshowSettings")
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         testProjectDir.writeSuccessSource()
     }
@@ -102,23 +102,23 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                         override fun getInstallationPath(): Directory = TODO()
                         override fun getVendor(): String = TODO()
                         ${
-            if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("7.1")) {
-                """override fun getJavaRuntimeVersion(): String = TODO()
+                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("7.1")) {
+                    """override fun getJavaRuntimeVersion(): String = TODO()
                    override fun getJvmVersion(): String = TODO()
                 """
-            } else {
-                ""
-            }}
+                } else {
+                    ""
+                }}
                         ${
-            if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.0")) {
-                "override fun isCurrentJvm() = false"
-            } else {
-                ""
-            }}
+                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.0")) {
+                    "override fun isCurrentJvm() = false"
+                } else {
+                    ""
+                }}
                     }
                 })
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // First test that it's disabled by default
@@ -136,7 +136,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             tasks.compileJava { options.errorprone.isEnabled.set(true) }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -158,7 +158,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     languageVersion.set(JavaLanguageVersion.of(11))
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -180,7 +180,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             tasks.compileJava { options.isFork = true }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -207,7 +207,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     languageVersion.set(JavaLanguageVersion.of(8))
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -245,7 +245,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     languageVersion.set(JavaLanguageVersion.of(17))
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -279,7 +279,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             org.gradle.jvmargs=-Xmx512m "-XX:MaxMetaspaceSize=384m" ${ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(" ")}
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // given
@@ -291,7 +291,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     languageVersion.set(JavaLanguageVersion.of(${JavaVersion.current().majorVersion}))
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -328,7 +328,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             }
 
             tasks.compileJava { options.errorprone.isEnabled.set(false) }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -360,7 +360,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             }
 
             tasks.compileJava { options.errorprone.isEnabled.set(false) }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when
@@ -391,7 +391,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             tasks.compileJava {
                 options.isFork = true
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         // when

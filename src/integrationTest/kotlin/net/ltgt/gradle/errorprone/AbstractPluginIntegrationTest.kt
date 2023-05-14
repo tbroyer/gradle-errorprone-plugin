@@ -21,7 +21,7 @@ abstract class AbstractPluginIntegrationTest {
                 """
                 import net.ltgt.gradle.errorprone.*
 
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }

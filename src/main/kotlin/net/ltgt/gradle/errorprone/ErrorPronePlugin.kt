@@ -26,7 +26,7 @@ import javax.inject.Inject
  * A [Plugin] that configures [JavaCompile] tasks to use the [Error Prone compiler](https://errorprone.info/).
  */
 class ErrorPronePlugin @Inject constructor(
-    private val providers: ProviderFactory
+    private val providers: ProviderFactory,
 ) : Plugin<Project> {
 
     companion object {
@@ -50,7 +50,7 @@ class ErrorPronePlugin @Inject constructor(
             "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
             "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
             "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
+            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
         )
 
         private val CURRENT_JVM_NEEDS_FORKING by lazy {
@@ -68,14 +68,14 @@ class ErrorPronePlugin @Inject constructor(
                             "com.sun.tools.javac.parser.JavacParser",
                             "com.sun.tools.javac.processing.JavacProcessingEnvironment",
                             "com.sun.tools.javac.tree.JCTree",
-                            "com.sun.tools.javac.util.JCDiagnostic"
+                            "com.sun.tools.javac.util.JCDiagnostic",
                         ).any {
                             val klass = Class.forName(it)
                             return@any !klass.module.isExported(klass.packageName, this::class.java.classLoader.unnamedModule)
                         } &&
                             sequenceOf(
                                 "com.sun.tools.javac.code.Symbol",
-                                "com.sun.tools.javac.comp.Enter"
+                                "com.sun.tools.javac.comp.Enter",
                             ).any {
                                 val klass = Class.forName(it)
                                 return@any !klass.module.isOpen(klass.packageName, this::class.java.classLoader.unnamedModule)
@@ -158,7 +158,7 @@ class ErrorPronePlugin @Inject constructor(
 internal class ErrorProneJvmArgumentProvider(
     private val task: JavaCompile,
     private val errorproneOptions: ErrorProneOptions,
-    private val javacConfiguration: FileCollection
+    private val javacConfiguration: FileCollection,
 ) : CommandLineArgumentProvider, Named {
 
     @Internal override fun getName(): String = "errorprone"
@@ -188,7 +188,7 @@ internal class ErrorProneJvmArgumentProvider(
 }
 
 internal class ErrorProneCompilerArgumentProvider(
-    private val errorproneOptions: ErrorProneOptions
+    private val errorproneOptions: ErrorProneOptions,
 ) : CommandLineArgumentProvider, Named {
 
     @Internal override fun getName(): String = "errorprone"
