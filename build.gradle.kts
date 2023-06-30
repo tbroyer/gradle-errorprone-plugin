@@ -5,7 +5,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "1.2.0"
-    id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
+    id("org.jlleitschuh.gradle.ktlint") version "11.4.2"
     id("com.android.lint") version "7.4.2"
     id("org.nosphere.gradle.github.actions") version "1.3.2"
 }
@@ -30,7 +30,7 @@ gradle.taskGraph.whenReady {
     }
 }
 
-val errorproneVersion = "2.19.1"
+val errorproneVersion = "2.20.0"
 
 repositories {
     mavenCentral()
@@ -42,7 +42,7 @@ testing {
         withType<JvmTestSuite>().configureEach {
             useJUnitJupiter("5.9.3")
             dependencies {
-                implementation("com.google.truth:truth:1.1.3") {
+                implementation("com.google.truth:truth:1.1.5") {
                     // See https://github.com/google/truth/issues/333
                     exclude(group = "junit", module = "junit")
                 }
@@ -123,7 +123,7 @@ gradlePlugin {
 }
 
 ktlint {
-    version.set("0.48.2")
+    version.set("0.49.1")
     enableExperimentalRules.set(true)
     outputToConsole.set(true)
 }
