@@ -176,6 +176,19 @@ but they will then only be used if the task is explicitly configured for forking
 [jep396]: https://openjdk.java.net/jeps/396
 [org.gradle.jvmargs]: https://docs.gradle.org/current/userguide/build_environment.html#sec:configuring_jvm_memory
 
+## Android Gradle Plugin support
+
+As noted above, this plugin won't have much effect when used in conjunction with the AGP rather than, say, Gradle's built-in Java plugins.
+
+It will then:
+* create the `errorprone` configuration, but won't wire it to any other configuration, and by extension to any compilation task
+* enhance `JavaCompile` tasks with the `errorprone` extension, but keep ErrorProne disabled by default (it would fail otherwise, as ErrorProne won't be on the processor path)
+
+You'll thus have to somehow:
+* put ErrorProne on the processor path of the `JavaCompile` tasks
+* enable ErrorProne on the `JavaCompile` tasks
+* configure `isCompilingTestOnlyCode` for compilation tasks for test variants (this changes the behavior of some checks)
+
 ## Custom Error Prone checks
 
 [Custom Error Prone checks][custom checks] can be added to the `errorprone` configuration too:
