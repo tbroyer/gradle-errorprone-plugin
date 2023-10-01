@@ -11,6 +11,10 @@ This plugin requires using at least Gradle 6.8.
 While JDK 8 is supported, it is recommended to use at least a JDK 9 compiler.
 See [note below](#jdk-8-support) about JDK 8 support.
 
+There's no specific support for the [Android Gradle Plugin](https://developer.android.com/build).
+Read on to better understand what you need to do to use both plugins together.
+Specifically, note that _source sets_ below are only about [standard Gradle source sets for JVM projects](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_source_sets), not [Android source sets](https://developer.android.com/build#sourcesets), so anything done by the plugin based on source sets won't be done at all for Android projects.
+
 ## Usage
 
 ```kotlin
