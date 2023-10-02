@@ -189,6 +189,8 @@ You'll thus have to somehow:
 * enable ErrorProne on the `JavaCompile` tasks
 * configure `isCompilingTestOnlyCode` for compilation tasks for test variants (this changes the behavior of some checks)
 
+This could (and should) be done by a plugin, so if you have deep knowledge of the [AGP APIs](https://developer.android.com/build/extend-agp) and how to idiomatically integrate Error Prone within Android builds, please make such a plugin and I'll link to it here for others to use.
+
 ## Custom Error Prone checks
 
 [Custom Error Prone checks][custom checks] can be added to the `errorprone` configuration too:
