@@ -6,11 +6,13 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.util.GradleVersion
 import java.io.File
 
+val testJavaVersion = JavaVersion.toVersion(System.getProperty("test.java-version") ?: JavaVersion.current())
+val testJavaHome = System.getProperty("test.java-home", System.getProperty("java.home"))
 val testGradleVersion = System.getProperty("test.gradle-version", GradleVersion.current().version)
 
 const val MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION = "2.10.0"
 
-val errorproneVersion = if (JavaVersion.current().isJava8) MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION else System.getProperty("errorprone.version")!!
+val errorproneVersion = if (testJavaVersion.isJava8) MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION else System.getProperty("errorprone.version")!!
 
 const val FAILURE_SOURCE_COMPILATION_ERROR = "Failure.java:6: error: [ArrayEquals]"
 

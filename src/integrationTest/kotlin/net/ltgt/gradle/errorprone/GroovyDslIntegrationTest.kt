@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.util.Properties
 
 class GroovyDslIntegrationTest {
 
@@ -20,10 +21,16 @@ class GroovyDslIntegrationTest {
     @BeforeEach
     fun setupProject() {
         assume().that(
-            JavaVersion.current() >= JavaVersion.VERSION_16 &&
+            testJavaVersion >= JavaVersion.VERSION_16 &&
                 GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0"),
         ).isFalse()
 
+        testProjectDir.resolve("gradle.properties").outputStream().use {
+            Properties().apply {
+                setProperty("org.gradle.java.home", testJavaHome)
+                store(it, null)
+            }
+        }
         settingsFile = testProjectDir.resolve("settings.gradle").apply {
             createNewFile()
         }

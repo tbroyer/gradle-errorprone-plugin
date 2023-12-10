@@ -59,8 +59,8 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking in non-Java 8 or 16+ VM`() {
-        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isFalse()
-        assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isLessThan(JavaVersion.VERSION_16)
+        assume().withMessage("isJava8").that(testJavaVersion.isJava8).isFalse()
+        assume().withMessage("isJava16Compatible").that(testJavaVersion).isLessThan(JavaVersion.VERSION_16)
 
         // when
         testProjectDir.buildWithArgs("compileJava").also { result ->
@@ -94,7 +94,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `configure forking in Java 8 VM`() {
-        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
+        assume().withMessage("isJava8").that(testJavaVersion.isJava8).isTrue()
 
         // when
         testProjectDir.buildWithArgs("compileJava").also { result ->
@@ -115,7 +115,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `configure forking in Java 16+ VM`() {
-        assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isAtLeast(JavaVersion.VERSION_16)
+        assume().withMessage("isJava16Compatible").that(testJavaVersion).isAtLeast(JavaVersion.VERSION_16)
 
         // when
         testProjectDir.buildWithArgs("compileJava").also { result ->
@@ -138,7 +138,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking if Error Prone is disabled`() {
-        assume().withMessage("isJava8Or16plus").that(JavaVersion.current().run { isJava8 || this >= JavaVersion.VERSION_16 }).isTrue()
+        assume().withMessage("isJava8Or16plus").that(testJavaVersion.run { isJava8 || this >= JavaVersion.VERSION_16 }).isTrue()
 
         // given
         buildFile.appendText(
@@ -161,7 +161,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `configure bootclasspath for already-forked tasks without javaHome or executable`() {
-        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
+        assume().withMessage("isJava8").that(testJavaVersion.isJava8).isTrue()
 
         // given
         buildFile.appendText(
@@ -185,7 +185,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure bootclasspath for already-forked tasks using javaHome`() {
-        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
+        assume().withMessage("isJava8").that(testJavaVersion.isJava8).isTrue()
 
         // given
         val javaHome = System.getProperty("java.home")
@@ -221,7 +221,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure bootclasspath for already-forked tasks using executable`() {
-        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
+        assume().withMessage("isJava8").that(testJavaVersion.isJava8).isTrue()
 
         // given
         val javaHome = System.getProperty("java.home")
@@ -261,7 +261,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `is build-cache friendly`() {
-        assume().withMessage("isJava8").that(JavaVersion.current().isJava8).isTrue()
+        assume().withMessage("isJava8").that(testJavaVersion.isJava8).isTrue()
 
         // given
         settingsFile.appendText(

@@ -32,6 +32,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     fun setup(testInfo: TestInfo) {
         testProjectDir.resolve("gradle.properties").appendText(
             """
+
             org.gradle.java.installations.auto-download=false
             """.trimIndent(),
         )
@@ -253,7 +254,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             // then
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-            assertThat(result.output).contains(if (JavaVersion.current() == JavaVersion.VERSION_17) FORKED else NOT_FORKED)
+            assertThat(result.output).contains(if (testJavaVersion == JavaVersion.VERSION_17) FORKED else NOT_FORKED)
             assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
             // Check that the configured jvm arg is preserved
             assertThat(result.output).contains(jvmArg("-XshowSettings"))
@@ -273,7 +274,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     fun `does not configure forking in Java 16+ VM if current JVM has appropriate JVM args`() {
         // https://github.com/gradle/gradle/issues/16857#issuecomment-931610187
         assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("7.0"))
-        assume().withMessage("isJava16Compatible").that(JavaVersion.current()).isAtLeast(JavaVersion.VERSION_16)
+        assume().withMessage("isJava16Compatible").that(testJavaVersion).isAtLeast(JavaVersion.VERSION_16)
 
         testProjectDir.resolve("gradle.properties").appendText(
             """
@@ -288,7 +289,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
             java {
                 toolchain {
-                    languageVersion.set(JavaLanguageVersion.of(${JavaVersion.current().majorVersion}))
+                    languageVersion.set(JavaLanguageVersion.of(${testJavaVersion.majorVersion}))
                 }
             }
             """.trimIndent(),

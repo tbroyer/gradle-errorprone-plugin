@@ -116,7 +116,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             dependencies {
                 compileOnly("com.google.errorprone:error_prone_check_api:$errorproneVersion")
             }
-            ${if (JavaVersion.current().isJava8) {
+            ${if (testJavaVersion.isJava8) {
                 ""
             } else {
                 """
@@ -170,7 +170,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `is configuration-cache friendly`() {
         assume().that(
-            JavaVersion.current() >= JavaVersion.VERSION_16 &&
+            testJavaVersion >= JavaVersion.VERSION_16 &&
                 GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0"),
         ).isFalse()
 

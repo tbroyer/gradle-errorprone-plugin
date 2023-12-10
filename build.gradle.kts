@@ -86,11 +86,11 @@ testing {
 
                     val testJavaToolchain = project.findProperty("test.java-toolchain")
                     testJavaToolchain?.also {
-                        javaLauncher.set(
-                            project.javaToolchains.launcherFor {
-                                languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
-                            },
-                        )
+                        val metadata = project.javaToolchains.launcherFor {
+                            languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
+                        }.get().metadata
+                        systemProperty("test.java-version", metadata.languageVersion.asInt())
+                        systemProperty("test.java-home", metadata.installationPath.asFile.canonicalPath)
                     }
 
                     val testGradleVersion = project.findProperty("test.gradle-version")
