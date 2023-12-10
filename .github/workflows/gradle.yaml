@@ -75,14 +75,14 @@ jobs:
         id: gradle-build
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: --scan test "-Ptest.gradle-version=${{ matrix.gradle }}"
+          arguments: --scan integrationTest "-Ptest.gradle-version=${{ matrix.gradle }}"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v3
         with:
           name: gradle-${{ matrix.gradle }}-tests
-          path: build/reports/tests/test/
+          path: build/reports/tests/integrationTest/
 
   test-jdk:
     needs: linux
@@ -109,14 +109,14 @@ jobs:
         id: gradle-build
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: --scan test "-Ptest.java-toolchain=${{ matrix.java }}"
+          arguments: --scan integrationTest "-Ptest.java-toolchain=${{ matrix.java }}"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v3
         with:
           name: jdk-${{ matrix.java }}-tests
-          path: build/reports/tests/test/
+          path: build/reports/tests/integrationTest/
 
   test-jdk21-gradle85:
     needs: linux
@@ -140,11 +140,11 @@ jobs:
         id: gradle-build
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: --scan test "-Ptest.java-toolchain=21"
+          arguments: --scan integrationTest "-Ptest.java-toolchain=21" "-Ptest.gradle-version=8.5"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v3
         with:
           name: jdk-21-tests
-          path: build/reports/tests/test/
+          path: build/reports/tests/integrationTest/
