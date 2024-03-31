@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        gradle: [ '8.6', '8.5', '8.4', '8.3', '8.2.1', '8.1.1', '8.0.2', '7.5.1', '7.4.2', '7.3.3', '7.2', '7.1.1', '7.0.2', '6.9.4', '6.8.3' ]
+        gradle: [ '8.7', '8.6', '8.5', '8.4', '8.3', '8.2.1', '8.1.1', '8.0.2', '7.5.1', '7.4.2', '7.3.3', '7.2', '7.1.1', '7.0.2', '6.9.4', '6.8.3' ]
     steps:
       - uses: actions/checkout@v4
 
@@ -134,7 +134,7 @@ jobs:
           name: jdk-${{ matrix.java }}-tests
           path: build/reports/tests/integrationTest/
 
-  test-jdk21-gradle86:
+  test-jdk21-gradle87:
     needs: linux
     runs-on: ubuntu-latest
     steps:
@@ -160,7 +160,7 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew integrationTest "-Ptest.java-toolchain=21" "-Ptest.gradle-version=8.6"
+        run: ./gradlew integrationTest "-Ptest.java-toolchain=21" "-Ptest.gradle-version=8.7"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
