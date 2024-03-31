@@ -2,6 +2,7 @@ package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.Test
 
 class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
@@ -22,6 +23,16 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
             }
+            val annotationProcessor ${
+                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.4")) {
+                    """= configurations.resolvable("annotationProcessor") {"""
+                } else {
+                    """by configurations.registering {
+                isCanBeConsumed = false
+                isCanBeResolved = true"""
+                }}
+                extendsFrom(configurations["errorprone"])
+            }
 
             val compileJava by tasks.creating(JavaCompile::class) {
                 source("src/main/java")
@@ -29,7 +40,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 destinationDir = file("${'$'}buildDir/classes")
                 sourceCompatibility = "8"
                 targetCompatibility = "8"
-                options.annotationProcessorPath = configurations["errorprone"]
+                options.annotationProcessorPath = annotationProcessor.get()
 
                 options.errorprone {
                     isEnabled.set(true)
@@ -67,12 +78,22 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             dependencies {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
             }
+            val customAnnotationProcessor ${
+                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.4")) {
+                    """= configurations.resolvable("customAnnotationProcessor") {"""
+                } else {
+                    """by configurations.registering {
+                isCanBeConsumed = false
+                isCanBeResolved = true"""
+                }}
+                extendsFrom(configurations["errorprone"])
+            }
 
             val customCompileJava by tasks.creating(JavaCompile::class) {
                 source("src/main/java")
                 classpath = files()
                 destinationDir = file("${'$'}buildDir/classes/custom")
-                options.annotationProcessorPath = configurations["errorprone"]
+                options.annotationProcessorPath = customAnnotationProcessor.get()
 
                 options.errorprone {
                     disableAllChecks.set(true)

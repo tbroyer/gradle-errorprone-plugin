@@ -96,8 +96,7 @@ class ErrorPronePlugin @Inject constructor(
             description = "Error Prone dependencies, will be extended by all source sets' annotationProcessor configurations"
             isVisible = false
             isCanBeConsumed = false
-            // This configuration is not meant to be resolved, but there's no reason it couldn't be (and there's a test that does this)
-            isCanBeResolved = true
+            isCanBeResolved = false
 
             exclude(group = "com.google.errorprone", module = "javac")
         }

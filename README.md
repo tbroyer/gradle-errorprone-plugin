@@ -91,6 +91,9 @@ and `compileIntegTestJava` for a custom `integTest` source set).
 then you'll have to configure them manually to enable Error Prone</summary>
 
 ```kotlin
+val annotationProcessorCustom = configurations.resolvable("annotationProcessorCustom") {
+    extendsFrom(configurations.errorprone.get())
+}
 tasks.register<JavaCompile>("compileCustom") {
     source("src/custom/")
     include("**/*.java")
@@ -100,7 +103,7 @@ tasks.register<JavaCompile>("compileCustom") {
     destinationDir = file("$buildDir/classes/custom")
 
     // Error Prone must be available in the annotation processor path
-    options.annotationProcessorPath = configurations["errorprone"]
+    options.annotationProcessorPath = annotationProcessorCustom.get()
     // Enable Error Prone
     options.errorprone.isEnabled.set(true)
     // It can then be configured for the task
@@ -111,6 +114,9 @@ tasks.register<JavaCompile>("compileCustom") {
 <summary>with Groovy DSL</summary>
 
 ```gradle
+def annotationProcessorCustom = configurations.resolvable("annotationProcessorCustom") {
+    extendsFrom(configurations.errorprone)
+}
 tasks.register("compileCustom", JavaCompile) {
     source "src/custom/"
     include "**/*.java"
@@ -120,7 +126,7 @@ tasks.register("compileCustom", JavaCompile) {
     destinationDir = file("$buildDir/classes/custom")
 
     // Error Prone must be available in the annotation processor path
-    options.annotationProcessorPath = configurations.errorprone
+    options.annotationProcessorPath = annotationProcessorCustom
     // Enable Error Prone
     options.errorprone.enabled = true
     // It can then be configured for the task
