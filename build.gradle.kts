@@ -4,10 +4,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "1.2.0"
-    id("org.jlleitschuh.gradle.ktlint") version "11.4.2"
+    id("com.gradle.plugin-publish") version "1.2.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     id("com.android.lint") version "7.4.2"
-    id("org.nosphere.gradle.github.actions") version "1.3.2"
+    id("org.nosphere.gradle.github.actions") version "1.4.0"
 }
 
 group = "net.ltgt.gradle"
@@ -40,9 +40,9 @@ repositories {
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
-            useJUnitJupiter("5.9.3")
+            useJUnitJupiter("5.10.2")
             dependencies {
-                implementation("com.google.truth:truth:1.1.5") {
+                implementation("com.google.truth:truth:1.4.2") {
                     // See https://github.com/google/truth/issues/333
                     exclude(group = "junit", module = "junit")
                 }
