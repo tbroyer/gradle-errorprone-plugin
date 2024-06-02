@@ -105,9 +105,9 @@ tasks.register<JavaCompile>("compileCustom") {
     // Error Prone must be available in the annotation processor path
     options.annotationProcessorPath = annotationProcessorCustom.get()
     // Enable Error Prone
-    options.errorprone.isEnabled.set(true)
+    options.errorprone.isEnabled = true
     // It can then be configured for the task
-    options.errorprone.disableWarningsInGeneratedCode.set(true)
+    options.errorprone.disableWarningsInGeneratedCode = true
 }
 ```
 <details>
@@ -256,9 +256,7 @@ import net.ltgt.gradle.errorprone.errorprone
 
 ### Properties
 
-_Please note that all properties are [lazy](https://docs.gradle.org/current/userguide/lazy_configuration.html#lazy_properties),
-so while you can use `=` in place of `.set(…)` in the Groovy DSL,
-you cannot use `<<` or `+=` to add to lists for instance._
+_Please note that all properties are [lazy](https://docs.gradle.org/current/userguide/lazy_configuration.html#lazy_properties)._
 
 | Property | Description
 | :------- | :----------
