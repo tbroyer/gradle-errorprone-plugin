@@ -7,6 +7,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.ClasspathNormalizer
@@ -39,6 +40,12 @@ class ErrorPronePlugin @Inject constructor(
         internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 8"
 
         private val HAS_JVM_ARGUMENT_PROVIDERS = GradleVersion.current() >= GradleVersion.version("7.1")
+
+        private val IS_FORK_METHOD = CompileOptions::class.java.getMethod("isFork")
+
+        private val IS_FORK_IS_LAZY_PROPERTY = Property::class.java.isAssignableFrom(IS_FORK_METHOD.returnType)
+
+        internal const val MUST_FORK_ERROR_MESSAGE = "Task must fork to use ErrorProne"
 
         internal val JVM_ARGS_STRONG_ENCAPSULATION = listOf(
             "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
@@ -131,11 +138,26 @@ class ErrorPronePlugin @Inject constructor(
                     options.forkOptions.jvmArgs!!.addAll(jvmArgumentProvider.asArguments())
                 }
             }
-            doFirst("Configure forking for errorprone") {
-                if (!errorproneOptions.isEnabled.getOrElse(false)) return@doFirst
-                jvmArgumentProvider.compilerVersion?.let {
+
+            fun needsForking(): Boolean {
+                if (!errorproneOptions.isEnabled.getOrElse(false)) return false
+                return jvmArgumentProvider.compilerVersion?.let {
                     if (it < JavaVersion.VERSION_1_8) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
-                    if ((it == JavaVersion.VERSION_1_8 || (it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING)) && !options.isFork) options.isFork = true
+                    return@let (it == JavaVersion.VERSION_1_8 || (it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING))
+                } ?: false
+            }
+            if (IS_FORK_IS_LAZY_PROPERTY) {
+                @Suppress("UNCHECKED_CAST")
+                val isFork = (IS_FORK_METHOD.invoke(options) as Property<Boolean>)
+                isFork.set(providers.provider { if (needsForking()) true else null })
+                doFirst {
+                    if (needsForking() && !isFork.getOrElse(false)) {
+                        throw UnsupportedOperationException(MUST_FORK_ERROR_MESSAGE)
+                    }
+                }
+            } else {
+                doFirst("Configure forking for errorprone") {
+                    if (needsForking()) options.isFork = true
                 }
             }
         }
