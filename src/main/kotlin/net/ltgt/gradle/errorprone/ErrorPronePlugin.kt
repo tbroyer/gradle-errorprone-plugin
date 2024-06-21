@@ -135,7 +135,7 @@ class ErrorPronePlugin @Inject constructor(
                 if (!errorproneOptions.isEnabled.getOrElse(false)) return@doFirst
                 jvmArgumentProvider.compilerVersion?.let {
                     if (it < JavaVersion.VERSION_1_8) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
-                    if (it == JavaVersion.VERSION_1_8 || (it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING)) options.isFork = true
+                    if ((it == JavaVersion.VERSION_1_8 || (it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING)) && !options.isFork) options.isFork = true
                 }
             }
         }
