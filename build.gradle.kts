@@ -122,6 +122,33 @@ gradlePlugin {
     }
 }
 
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            name.set("Gradle error-prone plugin")
+            description.set("Gradle plugin to use the error-prone compiler for Java")
+            url.set("https://github.com/tbroyer/gradle-errorprone-plugin")
+            licenses {
+                license {
+                    name.set("Apache-2.0")
+                    url.set("https://www.apache.org/licenses/LICENSE-2.0")
+                }
+            }
+            developers {
+                developer {
+                    name.set("Thomas Broyer")
+                    email.set("t.broyer@ltgt.net")
+                }
+            }
+            scm {
+                connection.set("https://github.com/tbroyer/gradle-errorprone-plugin.git")
+                developerConnection.set("scm:git:ssh://github.com:tbroyer/gradle-errorprone-plugin.git")
+                url.set("https://github.com/tbroyer/gradle-errorprone-plugin")
+            }
+        }
+    }
+}
+
 ktlint {
     version.set("0.49.1")
     enableExperimentalRules.set(true)
