@@ -11,10 +11,11 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.compile.CompileOptions
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
+import java.io.Serializable
 
 open class ErrorProneOptions constructor(
     objectFactory: ObjectFactory,
-) {
+) : Serializable {
     /**
      * Allows disabling Error Prone altogether for the task.
      *
@@ -109,6 +110,7 @@ open class ErrorProneOptions constructor(
     @get:Nested val errorproneArgumentProviders: MutableList<CommandLineArgumentProvider> = arrayListOf()
 
     companion object {
+        private const val serialVersionUID: Long = 123
         const val NAME = "errorprone"
     }
 
