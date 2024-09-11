@@ -20,6 +20,7 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.util.GradleVersion
+import java.io.Serializable
 import javax.inject.Inject
 
 /**
@@ -158,7 +159,10 @@ internal class ErrorProneJvmArgumentProvider(
     private val task: JavaCompile,
     private val errorproneOptions: ErrorProneOptions,
     private val javacConfiguration: FileCollection,
-) : CommandLineArgumentProvider, Named {
+) : CommandLineArgumentProvider, Named, Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1
+    }
 
     @Internal override fun getName(): String = "errorprone"
 
@@ -188,7 +192,11 @@ internal class ErrorProneJvmArgumentProvider(
 
 internal class ErrorProneCompilerArgumentProvider(
     private val errorproneOptions: ErrorProneOptions,
-) : CommandLineArgumentProvider, Named {
+) : CommandLineArgumentProvider, Named, Serializable {
+
+    companion object {
+        private const val serialVersionUID: Long = 1
+    }
 
     @Internal override fun getName(): String = "errorprone"
 
