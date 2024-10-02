@@ -30,7 +30,7 @@ gradle.taskGraph.whenReady {
     }
 }
 
-val errorproneVersion = "2.20.0"
+val errorproneVersion = "2.33.0"
 
 repositories {
     mavenCentral()
