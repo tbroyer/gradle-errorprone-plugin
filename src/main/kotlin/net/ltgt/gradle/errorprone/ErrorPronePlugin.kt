@@ -201,7 +201,8 @@ internal class ErrorProneCompilerArgumentProvider(
 
     override fun asArguments(): Iterable<String> {
         return when {
-            errorproneOptions.isEnabled.getOrElse(false) -> listOf("-Xplugin:ErrorProne $errorproneOptions", "-XDcompilePolicy=simple")
+            // should-stop.ifError is for JDK 9+, shouldStopPolicyIfError for JDK 8; it's safe to indiscriminately pass both
+            errorproneOptions.isEnabled.getOrElse(false) -> listOf("-Xplugin:ErrorProne $errorproneOptions", "-XDcompilePolicy=simple", "-XDshould-stop.ifError=FLOW", "-XDshouldStopPolicyIfError=FLOW")
             else -> emptyList()
         }
     }

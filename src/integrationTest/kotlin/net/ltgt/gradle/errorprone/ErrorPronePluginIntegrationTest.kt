@@ -140,7 +140,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
         File(
             testProjectDir.resolve("customCheck/src/main/java/com/google/errorprone/sample").apply { mkdirs() },
             "MyCustomCheck.java",
-        ).writeText(javaClass.getResource("/com/google/errorprone/sample/MyCustomCheck.java").readText())
+        ).writeText(javaClass.getResource("/com/google/errorprone/sample/MyCustomCheck.java")!!.readText())
 
         buildFile.appendText(
             """
@@ -157,7 +157,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
         File(
             testProjectDir.resolve("src/main/java/com/google/errorprone/sample").apply { mkdirs() },
             "Hello.java",
-        ).writeText(javaClass.getResource("/com/google/errorprone/sample/Hello.java").readText())
+        ).writeText(javaClass.getResource("/com/google/errorprone/sample/Hello.java")!!.readText())
 
         // when
         val result = testProjectDir.buildWithArgsAndFail("compileJava")
@@ -199,5 +199,113 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
         // Check that the second run indeed used ErrorProne.
         // As it didn't fail, it means the rest of the configuration was properly persisted/reloaded.
         assertThat(result.output).contains("-Xplugin:ErrorProne")
+    }
+
+    // Inspired by the tests added in Error Prone's https://github.com/google/error-prone/pull/4618
+    @Test
+    fun `should-stop ifError`() {
+        // given
+        settingsFile.appendText(
+            """
+
+            include(":customCheck")
+            """.trimIndent(),
+        )
+        File(testProjectDir.resolve("customCheck").apply { mkdirs() }, "build.gradle.kts").writeText(
+            """
+            plugins {
+                java
+            }
+            repositories {
+                mavenCentral()
+            }
+            dependencies {
+                compileOnly("com.google.errorprone:error_prone_check_api:$errorproneVersion")
+            }
+            ${if (testJavaVersion.isJava8) {
+                ""
+            } else {
+                """
+                tasks {
+                    compileJava {
+                        options.compilerArgs.addAll(listOf(
+                            "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                            "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                            "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+                            ))
+                    }
+                }
+                """.trimIndent()
+            }}
+            """.trimIndent(),
+        )
+        File(
+            testProjectDir.resolve("customCheck/src/main/resources/META-INF/services").apply { mkdirs() },
+            "com.google.errorprone.bugpatterns.BugChecker",
+        ).writeText(
+            """
+                com.google.errorprone.sample.CPSChecker
+                com.google.errorprone.sample.EffectivelyFinalChecker
+            """.trimIndent(),
+        )
+
+        File(
+            testProjectDir.resolve("customCheck/src/main/java/com/google/errorprone/sample").apply { mkdirs() },
+            "CPSChecker.java",
+        ).writeText(javaClass.getResource("/com/google/errorprone/sample/CPSChecker.java")!!.readText())
+        File(
+            testProjectDir.resolve("customCheck/src/main/java/com/google/errorprone/sample").apply { mkdirs() },
+            "EffectivelyFinalChecker.java",
+        ).writeText(javaClass.getResource("/com/google/errorprone/sample/EffectivelyFinalChecker.java")!!.readText())
+
+        buildFile.appendText(
+            """
+
+            dependencies {
+                errorprone(project(":customCheck"))
+            }
+            tasks.withType<JavaCompile>().configureEach {
+                options.errorprone.error("CPSChecker", "EffectivelyFinalChecker")
+            }
+            """.trimIndent(),
+        )
+
+        File(
+            testProjectDir.resolve("src/main/java/com/google/errorprone/sample").apply { mkdirs() },
+            "A.java",
+        ).writeText(
+            """
+            package com.google.errorprone.sample;
+
+            class A {
+              int f(int x) {
+                return x;
+              }
+            }
+            """.trimIndent(),
+        )
+        File(
+            testProjectDir.resolve("src/main/java/com/google/errorprone/sample").apply { mkdirs() },
+            "B.java",
+        ).writeText(
+            """
+            package com.google.errorprone.sample;
+
+            class B {
+              int f(int x) {
+                return x;
+              }
+            }
+            """.trimIndent(),
+        )
+
+        // when
+        val result = testProjectDir.buildWithArgsAndFail("compileJava")
+
+        // then
+        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
+        assertThat(result.output).contains("A.java:5: error: [CPSChecker]")
+        assertThat(result.output).contains("B.java:5: error: [CPSChecker]")
+        assertThat(result.output).doesNotContain("[EffectivelyFinalChecker]")
     }
 }
