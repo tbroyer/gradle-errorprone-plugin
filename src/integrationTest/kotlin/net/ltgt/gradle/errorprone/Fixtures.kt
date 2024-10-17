@@ -11,7 +11,6 @@ val testJavaVersion = JavaVersion.toVersion(System.getProperty("test.java-versio
 val testJavaHome = System.getProperty("test.java-home", System.getProperty("java.home"))
 val testGradleVersion = System.getProperty("test.gradle-version")?.let(GradleVersion::version) ?: GradleVersion.current()
 
-const val MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION = "2.10.0"
 const val MAX_JDK11_COMPATIBLE_ERRORPRONE_VERSION = "2.31.0"
 const val MAX_JDK17_COMPATIBLE_ERRORPRONE_VERSION = "2.42.0"
 
@@ -19,7 +18,6 @@ val testErrorProneVersion = System.getProperty("errorprone.version")!!
 
 val errorproneVersion =
     when {
-        testJavaVersion < JavaVersion.VERSION_11 -> MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION
         testJavaVersion < JavaVersion.VERSION_17 -> MAX_JDK11_COMPATIBLE_ERRORPRONE_VERSION
         testJavaVersion < JavaVersion.VERSION_21 -> MAX_JDK17_COMPATIBLE_ERRORPRONE_VERSION
         else -> testErrorProneVersion

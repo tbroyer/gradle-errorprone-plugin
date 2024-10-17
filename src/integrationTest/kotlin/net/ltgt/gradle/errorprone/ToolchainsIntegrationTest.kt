@@ -15,12 +15,6 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         private val FORKED = "${System.lineSeparator()}Fork: true${System.lineSeparator()}"
         private val NOT_FORKED = "${System.lineSeparator()}Fork: false${System.lineSeparator()}"
         private val JVM_ARG = "${System.lineSeparator()}JVM Arg: "
-        private val JVM_ARG_BOOTCLASSPATH = jvmArg("-Xbootclasspath/p:")
-        private val JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC =
-            """\Q$JVM_ARG_BOOTCLASSPATH\E.*\Q${File.separator}com.google.errorprone${File.separator}javac${File.separator}9+181-r4173-1${File.separator}\E.*\Q${File.separator}javac-9+181-r4173-1.jar\E(?:\Q${File.pathSeparator}\E|${Regex.escape(
-                System.lineSeparator(),
-            )})"""
-                .toPattern()
         private val JVM_ARGS_STRONG_ENCAPSULATION =
             ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(
                 prefix = JVM_ARG,
@@ -90,7 +84,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     fun `fails when configured toolchain is too old`() {
         // given
 
-        // Fake a JDK 7 toolchain, the task should never actually run anyway.
+        // Fake a JDK 8 toolchain, the task should never actually run anyway.
         // We cannot even use a real toolchain and rely on auto-download=false as that
         // would fail too early (when computing task inputs, so our doFirst won't run)
         buildFile.appendText(
@@ -100,7 +94,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                 javaCompiler.set(object : JavaCompiler {
                     override fun getExecutablePath(): RegularFile = TODO()
                     override fun getMetadata(): JavaInstallationMetadata = object : JavaInstallationMetadata {
-                        override fun getLanguageVersion(): JavaLanguageVersion = JavaLanguageVersion.of(7)
+                        override fun getLanguageVersion(): JavaLanguageVersion = JavaLanguageVersion.of(8)
                         override fun getInstallationPath(): Directory = TODO()
                         override fun getVendor(): String = TODO()
                         ${
@@ -150,7 +144,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
-    fun `does not configure forking in non-Java 8 or 16+ VM`() {
+    fun `does not force forking in Java before 16`() {
         // given
         buildFile.appendText(
             """
@@ -173,7 +167,6 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(NOT_FORKED)
-            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
             assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
             // Check that the configured jvm arg is preserved
             assertThat(result.output).contains(jvmArg("-XshowSettings"))
@@ -195,48 +188,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             result.assumeToolchainAvailable()
             assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
             assertThat(result.output).contains(FORKED)
-            assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
             assertThat(result.output).contains(JVM_ARGS_STRONG_ENCAPSULATION)
             // Check that the configured jvm arg is preserved
             assertThat(result.output).contains(jvmArg("-XshowSettings"))
-        }
-    }
-
-    @Test
-    fun `configure forking in JDK 8 VM`() {
-        // given
-        buildFile.appendText(
-            """
-
-            java {
-                toolchain {
-                    languageVersion.set(JavaLanguageVersion.of(8))
-                }
-            }
-            dependencies {
-                errorprone("com.google.errorprone:error_prone_core:${MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION}")
-            }
-            """.trimIndent(),
-        )
-
-        // when
-        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
-            // then
-            result.assumeToolchainAvailable()
-            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-            assertThat(result.output).contains(FORKED)
-            assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
-            // Check that the configured jvm arg is preserved
-            assertThat(result.output).contains(jvmArg("-XshowSettings"))
-        }
-
-        // check that it doesn't mess with task avoidance
-
-        // when
-        testProjectDir.buildWithArgsAndFail("compileJava").also { result ->
-            // then
-            result.assumeToolchainAvailable()
-            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
         }
     }
 
@@ -331,38 +285,6 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
-    fun `does not configure forking with JDK 8 if Error Prone is disabled`() {
-        // given
-        buildFile.appendText(
-            """
-
-            java {
-                toolchain {
-                    languageVersion.set(JavaLanguageVersion.of(8))
-                }
-            }
-            dependencies {
-                errorprone("com.google.errorprone:error_prone_core:${MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION}")
-            }
-
-            tasks.compileJava { options.errorprone.isEnabled.set(false) }
-            """.trimIndent(),
-        )
-
-        // when
-        val result = testProjectDir.buildWithArgsAndFail("compileJava")
-
-        // then
-        result.assumeToolchainAvailable()
-        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-        assertThat(result.output).contains(NOT_FORKED)
-        assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
-        assertThat(result.output).doesNotContain(JVM_ARGS_STRONG_ENCAPSULATION)
-        // Check that the configured jvm arg is preserved
-        assertThat(result.output).contains(jvmArg("-XshowSettings"))
-    }
-
-    @Test
     fun `does not configure forking with JDK 16+ if Error Prone is disabled`() {
         // https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
         assume().that(testGradleVersion).isAtLeast(GradleVersion.version("7.3"))
@@ -391,41 +313,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         result.assumeToolchainAvailable()
         assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
         assertThat(result.output).contains(NOT_FORKED)
-        assertThat(result.output).doesNotContain(JVM_ARG_BOOTCLASSPATH)
         assertThat(result.output).doesNotContain(JVM_ARGS_STRONG_ENCAPSULATION)
-        // Check that the configured jvm arg is preserved
-        assertThat(result.output).contains(jvmArg("-XshowSettings"))
-    }
-
-    @Test
-    fun `configure bootclasspath for already-forked tasks with JDK 8 VM`() {
-        // given
-        buildFile.appendText(
-            """
-
-            java {
-                toolchain {
-                    languageVersion.set(JavaLanguageVersion.of(8))
-                }
-            }
-            dependencies {
-                errorprone("com.google.errorprone:error_prone_core:${MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION}")
-            }
-
-            tasks.compileJava {
-                options.isFork = true
-            }
-            """.trimIndent(),
-        )
-
-        // when
-        val result = testProjectDir.buildWithArgsAndFail("compileJava")
-
-        // then
-        result.assumeToolchainAvailable()
-        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-        assertThat(result.output).contains(FORKED)
-        assertThat(result.output).containsMatch(JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC)
         // Check that the configured jvm arg is preserved
         assertThat(result.output).contains(jvmArg("-XshowSettings"))
     }
