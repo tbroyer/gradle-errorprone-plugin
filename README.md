@@ -7,19 +7,18 @@ This plugin configures `JavaCompile` tasks to use [Error Prone].
 ## Requirements
 
 > [!IMPORTANT]
-> This plugin requires using at least Gradle 6.8 and JDK 9 (for compilation; it's OK to use JDK 8 to run Gradle as long as compilations use at least JDK 9 through [Gradle Java Toolchains][gradle-toolchains]).
+> This plugin requires using at least Gradle 6.8 and JDK 11 (for compilation; it's OK to use JDK 8 to run Gradle as long as compilations use at least JDK 11 through [Gradle Java Toolchains][gradle-toolchains]).
 
 The exact minimum required version of the JDK depends on the version of Error Prone being used (independently of the version of this plugin);
 there's no forward compatibility guarantee though so older versions of Error Prone aren't necessarily compatible with newer versions of the JDK.
 
 | Error Prone version  | Minimum JDK version |
 | :------------------: | :-----------------: |
-| Up to 2.10           | 9                   |
-| From 2.10 up to 2.31 | 11                  |
+| Up to 2.31           | 11                  |
 | From 2.32 up to 2.42 | 17                  |
 | Starting from 2.43   | 21                  |
 
-You can still compile down to Java 8 bytecode though, by using JDK 9+ support for `--release 8` (which you can configure with Gradle using [`options.release`][CompileOptions.release]), or with `-source` / `-target` / `-bootclasspath` (configured with Gradle using [`sourceCompatibility`][JavaCompile.sourceCompatibility] / [`targetCompatibility`][JavaCompile.targetCompatibility] / [`options.bootstrapClasspath`][CompileOptions.bootstrapClasspath]).
+You can still compile down to a lower Java version bytecode though, by using javac's support for `--release` (which you can configure with Gradle using [`options.release`][CompileOptions.release]), or with `-source` / `-target` / `-bootclasspath` (configured with Gradle using [`sourceCompatibility`][JavaCompile.sourceCompatibility] / [`targetCompatibility`][JavaCompile.targetCompatibility] / [`options.bootstrapClasspath`][CompileOptions.bootstrapClasspath]).
 
 ```kotlin
 tasks.withType<JavaCompile>().configureEach {

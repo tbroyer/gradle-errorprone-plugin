@@ -34,7 +34,7 @@ class ErrorPronePlugin
 
             const val CONFIGURATION_NAME = "errorprone"
 
-            internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 9"
+            internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 11"
 
             private val HAS_JVM_ARGUMENT_PROVIDERS = GradleVersion.current() >= GradleVersion.version("7.1")
 
@@ -95,7 +95,7 @@ class ErrorPronePlugin
                 doFirst("Configure forking for errorprone") {
                     if (!errorproneOptions.isEnabled.getOrElse(false)) return@doFirst
                     jvmArgumentProvider.compilerVersion?.let {
-                        if (it < JavaVersion.VERSION_1_9) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
+                        if (it < JavaVersion.VERSION_11) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
                         if ((it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING) &&
                             !options.isFork
                         ) {
@@ -110,7 +110,7 @@ class ErrorPronePlugin
                     project.configurations.named(annotationProcessorConfigurationName) { extendsFrom(errorproneConfiguration.get()) }
                     project.tasks.named<JavaCompile>(compileJavaTaskName) {
                         options.errorprone {
-                            isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 9 }.orElse(true))
+                            isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 11 }.orElse(true))
                             isCompilingTestOnlyCode.convention(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
                         }
                     }
@@ -138,7 +138,7 @@ internal class ErrorProneJvmArgumentProvider(
         when {
             !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
             compilerVersion == null -> emptyList()
-            compilerVersion!! >= JavaVersion.VERSION_1_9 -> ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION
+            compilerVersion!! >= JavaVersion.VERSION_11 -> ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION
             else -> emptyList()
         }
 }
@@ -162,7 +162,7 @@ internal class ErrorProneCompilerArgumentProvider(
                 listOf(
                     "-Xplugin:ErrorProne $errorproneOptions",
                     "-XDcompilePolicy=simple",
-                    "-XDshould-stop.ifError=FLOW",
+                    "--should-stop=ifError=FLOW",
                     // Error Prone 2.46.0 requires it for JDK 21 (and it helps NullAway too even with previous Error Prone versions)
                     // It's only useful for JDK 21, but safe to pass to any version.
                     // See https://github.com/google/error-prone/issues/5426
