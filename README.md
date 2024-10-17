@@ -6,14 +6,45 @@ This plugin configures `JavaCompile` tasks to use [Error Prone].
 
 ## Requirements
 
-This plugin requires using at least Gradle 6.8.
+> [!IMPORTANT]
+> This plugin requires using at least Gradle 6.8 and JDK 9 (for compilation; it's OK to use JDK 8 to run Gradle as long as compilations use at least JDK 9 through [Gradle Java Toolchains][gradle-toolchains]).
 
-While JDK 8 is supported, it is recommended to use at least a JDK 9 compiler.
-See [note below](#jdk-8-support) about JDK 8 support.
+The exact minimum required version of the JDK depends on the version of Error Prone being used (independently of the version of this plugin);
+there's no forward compatibility guarantee though so older versions of Error Prone aren't necessarily compatible with newer versions of the JDK.
+
+| Error Prone version  | Minimum JDK version |
+| :------------------: | :-----------------: |
+| Up to 2.10           | 9                   |
+| From 2.10 up to 2.31 | 11                  |
+| Starting from 2.32   | 17                  |
+
+You can still compile down to Java 8 bytecode though, by using JDK 9+ support for `--release 8` (which you can configure with Gradle using [`options.release`][CompileOptions.release]), or with `-source` / `-target` / `-bootclasspath` (configured with Gradle using [`sourceCompatibility`][JavaCompile.sourceCompatibility] / [`targetCompatibility`][JavaCompile.targetCompatibility] / [`options.bootstrapClasspath`][CompileOptions.bootstrapClasspath]).
+
+```kotlin
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(8)
+}
+```
+<details>
+<summary>with Groovy DSL</summary>
+
+```gradle
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+}
+```
+
+</details>
 
 There's no specific support for the [Android Gradle Plugin](https://developer.android.com/build).
 Read on to better understand what you need to do to use both plugins together.
 Specifically, note that _source sets_ below are only about [standard Gradle source sets for JVM projects](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_source_sets), not [Android source sets](https://developer.android.com/build#sourcesets), so anything done by the plugin based on source sets won't be done at all for Android projects.
+
+[gradle-toolchains]: https://docs.gradle.org/current/userguide/toolchains.html
+[CompileOptions.release]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:release
+[JavaCompile.sourceCompatibility]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.JavaCompile.html#org.gradle.api.tasks.compile.JavaCompile:sourceCompatibility
+[JavaCompile.targetCompatibility]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.JavaCompile.html#org.gradle.api.tasks.compile.JavaCompile:targetCompatibility
+[CompileOptions.bootstrapClasspath]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:bootstrapClasspath
 
 ## Usage
 
@@ -99,8 +130,8 @@ tasks.register<JavaCompile>("compileCustom") {
     source("src/custom/")
     include("**/*.java")
     classpath = configurations["custom"]
-    sourceCompatibility = "8"
-    targetCompatibility = "8"
+    sourceCompatibility = "11"
+    targetCompatibility = "11"
     destinationDir = file("$buildDir/classes/custom")
 
     // Error Prone must be available in the annotation processor path
@@ -122,8 +153,8 @@ tasks.register("compileCustom", JavaCompile) {
     source "src/custom/"
     include "**/*.java"
     classpath = configurations.custom
-    sourceCompatibility = "8"
-    targetCompatibility = "8"
+    sourceCompatibility = "11"
+    targetCompatibility = "11"
     destinationDir = file("$buildDir/classes/custom")
 
     // Error Prone must be available in the annotation processor path
@@ -138,29 +169,6 @@ tasks.register("compileCustom", JavaCompile) {
 </details>
 </details>
 
-## JDK 8 support
-
-Error Prone requires at least a JDK 9 compiler.
-When using a JDK 8 compiler, the plugin will configure the `JavaCompile` tasks to [use a forking compiler][CompileOptions.fork]
-and will override the compiler by prepending the Error Prone javac to the bootstrap classpath
-(using a `-Xbootclasspath/p:` [JVM argument][BaseForkOptions.getJvmArgs]).
-
-You can [configure `JavaCompile` tasks][gradle-toolchains] to use a specific JDK compiler,
-independently of the JDK used to run Gradle itself.
-The plugin will use the toolchain version, if any is specified, to configure the task.
-This allows you to enforce compilation with JDK 11 while running Gradle with JDK 8.
-(In case you would want to enforce compilation with JDK 8 instead,
-the plugin would detect it and properly configure the bootstrap classpath as described above)
-
-Note that the plugin will ignore any task that forks and defines either [a `javaHome`][ForkOptions.setJavaHome] or [an `executable`][ForkOptions.setExecutable],
-and thus won't configure the bootstrap classpath if you're e.g. running Gradle with a more recent JDK and forking the compilation tasks to use JDK 8.
-
-[gradle-toolchains]: https://docs.gradle.org/current/userguide/toolchains.html
-[CompileOptions.fork]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:fork
-[BaseForkOptions.getJvmArgs]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/BaseForkOptions.html#getJvmArgs--
-[ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
-[ForkOptions.setExecutable]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setExecutable-java.lang.String-
-
 ## JDK 16+ support
 
 Starting with JDK 16, due to [JEP 396: Strongly Encapsulate JDK Internals by Default][jep396],
@@ -168,20 +176,24 @@ Starting with JDK 16, due to [JEP 396: Strongly Encapsulate JDK Internals by Def
 
 The plugin will automatically [use a forking compiler][CompileOptions.fork]
 and pass the necessary [JVM arguments][BaseForkOptions.getJvmArgs]
-whenever it detects such a JDK is being used and ErrorProne is enabled
+whenever it detects such a JDK is being used for the compilation task and ErrorProne is enabled
 (unless the Gradle daemon's JVM already was given the appropriate options [through `org.gradle.jvmargs`][org.gradle.jvmargs]).
 
 That detection will only take into account the [toolchain][gradle-toolchains] used by the `JavaCompile` task,
 or the JDK used to run Gradle in case no toolchain is being used.
-The plugin will ignore any task that forks and defines either [a `javaHome`][ForkOptions.setJavaHome] or [an `executable`][ForkOptions.setExecutable],
-and thus won't configure the JVM arguments if you're e.g. running Gradle with an older JDK and forking the compilation tasks to use JDK 17.
+The plugin will ignore any task that [forks][CompileOptions.fork] and defines either [a `javaHome`][ForkOptions.setJavaHome] or [an `executable`][ForkOptions.setExecutable],
+and thus won't configure the JVM arguments in this case.
 
-Note that the plugin also configures the JVM arguments for any JDK above version 9 to silence related warnings,
+Note that the plugin also configures the JVM arguments for any JDK below 16 to silence related warnings,
 but they will then only be used if the task is explicitly configured for forking
 (or if the configured toolchain is incompatible with the JDK used to run Gradle, which will then implicitly fork a compiler daemon).
 
 [jep396]: https://openjdk.java.net/jeps/396
+[CompileOptions.fork]: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.compile.CompileOptions.html#org.gradle.api.tasks.compile.CompileOptions:fork
+[BaseForkOptions.getJvmArgs]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/BaseForkOptions.html#getJvmArgs--
 [org.gradle.jvmargs]: https://docs.gradle.org/current/userguide/build_environment.html#sec:configuring_jvm_memory
+[ForkOptions.setJavaHome]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setJavaHome-java.io.File-
+[ForkOptions.setExecutable]: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/compile/ForkOptions.html#setExecutable-java.lang.String-
 
 ## Android Gradle Plugin support
 
@@ -296,5 +308,5 @@ _Please note that all properties are [lazy](https://docs.gradle.org/current/user
 | `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, true)`.
 | `option(optionName, value)`       | Adds a check option with a given value. Value can be a boolean or a string, or a provider of string. Equivalent to `checkOptions.put(name, value)`.
 
-A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.  
+A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.
 Note that the `net.ltgt.gradle.errorprone.CheckSeverity` needs to be `import`ed into your build scripts (see examples above).

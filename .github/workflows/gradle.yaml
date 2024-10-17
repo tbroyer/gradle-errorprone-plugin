@@ -96,12 +96,9 @@ jobs:
           name: gradle-${{ matrix.gradle }}-tests
           path: build/reports/tests/integrationTest/
 
-  test-jdk:
+  test-jdk17:
     needs: linux
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ 8, 17 ]
     steps:
       - uses: actions/checkout@v4
 
@@ -109,13 +106,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: |
-            ${{ matrix.java }}
+            17
             11
 
       - name: Setup environment
         run: |
           echo "org.gradle.java.installations.auto-download=false" | tee -a gradle.properties
-          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_${{ matrix.java }}_X64" | tee -a gradle.properties
+          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_17_X64" | tee -a gradle.properties
 
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -125,13 +122,13 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew integrationTest "-Ptest.java-toolchain=${{ matrix.java }}"
+        run: ./gradlew integrationTest "-Ptest.java-toolchain=17"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v4
         with:
-          name: jdk-${{ matrix.java }}-tests
+          name: jdk-17-tests
           path: build/reports/tests/integrationTest/
 
   test-jdk21-gradle810:
