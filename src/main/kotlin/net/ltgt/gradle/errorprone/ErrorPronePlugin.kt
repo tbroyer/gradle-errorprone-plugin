@@ -31,7 +31,7 @@ class ErrorPronePlugin @Inject constructor(
 
         const val CONFIGURATION_NAME = "errorprone"
 
-        internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 9"
+        internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 11"
 
         private val HAS_JVM_ARGUMENT_PROVIDERS = GradleVersion.current() >= GradleVersion.version("7.1")
 
@@ -112,7 +112,7 @@ class ErrorPronePlugin @Inject constructor(
             doFirst("Configure forking for errorprone") {
                 if (!errorproneOptions.isEnabled.getOrElse(false)) return@doFirst
                 jvmArgumentProvider.compilerVersion?.let {
-                    if (it < JavaVersion.VERSION_1_9) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
+                    if (it < JavaVersion.VERSION_11) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
                     if ((it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING) && !options.isFork) options.isFork = true
                 }
             }
@@ -123,7 +123,7 @@ class ErrorPronePlugin @Inject constructor(
                 project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
                 project.tasks.named<JavaCompile>(compileJavaTaskName) {
                     options.errorprone {
-                        isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 9 }.orElse(true))
+                        isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 11 }.orElse(true))
                         isCompilingTestOnlyCode.convention(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
                     }
                 }
@@ -150,7 +150,7 @@ internal class ErrorProneJvmArgumentProvider(
     override fun asArguments(): Iterable<String> = when {
         !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
         compilerVersion == null -> emptyList()
-        compilerVersion!! >= JavaVersion.VERSION_1_9 -> ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION
+        compilerVersion!! >= JavaVersion.VERSION_11 -> ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION
         else -> emptyList()
     }
 }
@@ -170,7 +170,7 @@ internal class ErrorProneCompilerArgumentProvider(
 
     override fun asArguments(): Iterable<String> {
         return when {
-            errorproneOptions.isEnabled.getOrElse(false) -> listOf("-Xplugin:ErrorProne $errorproneOptions", "-XDcompilePolicy=simple", "-XDshould-stop.ifError=FLOW")
+            errorproneOptions.isEnabled.getOrElse(false) -> listOf("-Xplugin:ErrorProne $errorproneOptions", "-XDcompilePolicy=simple", "--should-stop=ifError=FLOW")
             else -> emptyList()
         }
     }
