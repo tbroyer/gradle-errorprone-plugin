@@ -242,7 +242,12 @@ tasks.compileJava {
 
 </details>
 
+> [!NOTE]
+> These examples use NullAway.
+> Note that I made [a companion plugin][gradle-nullaway-plugin] specifically to surface NullAway options as Gradle DSL properties.
+
 [custom checks]: https://errorprone.info/docs/plugins
+[gradle-nullaway-plugin]: https://github.com/tbroyer/gradle-nullaway-plugin
 
 ## Configuration
 
