@@ -21,11 +21,11 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
           build-scan-publish: true
-          build-scan-terms-of-service-url: "https://gradle.com/terms-of-service"
-          build-scan-terms-of-service-agree: "yes"
+          build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
+          build-scan-terms-of-use-agree: "yes"
 
       - name: Build with Gradle
         id: gradle-build
@@ -48,11 +48,11 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
           build-scan-publish: true
-          build-scan-terms-of-service-url: "https://gradle.com/terms-of-service"
-          build-scan-terms-of-service-agree: "yes"
+          build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
+          build-scan-terms-of-use-agree: "yes"
 
       - name: Build with Gradle
         id: gradle-build
@@ -79,11 +79,11 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
           build-scan-publish: true
-          build-scan-terms-of-service-url: "https://gradle.com/terms-of-service"
-          build-scan-terms-of-service-agree: "yes"
+          build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
+          build-scan-terms-of-use-agree: "yes"
 
       - name: Build with Gradle
         id: gradle-build
@@ -117,11 +117,11 @@ jobs:
           echo "org.gradle.java.installations.auto-download=false" | tee -a gradle.properties
           echo "org.gradle.java.installations.fromEnv=JAVA_HOME_${{ matrix.java }}_X64" | tee -a gradle.properties
 
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
           build-scan-publish: true
-          build-scan-terms-of-service-url: "https://gradle.com/terms-of-service"
-          build-scan-terms-of-service-agree: "yes"
+          build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
+          build-scan-terms-of-use-agree: "yes"
 
       - name: Build with Gradle
         id: gradle-build
@@ -152,11 +152,11 @@ jobs:
           echo "org.gradle.java.installations.auto-download=false" | tee -a gradle.properties
           echo "org.gradle.java.installations.fromEnv=JAVA_HOME_21_X64" | tee -a gradle.properties
 
-      - uses: gradle/actions/setup-gradle@v3
+      - uses: gradle/actions/setup-gradle@v4
         with:
           build-scan-publish: true
-          build-scan-terms-of-service-url: "https://gradle.com/terms-of-service"
-          build-scan-terms-of-service-agree: "yes"
+          build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
+          build-scan-terms-of-use-agree: "yes"
 
       - name: Build with Gradle
         id: gradle-build
