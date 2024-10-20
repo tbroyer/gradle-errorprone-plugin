@@ -114,9 +114,9 @@ gradlePlugin {
     plugins {
         register("errorprone") {
             id = "net.ltgt.errorprone"
-            displayName = "Gradle error-prone plugin"
+            displayName = "Gradle Error Prone plugin"
             implementationClass = "net.ltgt.gradle.errorprone.ErrorPronePlugin"
-            description = "Gradle plugin to use the error-prone compiler for Java"
+            description = "Gradle plugin to use Error Prone with the Java compiler"
             tags.addAll("javac", "error-prone")
         }
     }
