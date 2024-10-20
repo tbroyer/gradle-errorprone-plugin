@@ -37,10 +37,11 @@ dependencies {
 }
 ```
 
-**CAUTION:** Using a dynamic or changing version for Error Prone,
-such as `latest.release` or `2.+`,
-means that your build could fail at any time,
-if a new version of Error Prone adds or enables new checks that your code would trigger.
+> [!CAUTION]
+> Using a dynamic or changing version for Error Prone,
+> such as `latest.release` or `2.+`,
+> means that your build could fail at any time,
+> if a new version of Error Prone adds or enables new checks that your code would trigger.
 
 Error Prone can then be [configured](#configuration) on the `JavaCompile` tasks:
 ```kotlin
