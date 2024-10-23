@@ -23,7 +23,7 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
 
-        private val ALL_JVM_ARGS = if (GradleVersion.version(testGradleVersion) >= GradleVersion.version("7.1")) "allJvmArgs" else "jvmArgs?"
+        private val ALL_JVM_ARGS = if (testGradleVersion >= GradleVersion.version("7.1")) "allJvmArgs" else "jvmArgs?"
     }
 
     @BeforeEach

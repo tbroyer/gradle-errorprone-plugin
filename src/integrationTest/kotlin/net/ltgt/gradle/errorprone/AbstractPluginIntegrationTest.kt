@@ -14,6 +14,7 @@ abstract class AbstractPluginIntegrationTest {
 
     @BeforeEach
     open fun setupProject() {
+        assumeCompatibleGradleAndJavaVersions()
         testProjectDir.resolve("gradle.properties").outputStream().use {
             Properties().apply {
                 setProperty("org.gradle.java.home", testJavaHome)

@@ -1,10 +1,7 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.TruthJUnit.assume
-import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
-import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -20,10 +17,7 @@ class GroovyDslIntegrationTest {
 
     @BeforeEach
     fun setupProject() {
-        assume().that(
-            testJavaVersion >= JavaVersion.VERSION_16 &&
-                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0"),
-        ).isFalse()
+        assumeCompatibleGradleAndJavaVersions()
 
         testProjectDir.resolve("gradle.properties").outputStream().use {
             Properties().apply {

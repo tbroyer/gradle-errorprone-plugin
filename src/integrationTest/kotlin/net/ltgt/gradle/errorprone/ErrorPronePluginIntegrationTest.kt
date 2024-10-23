@@ -1,10 +1,7 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.TruthJUnit.assume
-import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
-import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -169,11 +166,6 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `is configuration-cache friendly`() {
-        assume().that(
-            testJavaVersion >= JavaVersion.VERSION_16 &&
-                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0"),
-        ).isFalse()
-
         // given
         // Use a failing check to make sure that the configuration is properly persisted/reloaded
         buildFile.appendText(

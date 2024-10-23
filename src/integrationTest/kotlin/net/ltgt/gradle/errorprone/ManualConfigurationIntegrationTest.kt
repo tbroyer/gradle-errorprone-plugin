@@ -24,7 +24,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
             }
             val annotationProcessor ${
-                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.4")) {
+                if (testGradleVersion >= GradleVersion.version("8.4")) {
                     """= configurations.resolvable("annotationProcessor") {"""
                 } else {
                     """by configurations.registering {
@@ -79,7 +79,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
             }
             val customAnnotationProcessor ${
-                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.4")) {
+                if (testGradleVersion >= GradleVersion.version("8.4")) {
                     """= configurations.resolvable("customAnnotationProcessor") {"""
                 } else {
                     """by configurations.registering {

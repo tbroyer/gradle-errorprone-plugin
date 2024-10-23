@@ -25,7 +25,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
 
-        private val ALL_JVM_ARGS = if (GradleVersion.version(testGradleVersion) >= GradleVersion.version("7.1")) "allJvmArgs" else "jvmArgs?"
+        private val ALL_JVM_ARGS = if (testGradleVersion >= GradleVersion.version("7.1")) "allJvmArgs" else "jvmArgs?"
     }
 
     @BeforeEach
@@ -103,7 +103,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                         override fun getInstallationPath(): Directory = TODO()
                         override fun getVendor(): String = TODO()
                         ${
-                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("7.1")) {
+                if (testGradleVersion >= GradleVersion.version("7.1")) {
                     """override fun getJavaRuntimeVersion(): String = TODO()
                    override fun getJvmVersion(): String = TODO()
                 """
@@ -111,7 +111,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     ""
                 }}
                         ${
-                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.0")) {
+                if (testGradleVersion >= GradleVersion.version("8.0")) {
                     "override fun isCurrentJvm() = false"
                 } else {
                     ""
@@ -234,8 +234,8 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `configure forking in Java 16+ VM (unless implicitly forked by incompatible toolchain)`() {
-        // https://github.com/gradle/gradle/issues/16857#issuecomment-931610187
-        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("7.0"))
+        // https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
+        assume().that(testGradleVersion).isAtLeast(GradleVersion.version("7.3"))
 
         // given
         buildFile.appendText(
@@ -272,9 +272,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking in Java 16+ VM if current JVM has appropriate JVM args`() {
-        // https://github.com/gradle/gradle/issues/16857#issuecomment-931610187
-        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("7.0"))
         assume().withMessage("isJava16Compatible").that(testJavaVersion).isAtLeast(JavaVersion.VERSION_16)
+        // https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
+        assume().that(testGradleVersion).isAtLeast(GradleVersion.version("7.0"))
 
         testProjectDir.resolve("gradle.properties").appendText(
             """
@@ -347,8 +347,8 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
 
     @Test
     fun `does not configure forking with JDK 16+ if Error Prone is disabled`() {
-        // https://github.com/gradle/gradle/issues/16857#issuecomment-931610187
-        assume().that(GradleVersion.version(testGradleVersion)).isAtLeast(GradleVersion.version("7.0"))
+        // https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
+        assume().that(testGradleVersion).isAtLeast(GradleVersion.version("7.3"))
 
         // given
         buildFile.appendText(
