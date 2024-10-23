@@ -20,6 +20,13 @@ tasks.withType<JavaCompile>().configureEach {
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions.allWarningsAsErrors = true
 }
+// XXX: migrate to lazy properties when upgrading to Gradle 8.1+
+afterEvaluate {
+    tasks.withType<KotlinCompile>().configureEach {
+        // See https://jakewharton.com/kotlins-jdk-release-compatibility-flag/
+        kotlinOptions.freeCompilerArgs += "-Xjdk-release=${kotlinDslPluginOptions.jvmTarget.get()}"
+    }
+}
 
 gradle.taskGraph.whenReady {
     if (hasTask(":publishPlugins")) {

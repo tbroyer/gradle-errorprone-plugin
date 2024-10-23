@@ -58,31 +58,7 @@ class ErrorPronePlugin @Inject constructor(
             JavaVersion.current() == JavaVersion.VERSION_1_8 || (
                 // Needs --add-exports and --add-opens
                 JavaVersion.current() >= JavaVersion.VERSION_16 &&
-                    try {
-                        sequenceOf(
-                            "com.sun.tools.javac.api.BasicJavacTask",
-                            "com.sun.tools.javac.api.JavacTrees",
-                            "com.sun.tools.javac.file.JavacFileManager",
-                            "com.sun.tools.javac.main.JavaCompiler",
-                            "com.sun.tools.javac.model.JavacElements",
-                            "com.sun.tools.javac.parser.JavacParser",
-                            "com.sun.tools.javac.processing.JavacProcessingEnvironment",
-                            "com.sun.tools.javac.tree.JCTree",
-                            "com.sun.tools.javac.util.JCDiagnostic",
-                        ).any {
-                            val klass = Class.forName(it)
-                            return@any !klass.module.isExported(klass.packageName, this::class.java.classLoader.unnamedModule)
-                        } &&
-                            sequenceOf(
-                                "com.sun.tools.javac.code.Symbol",
-                                "com.sun.tools.javac.comp.Enter",
-                            ).any {
-                                val klass = Class.forName(it)
-                                return@any !klass.module.isOpen(klass.packageName, this::class.java.classLoader.unnamedModule)
-                            }
-                    } catch (e: ClassNotFoundException) {
-                        true
-                    }
+                    StrongEncapsulationHelper().needsForking()
                 )
         }
     }
@@ -213,3 +189,47 @@ internal val TEST_SOURCE_SET_NAME_REGEX =
 
 private val CompileOptions.isCommandLine
     get() = isFork && (forkOptions.javaHome != null || forkOptions.executable != null)
+
+private class StrongEncapsulationHelper {
+    fun needsForking() = try {
+        val unnamedModule: Any = this::class.java.classLoader.unnamedModule
+        sequenceOf(
+            "com.sun.tools.javac.api.BasicJavacTask",
+            "com.sun.tools.javac.api.JavacTrees",
+            "com.sun.tools.javac.file.JavacFileManager",
+            "com.sun.tools.javac.main.JavaCompiler",
+            "com.sun.tools.javac.model.JavacElements",
+            "com.sun.tools.javac.parser.JavacParser",
+            "com.sun.tools.javac.processing.JavacProcessingEnvironment",
+            "com.sun.tools.javac.tree.JCTree",
+            "com.sun.tools.javac.util.JCDiagnostic",
+        ).any {
+            val klass = Class.forName(it)
+            return@any !klass.module.isExported(klass.packageName, unnamedModule)
+        } &&
+            sequenceOf(
+                "com.sun.tools.javac.code.Symbol",
+                "com.sun.tools.javac.comp.Enter",
+            ).any {
+                val klass = Class.forName(it)
+                return@any !klass.module.isOpen(klass.packageName, unnamedModule)
+            }
+    } catch (e: ClassNotFoundException) {
+        true
+    }
+
+    // Defined for backward/forward compatibility:
+    // - compiles with jdk-release=8 just fine
+    // - just remove those when upgrading to a newer minimum JDK without having to touch the code above
+    private val getPackageName: java.lang.reflect.Method = Class::class.java.getMethod("getPackageName")
+    private val getModule: java.lang.reflect.Method = Class::class.java.getMethod("getModule")
+    private val isExported: java.lang.reflect.Method = getModule.returnType.getMethod("isExported", String::class.java, getModule.returnType)
+    private val isOpen: java.lang.reflect.Method = getModule.returnType.getMethod("isOpen", String::class.java, getModule.returnType)
+    private val getUnnamedModule: java.lang.reflect.Method = ClassLoader::class.java.getMethod("getUnnamedModule")
+
+    private val Class<*>.packageName get(): String = getPackageName(this) as String
+    private val Class<*>.module get(): Any = getModule(this)
+    private fun Any.isExported(pn: String, other: Any): Boolean = isExported(this, pn, other) as Boolean
+    private fun Any.isOpen(pn: String, other: Any): Boolean = isOpen(this, pn, other) as Boolean
+    private val ClassLoader.unnamedModule: Any get() = getUnnamedModule(this)
+}
