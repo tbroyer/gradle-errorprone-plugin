@@ -9,7 +9,6 @@ import java.io.File
 import java.util.Properties
 
 class GroovyDslIntegrationTest {
-
     @TempDir
     lateinit var testProjectDir: File
     lateinit var settingsFile: File
@@ -25,25 +24,27 @@ class GroovyDslIntegrationTest {
                 store(it, null)
             }
         }
-        settingsFile = testProjectDir.resolve("settings.gradle").apply {
-            createNewFile()
-        }
-        buildFile = testProjectDir.resolve("build.gradle").apply {
-            appendText(
-                """
-                plugins {
-                    id("java-library")
-                    id("${ErrorPronePlugin.PLUGIN_ID}")
-                }
-                repositories {
-                    mavenCentral()
-                }
-                dependencies {
-                    errorprone "com.google.errorprone:error_prone_core:$errorproneVersion"
-                }
-                """.trimIndent(),
-            )
-        }
+        settingsFile =
+            testProjectDir.resolve("settings.gradle").apply {
+                createNewFile()
+            }
+        buildFile =
+            testProjectDir.resolve("build.gradle").apply {
+                appendText(
+                    """
+                    plugins {
+                        id("java-library")
+                        id("${ErrorPronePlugin.PLUGIN_ID}")
+                    }
+                    repositories {
+                        mavenCentral()
+                    }
+                    dependencies {
+                        errorprone "com.google.errorprone:error_prone_core:$errorproneVersion"
+                    }
+                    """.trimIndent(),
+                )
+            }
     }
 
     @Test

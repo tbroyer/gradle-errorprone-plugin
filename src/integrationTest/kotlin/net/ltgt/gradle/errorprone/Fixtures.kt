@@ -22,15 +22,15 @@ fun File.writeSuccessSource() {
         createNewFile()
         writeText(
             """
-                package test;
+            package test;
 
-                public class Success {
-                    // See http://errorprone.info/bugpattern/ArrayEquals
-                    @SuppressWarnings("ArrayEquals")
-                    public boolean arrayEquals(int[] a, int[] b) {
-                        return a.equals(b);
-                    }
+            public class Success {
+                // See http://errorprone.info/bugpattern/ArrayEquals
+                @SuppressWarnings("ArrayEquals")
+                public boolean arrayEquals(int[] a, int[] b) {
+                    return a.equals(b);
                 }
+            }
             """.trimIndent(),
         )
     }
@@ -41,50 +41,49 @@ fun File.writeFailureSource() {
         createNewFile()
         writeText(
             """
-                package test;
+            package test;
 
-                public class Failure {
-                    // See http://errorprone.info/bugpattern/ArrayEquals
-                    public boolean arrayEquals(int[] a, int[] b) {
-                        return a.equals(b);
-                    }
+            public class Failure {
+                // See http://errorprone.info/bugpattern/ArrayEquals
+                public boolean arrayEquals(int[] a, int[] b) {
+                    return a.equals(b);
                 }
+            }
             """.trimIndent(),
         )
     }
 }
 
-fun File.buildWithArgs(vararg tasks: String): BuildResult {
-    return prepareBuild(*tasks)
+fun File.buildWithArgs(vararg tasks: String): BuildResult =
+    prepareBuild(*tasks)
         .build()
-}
 
-fun File.buildWithArgsAndFail(vararg tasks: String): BuildResult {
-    return prepareBuild(*tasks)
+fun File.buildWithArgsAndFail(vararg tasks: String): BuildResult =
+    prepareBuild(*tasks)
         .buildAndFail()
-}
 
-fun File.prepareBuild(vararg tasks: String): GradleRunner {
-    return GradleRunner.create()
+fun File.prepareBuild(vararg tasks: String): GradleRunner =
+    GradleRunner
+        .create()
         .withGradleVersion(testGradleVersion.version)
         .withProjectDir(this)
         .withPluginClasspath()
         .withArguments(*tasks)
         .forwardOutput()
-}
 
 // Based on https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
-val COMPATIBLE_GRADLE_VERSIONS = mapOf(
+val COMPATIBLE_GRADLE_VERSIONS =
+    mapOf(
+        JavaVersion.VERSION_16 to GradleVersion.version("7.0"),
+        JavaVersion.VERSION_17 to GradleVersion.version("7.3"),
+        JavaVersion.VERSION_18 to GradleVersion.version("7.5"),
+        JavaVersion.VERSION_19 to GradleVersion.version("7.6"),
+        JavaVersion.VERSION_20 to GradleVersion.version("8.3"),
+        JavaVersion.VERSION_21 to GradleVersion.version("8.5"),
+        JavaVersion.VERSION_22 to GradleVersion.version("8.8"),
+        JavaVersion.VERSION_23 to GradleVersion.version("8.10"),
+    )
 
-    JavaVersion.VERSION_16 to GradleVersion.version("7.0"),
-    JavaVersion.VERSION_17 to GradleVersion.version("7.3"),
-    JavaVersion.VERSION_18 to GradleVersion.version("7.5"),
-    JavaVersion.VERSION_19 to GradleVersion.version("7.6"),
-    JavaVersion.VERSION_20 to GradleVersion.version("8.3"),
-    JavaVersion.VERSION_21 to GradleVersion.version("8.5"),
-    JavaVersion.VERSION_22 to GradleVersion.version("8.8"),
-    JavaVersion.VERSION_23 to GradleVersion.version("8.10"),
-)
 fun assumeCompatibleGradleAndJavaVersions() {
     assume().that(testGradleVersion >= COMPATIBLE_GRADLE_VERSIONS[testJavaVersion] ?: GradleVersion.version("6.8")).isTrue()
 }

@@ -6,7 +6,6 @@ import java.io.File
 import java.util.Properties
 
 abstract class AbstractPluginIntegrationTest {
-
     @TempDir
     lateinit var testProjectDir: File
     lateinit var settingsFile: File
@@ -21,16 +20,18 @@ abstract class AbstractPluginIntegrationTest {
                 store(it, null)
             }
         }
-        settingsFile = testProjectDir.resolve("settings.gradle.kts").apply {
-            createNewFile()
-        }
-        buildFile = testProjectDir.resolve("build.gradle.kts").apply {
-            writeText(
-                """
-                import net.ltgt.gradle.errorprone.*
+        settingsFile =
+            testProjectDir.resolve("settings.gradle.kts").apply {
+                createNewFile()
+            }
+        buildFile =
+            testProjectDir.resolve("build.gradle.kts").apply {
+                writeText(
+                    """
+                    import net.ltgt.gradle.errorprone.*
 
-                """.trimIndent(),
-            )
-        }
+                    """.trimIndent(),
+                )
+            }
     }
 }

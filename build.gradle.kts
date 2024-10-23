@@ -100,9 +100,11 @@ testing {
 
                     val testJavaToolchain = project.findProperty("test.java-toolchain")
                     testJavaToolchain?.also {
-                        val metadata = project.javaToolchains.launcherFor {
-                            languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
-                        }.get().metadata
+                        val launcher =
+                            project.javaToolchains.launcherFor {
+                                languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
+                            }
+                        val metadata = launcher.get().metadata
                         systemProperty("test.java-version", metadata.languageVersion.asInt())
                         systemProperty("test.java-home", metadata.installationPath.asFile.canonicalPath)
                     }
@@ -165,15 +167,14 @@ publishing {
 
 spotless {
     kotlinGradle {
-        ktlint("0.49.1")
+        ktlint("1.3.1")
     }
     kotlin {
-        ktlint("0.49.1")
+        ktlint("1.3.1")
     }
 }
 
-fun cmd(vararg cmdarray: String) =
-    Runtime.getRuntime().exec(cmdarray, null, rootDir)
+fun cmd(vararg cmdarray: String) = Runtime.getRuntime().exec(cmdarray, null, rootDir)
 
 val Process.text: String
     get() = inputStream.bufferedReader().readText()

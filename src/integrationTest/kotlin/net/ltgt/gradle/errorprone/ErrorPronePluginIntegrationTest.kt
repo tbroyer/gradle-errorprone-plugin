@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
-
     @BeforeEach
     fun setup() {
         buildFile.appendText(
@@ -236,8 +235,8 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             "com.google.errorprone.bugpatterns.BugChecker",
         ).writeText(
             """
-                com.google.errorprone.sample.CPSChecker
-                com.google.errorprone.sample.EffectivelyFinalChecker
+            com.google.errorprone.sample.CPSChecker
+            com.google.errorprone.sample.EffectivelyFinalChecker
             """.trimIndent(),
         )
 

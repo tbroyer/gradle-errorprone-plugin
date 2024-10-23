@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package net.ltgt.gradle.errorprone
 
 import org.gradle.api.Action
@@ -9,7 +11,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.compile.CompileOptions
-import org.gradle.kotlin.dsl.* // ktlint-disable no-wildcard-imports
+import org.gradle.kotlin.dsl.*
 import org.gradle.process.CommandLineArgumentProvider
 
 open class ErrorProneOptions constructor(
@@ -131,7 +133,10 @@ open class ErrorProneOptions constructor(
      *
      * @see checks
      */
-    fun check(checkName: String, severity: CheckSeverity) {
+    fun check(
+        checkName: String,
+        severity: CheckSeverity,
+    ) {
         validateName(checkName)
         checks.put(checkName, severity)
     }
@@ -143,7 +148,10 @@ open class ErrorProneOptions constructor(
      *
      * @see checks
      */
-    fun check(checkName: String, severity: Provider<CheckSeverity>) {
+    fun check(
+        checkName: String,
+        severity: Provider<CheckSeverity>,
+    ) {
         validateName(checkName)
         checks.put(checkName, severity)
     }
@@ -190,8 +198,10 @@ open class ErrorProneOptions constructor(
      */
     fun error(vararg checkNames: String) = set(*checkNames, atSeverity = CheckSeverity.ERROR)
 
-    private fun set(vararg checkNames: String, atSeverity: CheckSeverity) =
-        checkNames.forEach { check(it, atSeverity) }
+    private fun set(
+        vararg checkNames: String,
+        atSeverity: CheckSeverity,
+    ) = checkNames.forEach { check(it, atSeverity) }
 
     /**
      * Adds a check option with a given boolean value.
@@ -202,7 +212,10 @@ open class ErrorProneOptions constructor(
      *
      * @see checkOptions
      */
-    @JvmOverloads fun option(name: String, value: Boolean = true) = option(name, value.toString())
+    @JvmOverloads fun option(
+        name: String,
+        value: Boolean = true,
+    ) = option(name, value.toString())
 
     /**
      * Adds a check option with a given value.
@@ -211,7 +224,10 @@ open class ErrorProneOptions constructor(
      *
      * @see checkOptions
      */
-    fun option(name: String, value: String) {
+    fun option(
+        name: String,
+        value: String,
+    ) {
         checkOptions.put(name, value)
     }
 
@@ -222,12 +238,15 @@ open class ErrorProneOptions constructor(
      *
      * @see checkOptions
      */
-    fun option(name: String, value: Provider<String>) {
+    fun option(
+        name: String,
+        value: Provider<String>,
+    ) {
         checkOptions.put(name, value)
     }
 
-    override fun toString(): String {
-        return (
+    override fun toString(): String =
+        (
             sequenceOf(
                 booleanOption("-XepDisableAllChecks", disableAllChecks),
                 booleanOption("-XepDisableAllWarnings", disableAllWarnings),
@@ -239,23 +258,32 @@ open class ErrorProneOptions constructor(
                 booleanOption("-XepCompilingTestOnlyCode", isCompilingTestOnlyCode),
                 stringOption("-XepExcludedPaths", excludedPaths),
             ).filterNotNull() +
-                checks.getOrElse(emptyMap()).asSequence().map { (name, severity) -> validateName(name); "-Xep:$name${severity.asArg}" } +
+                checks.getOrElse(emptyMap()).asSequence().map { (name, severity) ->
+                    validateName(name)
+                    "-Xep:$name${severity.asArg}"
+                } +
                 checkOptions.getOrElse(emptyMap()).asSequence().map { (name, value) -> "-XepOpt:$name=$value" } +
                 errorproneArgs.getOrElse(emptyList()) +
                 errorproneArgumentProviders.asSequence().flatMap { it.asArguments().asSequence() }
-            ).onEach(::validate)
+        ).onEach(::validate)
             .joinToString(separator = " ")
-    }
 
-    private fun booleanOption(name: String, value: Provider<Boolean>): String? =
-        name.takeIf { value.getOrElse(false) }
+    private fun booleanOption(
+        name: String,
+        value: Provider<Boolean>,
+    ): String? = name.takeIf { value.getOrElse(false) }
 
-    private fun stringOption(name: String, value: Provider<String>): String? =
-        value.orNull?.let { "$name:$it" }
+    private fun stringOption(
+        name: String,
+        value: Provider<String>,
+    ): String? = value.orNull?.let { "$name:$it" }
 }
 
 enum class CheckSeverity {
-    DEFAULT, OFF, WARN, ERROR
+    DEFAULT,
+    OFF,
+    WARN,
+    ERROR,
 }
 
 private val CheckSeverity.asArg: String

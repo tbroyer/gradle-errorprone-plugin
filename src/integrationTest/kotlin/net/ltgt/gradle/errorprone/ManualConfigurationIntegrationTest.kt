@@ -6,7 +6,6 @@ import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.Test
 
 class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
-
     @Test
     fun `in non-java project with applied plugin`() {
         // given

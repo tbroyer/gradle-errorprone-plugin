@@ -21,12 +21,13 @@ import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ErrorProneOptionsTest {
-
     lateinit var objects: ObjectFactory
     lateinit var providers: ProviderFactory
 
     @BeforeAll
-    fun setup(@TempDir projectDir: File) {
+    fun setup(
+        @TempDir projectDir: File,
+    ) {
         ProjectBuilder.builder().withProjectDir(projectDir).build().let { project ->
             objects = project.objects
             providers = project.providers
@@ -47,6 +48,7 @@ class ErrorProneOptionsTest {
     }
 
     private fun StringSubject.isTestSourceSetName() = this.matches(TEST_SOURCE_SET_NAME_REGEX.toPattern())
+
     private fun StringSubject.isNotTestSourceSetName() = this.doesNotMatch(TEST_SOURCE_SET_NAME_REGEX.toPattern())
 
     @Test
@@ -105,7 +107,10 @@ class ErrorProneOptionsTest {
 
         doTestOptions(
             { errorproneArgs.set(mutableListOf("-XepDisableAllChecks", "-Xep:BetaApi")) },
-            { disableAllChecks.set(true); enable("BetaApi") },
+            {
+                disableAllChecks.set(true)
+                enable("BetaApi")
+            },
         )
 
         doTestOptions(
@@ -160,7 +165,10 @@ class ErrorProneOptionsTest {
         )
     }
 
-    private fun doTestOptions(configure: ErrorProneOptions.() -> Unit, reference: ErrorProneOptions.() -> Unit) {
+    private fun doTestOptions(
+        configure: ErrorProneOptions.() -> Unit,
+        reference: ErrorProneOptions.() -> Unit,
+    ) {
         val options = ErrorProneOptions(objects).apply(reference)
         val parsedOptions = parseOptions(ErrorProneOptions(objects).apply(configure))
         assertOptionsEqual(options, parsedOptions)
@@ -180,7 +188,10 @@ class ErrorProneOptionsTest {
         }
     }
 
-    private fun doTestSpaces(argPrefix: String, configure: ErrorProneOptions.() -> Unit) {
+    private fun doTestSpaces(
+        argPrefix: String,
+        configure: ErrorProneOptions.() -> Unit,
+    ) {
         try {
             ErrorProneOptions(objects).apply(configure).toString()
             fail("Should have thrown")
@@ -195,7 +206,8 @@ class ErrorProneOptionsTest {
             ErrorProneOptions(objects).apply({ enable("ArrayEquals:OFF") }).toString()
             fail("Should have thrown")
         } catch (e: InvalidUserDataException) {
-            assertThat(e).hasMessageThat()
+            assertThat(e)
+                .hasMessageThat()
                 .isEqualTo("""Error Prone check name cannot contain a colon (":"): "ArrayEquals:OFF".""")
         }
 
@@ -209,11 +221,13 @@ class ErrorProneOptionsTest {
                 },
             )
             fail("Should have thrown")
-        } catch (ignore: InvalidCommandLineOptionException) {}
+        } catch (ignore: InvalidCommandLineOptionException) {
+        }
     }
 
     private fun parseOptions(options: ErrorProneOptions) =
-        com.google.errorprone.ErrorProneOptions.processArgs(splitArgs(options.toString()))
+        com.google.errorprone.ErrorProneOptions
+            .processArgs(splitArgs(options.toString()))
 
     // This is how JavaC "parses" the -Xplugin: values: https://git.io/vx8yI
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
