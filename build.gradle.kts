@@ -37,8 +37,8 @@ tasks.withType<KotlinCompile>().configureEach {
 
 gradle.taskGraph.whenReady {
     if (hasTask(":publishPlugins")) {
-        check("git diff --quiet --exit-code".execute(null, rootDir).waitFor() == 0) { "Working tree is dirty" }
-        val process = "git describe --exact-match".execute(null, rootDir)
+        check(cmd("git", "diff", "--quiet", "--exit-code").waitFor() == 0) { "Working tree is dirty" }
+        val process = cmd("git", "describe", "--exact-match")
         check(process.waitFor() == 0) { "Version is not tagged" }
         version = process.text.trim().removePrefix("v")
     }
@@ -169,8 +169,8 @@ ktlint {
     outputToConsole.set(true)
 }
 
-fun String.execute(envp: Array<String>?, workingDir: File?) =
-    Runtime.getRuntime().exec(this, envp, workingDir)
+fun cmd(vararg cmdarray: String) =
+    Runtime.getRuntime().exec(cmdarray, null, rootDir)
 
 val Process.text: String
     get() = inputStream.bufferedReader().readText()
