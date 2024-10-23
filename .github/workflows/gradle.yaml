@@ -8,7 +8,7 @@ on:
     paths-ignore:
       - '**/*.md'
 
-# First build on Linux and Windows with JDK 11
+# First build on Linux and Windows with JDK 21
 # Then run tests with various Gradle and JDK versions (Linux only)
 jobs:
   linux:
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -65,6 +65,8 @@ jobs:
           name: windows-reports
           path: build/reports/
 
+  # Test using a JDK version that's compatible with all supported versions (JDK 11)
+  # but keep building with the same JDK (21) so it can benefit from build cache.
   test-gradle:
     needs: linux
     runs-on: ubuntu-latest
@@ -77,7 +79,14 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: |
+            11
+            21
+
+      - name: Setup environment
+        run: |
+          echo "org.gradle.java.installations.auto-download=false" | tee -a gradle.properties
+          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_11_X64" | tee -a gradle.properties
 
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -87,7 +96,7 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew integrationTest "-Ptest.gradle-version=${{ matrix.gradle }}"
+        run: ./gradlew integrationTest "-Ptest.gradle-version=${{ matrix.gradle }}" "-Ptest.java-toolchain=11"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
@@ -101,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 8, 17, 21 ]
+        java: [ 8, 11, 17 ]
     steps:
       - uses: actions/checkout@v4
 
@@ -110,7 +119,7 @@ jobs:
           distribution: 'temurin'
           java-version: |
             ${{ matrix.java }}
-            11
+            21
 
       - name: Setup environment
         run: |
