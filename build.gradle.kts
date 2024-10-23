@@ -7,7 +7,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "1.2.1"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+    id("com.diffplug.spotless") version "6.25.0"
     id("com.android.lint") version "7.4.2"
     id("org.nosphere.gradle.github.actions") version "1.4.0"
 }
@@ -163,10 +163,13 @@ publishing {
     }
 }
 
-ktlint {
-    version.set("0.49.1")
-    enableExperimentalRules.set(true)
-    outputToConsole.set(true)
+spotless {
+    kotlinGradle {
+        ktlint("0.49.1")
+    }
+    kotlin {
+        ktlint("0.49.1")
+    }
 }
 
 fun cmd(vararg cmdarray: String) =
