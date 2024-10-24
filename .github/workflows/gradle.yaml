@@ -65,7 +65,7 @@ jobs:
           name: windows-reports
           path: build/reports/
 
-  # Test using a JDK version that's compatible with all supported versions (JDK 11)
+  # Test using a JDK version that's compatible with all supported versions (JDK 8)
   # but keep building with the same JDK (21) so it can benefit from build cache.
   test-gradle:
     needs: linux
@@ -80,13 +80,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: |
-            11
+            8
             21
 
       - name: Setup environment
         run: |
           echo "org.gradle.java.installations.auto-download=false" | tee -a gradle.properties
-          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_11_X64" | tee -a gradle.properties
+          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_8_X64" | tee -a gradle.properties
 
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -96,7 +96,7 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew integrationTest "-Ptest.gradle-version=${{ matrix.gradle }}" "-Ptest.java-toolchain=11"
+        run: ./gradlew integrationTest "-Ptest.gradle-version=${{ matrix.gradle }}" "-Ptest.java-toolchain=8"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
