@@ -6,9 +6,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "1.2.1"
+    id("com.gradle.plugin-publish") version "1.3.0"
     id("com.diffplug.spotless") version "6.25.0"
-    id("com.android.lint") version "7.4.2"
+    id("com.android.lint") version "8.7.2"
     id("org.nosphere.gradle.github.actions") version "1.4.0"
 }
 
@@ -44,7 +44,8 @@ gradle.taskGraph.whenReady {
     }
 }
 
-val errorproneVersion = "2.20.0"
+// Last version still supporting JDK 11
+val errorproneVersion = "2.31.0"
 
 repositories {
     mavenCentral()
@@ -54,9 +55,9 @@ repositories {
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
-            useJUnitJupiter("5.10.2")
+            useJUnitJupiter("5.11.3")
             dependencies {
-                implementation("com.google.truth:truth:1.4.2") {
+                implementation("com.google.truth:truth:1.4.4") {
                     // See https://github.com/google/truth/issues/333
                     exclude(group = "junit", module = "junit")
                 }
@@ -167,10 +168,10 @@ publishing {
 
 spotless {
     kotlinGradle {
-        ktlint("1.3.1")
+        ktlint("1.4.1")
     }
     kotlin {
-        ktlint("1.3.1")
+        ktlint("1.4.1")
     }
 }
 
