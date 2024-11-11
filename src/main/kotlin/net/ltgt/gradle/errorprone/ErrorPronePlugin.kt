@@ -208,6 +208,7 @@ internal val TEST_SOURCE_SET_NAME_REGEX =
     """^(t|.*T)est(\p{javaUpperCase}.*)?$""".toRegex()
 
 private val CompileOptions.isCommandLine
+    @Suppress("DEPRECATION")
     get() = isFork && (forkOptions.javaHome != null || forkOptions.executable != null)
 
 private class StrongEncapsulationHelper {
