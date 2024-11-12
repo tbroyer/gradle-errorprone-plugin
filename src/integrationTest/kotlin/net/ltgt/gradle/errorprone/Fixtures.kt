@@ -12,8 +12,16 @@ val testJavaHome = System.getProperty("test.java-home", System.getProperty("java
 val testGradleVersion = System.getProperty("test.gradle-version")?.let(GradleVersion::version) ?: GradleVersion.current()
 
 const val MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION = "2.10.0"
+const val MAX_JDK11_COMPATIBLE_ERRORPRONE_VERSION = "2.31.0"
 
-val errorproneVersion = if (testJavaVersion.isJava8) MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION else System.getProperty("errorprone.version")!!
+val testErrorProneVersion = System.getProperty("errorprone.version")!!
+
+val errorproneVersion =
+    when {
+        testJavaVersion < JavaVersion.VERSION_11 -> MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION
+        testJavaVersion < JavaVersion.VERSION_17 -> MAX_JDK11_COMPATIBLE_ERRORPRONE_VERSION
+        else -> testErrorProneVersion
+    }
 
 const val FAILURE_SOURCE_COMPILATION_ERROR = "Failure.java:6: error: [ArrayEquals]"
 

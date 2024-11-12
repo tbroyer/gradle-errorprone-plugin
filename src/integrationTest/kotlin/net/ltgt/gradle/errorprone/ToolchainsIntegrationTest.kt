@@ -8,7 +8,6 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInfo
 import java.io.File
 
 class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
@@ -34,7 +33,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @BeforeEach
-    fun setup(testInfo: TestInfo) {
+    fun setup() {
         testProjectDir.resolve("gradle.properties").appendText(
             """
 
@@ -50,16 +49,6 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             }
             repositories {
                 mavenCentral()
-            }
-            dependencies {
-                errorprone("com.google.errorprone:error_prone_core:${if (testInfo.displayName.contains(
-                    "JDK 8 VM",
-                )
-            ) {
-                MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION
-            } else {
-                errorproneVersion
-            }}")
             }
 
             tasks {
@@ -171,6 +160,10 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     languageVersion.set(JavaLanguageVersion.of(11))
                 }
             }
+            dependencies {
+                errorprone("com.google.errorprone:error_prone_core:${MAX_JDK11_COMPATIBLE_ERRORPRONE_VERSION}")
+            }
+
             """.trimIndent(),
         )
 
@@ -220,6 +213,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     languageVersion.set(JavaLanguageVersion.of(8))
                 }
             }
+            dependencies {
+                errorprone("com.google.errorprone:error_prone_core:${MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION}")
+            }
             """.trimIndent(),
         )
 
@@ -257,6 +253,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                 toolchain {
                     languageVersion.set(JavaLanguageVersion.of(17))
                 }
+            }
+            dependencies {
+                errorprone("com.google.errorprone:error_prone_core:$testErrorProneVersion")
             }
             """.trimIndent(),
         )
@@ -304,6 +303,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     languageVersion.set(JavaLanguageVersion.of(${testJavaVersion.majorVersion}))
                 }
             }
+            dependencies {
+                errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
+            }
             """.trimIndent(),
         )
 
@@ -339,6 +341,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     languageVersion.set(JavaLanguageVersion.of(8))
                 }
             }
+            dependencies {
+                errorprone("com.google.errorprone:error_prone_core:${MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION}")
+            }
 
             tasks.compileJava { options.errorprone.isEnabled.set(false) }
             """.trimIndent(),
@@ -371,6 +376,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     languageVersion.set(JavaLanguageVersion.of(17))
                 }
             }
+            dependencies {
+                errorprone("com.google.errorprone:error_prone_core:$testErrorProneVersion")
+            }
 
             tasks.compileJava { options.errorprone.isEnabled.set(false) }
             """.trimIndent(),
@@ -399,6 +407,9 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                 toolchain {
                     languageVersion.set(JavaLanguageVersion.of(8))
                 }
+            }
+            dependencies {
+                errorprone("com.google.errorprone:error_prone_core:${MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION}")
             }
 
             tasks.compileJava {

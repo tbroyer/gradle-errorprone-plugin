@@ -44,8 +44,7 @@ gradle.taskGraph.whenReady {
     }
 }
 
-// Last version still supporting JDK 11
-val errorproneVersion = "2.31.0"
+val errorproneVersion = "2.35.1"
 
 repositories {
     mavenCentral()
