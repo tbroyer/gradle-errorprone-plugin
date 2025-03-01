@@ -8,6 +8,10 @@ ktlint = "1.5.0"
 errorprone-checkApi = { module = "com.google.errorprone:error_prone_check_api", version.ref = "errorprone" }
 truth = "com.google.truth:truth:1.4.4"
 
+# Versions used in build script, libraries added here for Dependabot
+junitJupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref="junitJupiter" }
+ktlint = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlint" }
+
 [bundles]
 
 [plugins]
