@@ -56,14 +56,7 @@ testing {
         withType<JvmTestSuite>().configureEach {
             useJUnitJupiter("5.12.0")
             dependencies {
-                implementation("com.google.truth:truth:1.4.4") {
-                    // See https://github.com/google/truth/issues/333
-                    exclude(group = "junit", module = "junit")
-                }
-                runtimeOnly("junit:junit:4.13.2") {
-                    // See https://github.com/google/truth/issues/333
-                    because("Truth needs it")
-                }
+                implementation("com.google.truth:truth:1.4.4")
             }
             targets.configureEach {
                 testTask {
