@@ -6,10 +6,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "1.3.1"
-    id("com.diffplug.spotless") version "7.0.2"
-    id("com.android.lint") version "8.8.2"
-    id("org.nosphere.gradle.github.actions") version "1.4.0"
+    alias(libs.plugins.gradlePluginPublish)
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.androidLint)
+    alias(libs.plugins.nosphereGithubActions)
 }
 
 group = "net.ltgt.gradle"
@@ -44,14 +44,12 @@ gradle.taskGraph.whenReady {
     }
 }
 
-val errorproneVersion = "2.36.0"
-
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
-            useJUnitJupiter("5.12.0")
+            useJUnitJupiter(libs.versions.junitJupiter)
             dependencies {
-                implementation("com.google.truth:truth:1.4.4")
+                implementation(libs.truth)
             }
             targets.configureEach {
                 testTask {
@@ -67,7 +65,7 @@ testing {
         val test by getting(JvmTestSuite::class) {
             dependencies {
                 implementation(project())
-                implementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
+                implementation(libs.errorprone.checkApi)
             }
         }
         register<JvmTestSuite>("integrationTest") {
@@ -100,7 +98,7 @@ testing {
                     val testGradleVersion = project.findProperty("test.gradle-version")
                     testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
 
-                    systemProperty("errorprone.version", errorproneVersion)
+                    systemProperty("errorprone.version", libs.versions.errorprone.get())
                 }
             }
         }
@@ -155,10 +153,10 @@ publishing {
 
 spotless {
     kotlinGradle {
-        ktlint("1.5.0")
+        ktlint(libs.versions.ktlint.get())
     }
     kotlin {
-        ktlint("1.5.0")
+        ktlint(libs.versions.ktlint.get())
     }
 }
 
