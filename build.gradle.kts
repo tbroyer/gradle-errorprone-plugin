@@ -46,11 +46,6 @@ gradle.taskGraph.whenReady {
 
 val errorproneVersion = "2.36.0"
 
-repositories {
-    mavenCentral()
-    google()
-}
-
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
