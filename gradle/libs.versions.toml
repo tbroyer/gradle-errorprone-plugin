@@ -1,7 +1,7 @@
 # Try to maintain entries sorted alphabetically inside each "group".
 [versions]
-errorprone = "2.36.0"
-junitJupiter = "5.12.0"
+errorprone = "2.37.0"
+junitJupiter = "5.12.1"
 ktlint = "1.5.0"
 
 [libraries]
