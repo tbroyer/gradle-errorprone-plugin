@@ -9,6 +9,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.ClasspathNormalizer
@@ -74,7 +75,7 @@ class ErrorPronePlugin
             }
 
             val errorproneConfiguration =
-                project.configurations.create(CONFIGURATION_NAME) {
+                project.configurations.register(CONFIGURATION_NAME) {
                     description = "Error Prone dependencies, will be extended by all source sets' annotationProcessor configurations"
                     isVisible = false
                     isCanBeConsumed = false
@@ -82,8 +83,8 @@ class ErrorPronePlugin
 
                     exclude(group = "com.google.errorprone", module = "javac")
                 }
-            val javacConfiguration: FileCollection =
-                project.configurations.create(JAVAC_CONFIGURATION_NAME) {
+            val javacConfiguration: Provider<out FileCollection> =
+                project.configurations.register(JAVAC_CONFIGURATION_NAME) {
                     description = "Error Prone Javac dependencies, will only be used when using JDK 8 (i.e. not JDK 9 or superior)"
                     isVisible = false
                     isCanBeConsumed = false
@@ -131,7 +132,7 @@ class ErrorPronePlugin
 
             project.plugins.withType<JavaBasePlugin> {
                 project.extensions.getByName<SourceSetContainer>("sourceSets").configureEach {
-                    project.configurations[annotationProcessorConfigurationName].extendsFrom(errorproneConfiguration)
+                    project.configurations.named(annotationProcessorConfigurationName) { extendsFrom(errorproneConfiguration.get()) }
                     project.tasks.named<JavaCompile>(compileJavaTaskName) {
                         options.errorprone {
                             isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 8 }.orElse(true))
@@ -146,7 +147,7 @@ class ErrorPronePlugin
 internal class ErrorProneJvmArgumentProvider(
     private val task: JavaCompile,
     private val errorproneOptions: ErrorProneOptions,
-    private val javacConfiguration: FileCollection,
+    private val javacConfiguration: Provider<out FileCollection>,
 ) : CommandLineArgumentProvider,
     Named {
     @Internal override fun getName(): String = "errorprone"
@@ -171,7 +172,7 @@ internal class ErrorProneJvmArgumentProvider(
         when {
             !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
             compilerVersion == null -> emptyList()
-            compilerVersion == JavaVersion.VERSION_1_8 -> listOf("-Xbootclasspath/p:${javacConfiguration.asPath}")
+            compilerVersion == JavaVersion.VERSION_1_8 -> listOf("-Xbootclasspath/p:${javacConfiguration.get().asPath}")
             compilerVersion!! > JavaVersion.VERSION_1_8 -> ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION
             else -> emptyList()
         }
