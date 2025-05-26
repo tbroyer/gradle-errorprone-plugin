@@ -101,7 +101,7 @@ tasks.register<JavaCompile>("compileCustom") {
     classpath = configurations["custom"]
     sourceCompatibility = "8"
     targetCompatibility = "8"
-    destinationDir = file("$buildDir/classes/custom")
+    destinationDirectory = file("$buildDir/classes/custom")
 
     // Error Prone must be available in the annotation processor path
     options.annotationProcessorPath = annotationProcessorCustom.get()
@@ -124,7 +124,7 @@ tasks.register("compileCustom", JavaCompile) {
     classpath = configurations.custom
     sourceCompatibility = "8"
     targetCompatibility = "8"
-    destinationDir = file("$buildDir/classes/custom")
+    destinationDirectory = file("$buildDir/classes/custom")
 
     // Error Prone must be available in the annotation processor path
     options.annotationProcessorPath = annotationProcessorCustom

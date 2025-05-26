@@ -36,7 +36,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             val compileJava by tasks.creating(JavaCompile::class) {
                 source("src/main/java")
                 classpath = files()
-                destinationDir = file("${'$'}buildDir/classes")
+                destinationDirectory.set(layout.buildDirectory.dir("classes"))
                 sourceCompatibility = "8"
                 targetCompatibility = "8"
                 options.annotationProcessorPath = annotationProcessor.get()
@@ -91,7 +91,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             val customCompileJava by tasks.creating(JavaCompile::class) {
                 source("src/main/java")
                 classpath = files()
-                destinationDir = file("${'$'}buildDir/classes/custom")
+                destinationDirectory.set(layout.buildDirectory.dir("classes/custom"))
                 options.annotationProcessorPath = customAnnotationProcessor.get()
 
                 options.errorprone {
