@@ -163,7 +163,7 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew integrationTest "-Ptest.gradle-version=9.0.0-milestone-9"
+        run: ./gradlew integrationTest "-Ptest.gradle-version=9.0.0-rc-1"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
