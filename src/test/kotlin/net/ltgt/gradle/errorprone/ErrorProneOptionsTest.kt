@@ -56,6 +56,7 @@ class ErrorProneOptionsTest {
         doTestOptions { disableAllChecks.set(true) }
         doTestOptions { disableAllWarnings.set(true) }
         doTestOptions { allErrorsAsWarnings.set(true) }
+        doTestOptions { allSuggestionsAsWarnings.set(true) }
         doTestOptions { allDisabledChecksAsWarnings.set(true) }
         doTestOptions { disableWarningsInGeneratedCode.set(true) }
         doTestOptions { ignoreUnknownCheckNames.set(true) }
@@ -79,6 +80,7 @@ class ErrorProneOptionsTest {
             disableAllChecks.set(true)
             disableAllWarnings.set(true)
             allErrorsAsWarnings.set(true)
+            allSuggestionsAsWarnings.set(true)
             allDisabledChecksAsWarnings.set(true)
             disableWarningsInGeneratedCode.set(true)
             ignoreUnknownCheckNames.set(true)
@@ -240,6 +242,7 @@ class ErrorProneOptionsTest {
         assertThat(parsedOptions.isDisableAllChecks).isEqualTo(options.disableAllChecks.get())
         assertThat(parsedOptions.isDisableAllWarnings).isEqualTo(options.disableAllWarnings.get())
         assertThat(parsedOptions.isDropErrorsToWarnings).isEqualTo(options.allErrorsAsWarnings.get())
+        assertThat(parsedOptions.isSuggestionsAsWarnings).isEqualTo(options.allSuggestionsAsWarnings.get())
         assertThat(parsedOptions.isEnableAllChecksAsWarnings).isEqualTo(options.allDisabledChecksAsWarnings.get())
         assertThat(parsedOptions.disableWarningsInGeneratedCode()).isEqualTo(options.disableWarningsInGeneratedCode.get())
         assertThat(parsedOptions.ignoreUnknownChecks()).isEqualTo(options.ignoreUnknownCheckNames.get())

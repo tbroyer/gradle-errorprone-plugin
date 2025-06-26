@@ -52,6 +52,13 @@ open class ErrorProneOptions constructor(
     @get:Input val allErrorsAsWarnings = objectFactory.property<Boolean>().convention(false)
 
     /**
+     * Turn all Error Prone suggestions into warnings; maps to `-XepAllSuggestionsAsWarnings`.
+     *
+     * This will be among the first arguments, so checks can then be demoted back to suggestions on a case-by-case basis.
+     */
+    @get:Input val allSuggestionsAsWarnings = objectFactory.property<Boolean>().convention(false)
+
+    /**
      * Enables all Error Prone checks, checks that are disabled by default are enabled as warnings; maps to `-XepAllDisabledChecksAsWarnings`.
      *
      * This will be among the first arguments, so checks can then be disabled again on a case-by-case basis.
@@ -251,6 +258,7 @@ open class ErrorProneOptions constructor(
                 booleanOption("-XepDisableAllChecks", disableAllChecks),
                 booleanOption("-XepDisableAllWarnings", disableAllWarnings),
                 booleanOption("-XepAllErrorsAsWarnings", allErrorsAsWarnings),
+                booleanOption("-XepAllSuggestionsAsWarnings", allSuggestionsAsWarnings),
                 booleanOption("-XepAllDisabledChecksAsWarnings", allDisabledChecksAsWarnings),
                 booleanOption("-XepDisableWarningsInGeneratedCode", disableWarningsInGeneratedCode),
                 booleanOption("-XepIgnoreUnknownCheckNames", ignoreUnknownCheckNames),

@@ -270,6 +270,7 @@ _Please note that all properties are [lazy](https://docs.gradle.org/current/user
 | `disableAllChecks`               | Disable all Error Prone checks; maps to `-XepDisableAllChecks`. This will be the first argument, so checks can then be re-enabled on a case-by-case basis. Defaults to `false`.
 | `disableAllWarnings`             | Maps to `-XepDisableAllWarnings` (since ErrorProne 2.4.0). Defaults to `false`.
 | `allErrorsAsWarnings`            | Maps to `-XepAllErrorsAsWarnings`. Defaults to `false`.
+| `allSuggestionsAsWarnings`       | (since ErrorProne 2.20.0) Maps to `-XepAllSuggestionsAsWarnings`. Defaults to `false`.
 | `allDisabledChecksAsWarnings`    | Enables all Error Prone checks, checks that are disabled by default are enabled as warnings; maps to `-XepDisabledChecksAsWarnings`. Defaults to `false`.
 | `disableWarningsInGeneratedCode` | Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`; maps to `-XepDisableWarningsInGeneratedCode`. Defaults to `false`.
 | `ignoreUnknownCheckNames`        | Maps to `-XepIgnoreUnknownCheckNames`. Defaults to `false`.
@@ -296,5 +297,5 @@ _Please note that all properties are [lazy](https://docs.gradle.org/current/user
 | `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, true)`.
 | `option(optionName, value)`       | Adds a check option with a given value. Value can be a boolean or a string, or a provider of string. Equivalent to `checkOptions.put(name, value)`.
 
-A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.  
+A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.
 Note that the `net.ltgt.gradle.errorprone.CheckSeverity` needs to be `import`ed into your build scripts (see examples above).

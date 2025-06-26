@@ -93,6 +93,7 @@ class GroovyDslIntegrationTest {
                     disableAllChecks = false
                     disableAllWarnings = false
                     allErrorsAsWarnings = false
+                    allSuggestionsAsWarnings = false
                     allDisabledChecksAsWarnings = false
                     disableWarningsInGeneratedCode = false
                     ignoreUnknownCheckNames = false
