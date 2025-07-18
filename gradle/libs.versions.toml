@@ -2,7 +2,7 @@
 [versions]
 errorprone = "2.40.0"
 junitJupiter = "5.13.3"
-ktlint = "1.6.0"
+ktlint = "1.7.0"
 
 [libraries]
 errorprone-checkApi = { module = "com.google.errorprone:error_prone_check_api", version.ref = "errorprone" }
