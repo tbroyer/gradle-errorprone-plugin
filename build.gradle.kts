@@ -1,7 +1,6 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-gradle-plugin`
@@ -15,10 +14,10 @@ plugins {
 group = "net.ltgt.gradle"
 
 // Make sure Gradle Module Metadata targets the appropriate JVM version
-tasks.withType<JavaCompile>().configureEach {
+tasks.compileJava {
     options.release = 8
 }
-tasks.withType<KotlinCompile>().configureEach {
+tasks.compileKotlin {
     // See https://jakewharton.com/kotlins-jdk-release-compatibility-flag/
     compilerOptions.freeCompilerArgs.add("-Xjdk-release=1.8")
     compilerOptions.jvmTarget = JvmTarget.JVM_1_8
