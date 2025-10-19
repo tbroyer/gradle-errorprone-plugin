@@ -146,7 +146,9 @@ jobs:
   test-gradle9:
     needs: linux
     runs-on: ubuntu-latest
-    continue-on-error: true
+    strategy:
+      matrix:
+        gradle: [ '9.0.0', '9.1.0' ]
     steps:
       - uses: actions/checkout@v5
 
@@ -163,11 +165,11 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew integrationTest "-Ptest.gradle-version=9.0.0"
+        run: ./gradlew integrationTest "-Ptest.gradle-version=${{ matrix.gradle }}"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
         uses: actions/upload-artifact@v4
         with:
-          name: gradle-9-tests
+          name: gradle-${{ matrix.gradle }}-tests
           path: build/reports/tests/integrationTest/
