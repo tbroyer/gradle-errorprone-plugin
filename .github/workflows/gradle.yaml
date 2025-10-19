@@ -173,3 +173,38 @@ jobs:
         with:
           name: gradle-${{ matrix.gradle }}-tests
           path: build/reports/tests/integrationTest/
+
+  test-jdk25:
+    needs: linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: |
+            25
+            21
+
+      - name: Setup environment
+        run: |
+          echo "org.gradle.java.installations.auto-download=false" | tee -a gradle.properties
+          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_25_X64" | tee -a gradle.properties
+
+      - uses: gradle/actions/setup-gradle@v5
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
+          build-scan-terms-of-use-agree: "yes"
+
+      - name: Build with Gradle
+        id: gradle-build
+        run: ./gradlew integrationTest "-Ptest.gradle-version=9.1.0" "-Ptest.java-toolchain=25"
+
+      - name: Store reports
+        if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
+        uses: actions/upload-artifact@v4
+        with:
+          name: jdk-25-tests
+          path: build/reports/tests/integrationTest/
