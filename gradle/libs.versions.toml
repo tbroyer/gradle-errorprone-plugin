@@ -1,6 +1,6 @@
 # Try to maintain entries sorted alphabetically inside each "group".
 [versions]
-errorprone = "2.42.0"
+errorprone = "2.43.0"
 junitJupiter = "6.0.0"
 ktlint = "1.7.1"
 
