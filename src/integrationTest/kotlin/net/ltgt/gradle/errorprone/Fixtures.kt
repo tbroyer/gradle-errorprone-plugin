@@ -13,6 +13,7 @@ val testGradleVersion = System.getProperty("test.gradle-version")?.let(GradleVer
 
 const val MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION = "2.10.0"
 const val MAX_JDK11_COMPATIBLE_ERRORPRONE_VERSION = "2.31.0"
+const val MAX_JDK17_COMPATIBLE_ERRORPRONE_VERSION = "2.42.0"
 
 val testErrorProneVersion = System.getProperty("errorprone.version")!!
 
@@ -20,6 +21,7 @@ val errorproneVersion =
     when {
         testJavaVersion < JavaVersion.VERSION_11 -> MAX_JDK8_COMPATIBLE_ERRORPRONE_VERSION
         testJavaVersion < JavaVersion.VERSION_17 -> MAX_JDK11_COMPATIBLE_ERRORPRONE_VERSION
+        testJavaVersion < JavaVersion.VERSION_21 -> MAX_JDK17_COMPATIBLE_ERRORPRONE_VERSION
         else -> testErrorProneVersion
     }
 
@@ -90,6 +92,8 @@ val COMPATIBLE_GRADLE_VERSIONS =
         JavaVersion.VERSION_21 to GradleVersion.version("8.5"),
         JavaVersion.VERSION_22 to GradleVersion.version("8.8"),
         JavaVersion.VERSION_23 to GradleVersion.version("8.10"),
+        JavaVersion.VERSION_24 to GradleVersion.version("8.14"),
+        JavaVersion.VERSION_25 to GradleVersion.version("9.1.0"),
     )
 
 fun assumeCompatibleGradleAndJavaVersions() {

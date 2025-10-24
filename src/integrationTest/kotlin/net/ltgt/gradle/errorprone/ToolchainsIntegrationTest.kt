@@ -255,7 +255,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                 }
             }
             dependencies {
-                errorprone("com.google.errorprone:error_prone_core:$testErrorProneVersion")
+                errorprone("com.google.errorprone:error_prone_core:${MAX_JDK17_COMPATIBLE_ERRORPRONE_VERSION}")
             }
             """.trimIndent(),
         )
@@ -377,7 +377,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                 }
             }
             dependencies {
-                errorprone("com.google.errorprone:error_prone_core:$testErrorProneVersion")
+                errorprone("com.google.errorprone:error_prone_core:${MAX_JDK17_COMPATIBLE_ERRORPRONE_VERSION}")
             }
 
             tasks.compileJava { options.errorprone.isEnabled.set(false) }
