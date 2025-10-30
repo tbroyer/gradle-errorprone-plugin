@@ -148,7 +148,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        gradle: [ '9.0.0', '9.1.0' ]
+        gradle: [ '9.2.0', '9.1.0', '9.0.0' ]
     steps:
       - uses: actions/checkout@v5
 
@@ -200,7 +200,7 @@ jobs:
 
       - name: Build with Gradle
         id: gradle-build
-        run: ./gradlew integrationTest "-Ptest.gradle-version=9.1.0" "-Ptest.java-toolchain=25"
+        run: ./gradlew integrationTest "-Ptest.gradle-version=9.2.0" "-Ptest.java-toolchain=25"
 
       - name: Store reports
         if: always() && (steps.gradle-build.outcome == 'success' || steps.gradle-build.outcome == 'failure')
