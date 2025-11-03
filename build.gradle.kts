@@ -1,55 +1,54 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "1.2.1"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
-    id("com.android.lint") version "7.4.2"
-    id("org.nosphere.gradle.github.actions") version "1.4.0"
+    alias(libs.plugins.gradlePluginPublish)
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.androidLint)
+    alias(libs.plugins.nosphereGithubActions)
 }
 
 group = "net.ltgt.gradle"
 
 // Make sure Gradle Module Metadata targets the appropriate JVM version
-tasks.withType<JavaCompile>().configureEach {
-    options.release.set(kotlinDslPluginOptions.jvmTarget.map { JavaVersion.toVersion(it).majorVersion.toInt() })
+tasks.compileJava {
+    options.release = 8
 }
+tasks.compileKotlin {
+    // See https://jakewharton.com/kotlins-jdk-release-compatibility-flag/
+    compilerOptions.freeCompilerArgs.add("-Xjdk-release=1.8")
+    compilerOptions.jvmTarget = JvmTarget.JVM_1_8
 
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions.allWarningsAsErrors = true
+    // For Gradle 6.8 compatibility. Gradle 6.8 embeds Kotlin 1.4.
+    // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
+    @Suppress("DEPRECATION")
+    compilerOptions.apiVersion = KotlinVersion.KOTLIN_1_4
+    @Suppress("DEPRECATION")
+    compilerOptions.languageVersion = KotlinVersion.KOTLIN_1_4
+
+    compilerOptions.allWarningsAsErrors = true
+    // Using Kotlin 1.4 above emits a warning that would then fail the build with allWarningsAsErrors
+    compilerOptions.freeCompilerArgs.add("-Xsuppress-version-warnings")
 }
 
 gradle.taskGraph.whenReady {
     if (hasTask(":publishPlugins")) {
-        check("git diff --quiet --exit-code".execute(null, rootDir).waitFor() == 0) { "Working tree is dirty" }
-        val process = "git describe --exact-match".execute(null, rootDir)
+        check(cmd("git", "diff", "--quiet", "--exit-code").waitFor() == 0) { "Working tree is dirty" }
+        val process = cmd("git", "describe", "--exact-match")
         check(process.waitFor() == 0) { "Version is not tagged" }
         version = process.text.trim().removePrefix("v")
     }
 }
 
-val errorproneVersion = "2.20.0"
-
-repositories {
-    mavenCentral()
-    google()
-}
-
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
-            useJUnitJupiter("5.10.2")
+            useJUnitJupiter(libs.versions.junitJupiter)
             dependencies {
-                implementation("com.google.truth:truth:1.4.2") {
-                    // See https://github.com/google/truth/issues/333
-                    exclude(group = "junit", module = "junit")
-                }
-                runtimeOnly("junit:junit:4.13.2") {
-                    // See https://github.com/google/truth/issues/333
-                    because("Truth needs it")
-                }
+                implementation(libs.truth)
             }
             targets.configureEach {
                 testTask {
@@ -65,7 +64,7 @@ testing {
         val test by getting(JvmTestSuite::class) {
             dependencies {
                 implementation(project())
-                implementation("com.google.errorprone:error_prone_check_api:$errorproneVersion")
+                implementation(libs.errorprone.checkApi)
             }
         }
         register<JvmTestSuite>("integrationTest") {
@@ -86,9 +85,11 @@ testing {
 
                     val testJavaToolchain = project.findProperty("test.java-toolchain")
                     testJavaToolchain?.also {
-                        val metadata = project.javaToolchains.launcherFor {
-                            languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
-                        }.get().metadata
+                        val launcher =
+                            project.javaToolchains.launcherFor {
+                                languageVersion.set(JavaLanguageVersion.of(testJavaToolchain.toString()))
+                            }
+                        val metadata = launcher.get().metadata
                         systemProperty("test.java-version", metadata.languageVersion.asInt())
                         systemProperty("test.java-home", metadata.installationPath.asFile.canonicalPath)
                     }
@@ -96,7 +97,7 @@ testing {
                     val testGradleVersion = project.findProperty("test.gradle-version")
                     testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
 
-                    systemProperty("errorprone.version", errorproneVersion)
+                    systemProperty("errorprone.version", libs.versions.errorprone.get())
                 }
             }
         }
@@ -114,22 +115,51 @@ gradlePlugin {
     plugins {
         register("errorprone") {
             id = "net.ltgt.errorprone"
-            displayName = "Gradle error-prone plugin"
+            displayName = "Gradle Error Prone plugin"
             implementationClass = "net.ltgt.gradle.errorprone.ErrorPronePlugin"
-            description = "Gradle plugin to use the error-prone compiler for Java"
+            description = "Gradle plugin to use Error Prone with the Java compiler"
             tags.addAll("javac", "error-prone")
         }
     }
 }
 
-ktlint {
-    version.set("0.49.1")
-    enableExperimentalRules.set(true)
-    outputToConsole.set(true)
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            name.set("Gradle error-prone plugin")
+            description.set("Gradle plugin to use the error-prone compiler for Java")
+            url.set("https://github.com/tbroyer/gradle-errorprone-plugin")
+            licenses {
+                license {
+                    name.set("Apache-2.0")
+                    url.set("https://www.apache.org/licenses/LICENSE-2.0")
+                }
+            }
+            developers {
+                developer {
+                    name.set("Thomas Broyer")
+                    email.set("t.broyer@ltgt.net")
+                }
+            }
+            scm {
+                connection.set("https://github.com/tbroyer/gradle-errorprone-plugin.git")
+                developerConnection.set("scm:git:ssh://github.com:tbroyer/gradle-errorprone-plugin.git")
+                url.set("https://github.com/tbroyer/gradle-errorprone-plugin")
+            }
+        }
+    }
 }
 
-fun String.execute(envp: Array<String>?, workingDir: File?) =
-    Runtime.getRuntime().exec(this, envp, workingDir)
+spotless {
+    kotlinGradle {
+        ktlint(libs.versions.ktlint.get())
+    }
+    kotlin {
+        ktlint(libs.versions.ktlint.get())
+    }
+}
+
+fun cmd(vararg cmdarray: String) = Runtime.getRuntime().exec(cmdarray, null, rootDir)
 
 val Process.text: String
     get() = inputStream.bufferedReader().readText()

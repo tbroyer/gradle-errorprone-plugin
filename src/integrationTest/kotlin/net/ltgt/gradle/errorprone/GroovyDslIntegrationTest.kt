@@ -1,8 +1,6 @@
 package net.ltgt.gradle.errorprone
 
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.TruthJUnit.assume
-import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.BeforeEach
@@ -12,7 +10,6 @@ import java.io.File
 import java.util.Properties
 
 class GroovyDslIntegrationTest {
-
     @TempDir
     lateinit var testProjectDir: File
     lateinit var settingsFile: File
@@ -20,10 +17,7 @@ class GroovyDslIntegrationTest {
 
     @BeforeEach
     fun setupProject() {
-        assume().that(
-            testJavaVersion >= JavaVersion.VERSION_16 &&
-                GradleVersion.version(testGradleVersion) < GradleVersion.version("7.0"),
-        ).isFalse()
+        assumeCompatibleGradleAndJavaVersions()
 
         testProjectDir.resolve("gradle.properties").outputStream().use {
             Properties().apply {
@@ -31,21 +25,35 @@ class GroovyDslIntegrationTest {
                 store(it, null)
             }
         }
-        settingsFile = testProjectDir.resolve("settings.gradle").apply {
-            createNewFile()
-        }
-        buildFile = testProjectDir.resolve("build.gradle").apply {
-            appendText(
+        settingsFile =
+            testProjectDir.resolve("settings.gradle").apply {
+                createNewFile()
+            }
+        buildFile =
+            testProjectDir.resolve("build.gradle").apply {
+                appendText(
+                    """
+                    plugins {
+                        id("java-library")
+                        id("${ErrorPronePlugin.PLUGIN_ID}")
+                    }
+                    repositories {
+                        mavenCentral()
+                    }
+                    dependencies {
+                        errorprone "com.google.errorprone:error_prone_core:$errorproneVersion"
+                    }
+                    """.trimIndent(),
+                )
+            }
+        if (testGradleVersion < GradleVersion.version("7.0")) {
+            buildFile.appendText(
                 """
-                plugins {
-                    id("java-library")
-                    id("${ErrorPronePlugin.PLUGIN_ID}")
-                }
-                repositories {
-                    mavenCentral()
-                }
-                dependencies {
-                    errorprone "com.google.errorprone:error_prone_core:$errorproneVersion"
+
+                allprojects {
+                    configurations.all {
+                        attributes.attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
+                    }
                 }
                 """.trimIndent(),
             )
@@ -85,6 +93,7 @@ class GroovyDslIntegrationTest {
                     disableAllChecks = false
                     disableAllWarnings = false
                     allErrorsAsWarnings = false
+                    allSuggestionsAsWarnings = false
                     allDisabledChecksAsWarnings = false
                     disableWarningsInGeneratedCode = false
                     ignoreUnknownCheckNames = false

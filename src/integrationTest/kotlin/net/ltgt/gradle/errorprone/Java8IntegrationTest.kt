@@ -10,20 +10,25 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 class Java8IntegrationTest : AbstractPluginIntegrationTest() {
-
     companion object {
         private val FORKED = "${System.lineSeparator()}Fork: true${System.lineSeparator()}"
         private val NOT_FORKED = "${System.lineSeparator()}Fork: false${System.lineSeparator()}"
         private val JVM_ARG = "${System.lineSeparator()}JVM Arg: "
         private val JVM_ARG_BOOTCLASSPATH = jvmArg("-Xbootclasspath/p:")
         private val JVM_ARG_BOOTCLASSPATH_ERRORPRONE_JAVAC =
-            """\Q$JVM_ARG_BOOTCLASSPATH\E.*\Q${File.separator}com.google.errorprone${File.separator}javac${File.separator}9+181-r4173-1${File.separator}\E.*\Q${File.separator}javac-9+181-r4173-1.jar\E(?:\Q${File.pathSeparator}\E|${Regex.escape(System.lineSeparator())})"""
+            """\Q$JVM_ARG_BOOTCLASSPATH\E.*\Q${File.separator}com.google.errorprone${File.separator}javac${File.separator}9+181-r4173-1${File.separator}\E.*\Q${File.separator}javac-9+181-r4173-1.jar\E(?:\Q${File.pathSeparator}\E|${Regex.escape(
+                System.lineSeparator(),
+            )})"""
                 .toPattern()
-        private val JVM_ARGS_STRONG_ENCAPSULATION = ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(prefix = JVM_ARG, separator = JVM_ARG)
+        private val JVM_ARGS_STRONG_ENCAPSULATION =
+            ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION.joinToString(
+                prefix = JVM_ARG,
+                separator = JVM_ARG,
+            )
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
 
-        private val ALL_JVM_ARGS = if (GradleVersion.version(testGradleVersion) >= GradleVersion.version("7.1")) "allJvmArgs" else "jvmArgs?"
+        private val ALL_JVM_ARGS = if (testGradleVersion >= GradleVersion.version("7.1")) "allJvmArgs" else "jvmArgs?"
     }
 
     @BeforeEach
@@ -225,16 +230,20 @@ class Java8IntegrationTest : AbstractPluginIntegrationTest() {
 
         // given
         val javaHome = System.getProperty("java.home")
-        val ext = when {
-            System.getProperty("os.name").startsWith("Windows") -> ".exe"
-            else -> ""
-        }
+        val ext =
+            when {
+                System.getProperty("os.name").startsWith("Windows") -> ".exe"
+                else -> ""
+            }
         buildFile.appendText(
             """
 
             compileJava.apply {
                 options.isFork = true
-                options.forkOptions.executable = ""${'"'}${javaHome.replace("\$", "\${'\$'}")}${File.separator}bin${File.separator}javac$ext${'"'}""
+                options.forkOptions.executable = ""${'"'}${javaHome.replace(
+                "\$",
+                "\${'\$'}",
+            )}${File.separator}bin${File.separator}javac$ext${'"'}""
             }
             """.trimIndent(),
         )

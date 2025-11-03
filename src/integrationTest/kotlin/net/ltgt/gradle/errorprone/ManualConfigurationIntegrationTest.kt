@@ -6,7 +6,6 @@ import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.Test
 
 class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
-
     @Test
     fun `in non-java project with applied plugin`() {
         // given
@@ -24,7 +23,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
             }
             val annotationProcessor ${
-                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.4")) {
+                if (testGradleVersion >= GradleVersion.version("8.4")) {
                     """= configurations.resolvable("annotationProcessor") {"""
                 } else {
                     """by configurations.registering {
@@ -37,7 +36,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             val compileJava by tasks.creating(JavaCompile::class) {
                 source("src/main/java")
                 classpath = files()
-                destinationDir = file("${'$'}buildDir/classes")
+                destinationDirectory.set(layout.buildDirectory.dir("classes"))
                 sourceCompatibility = "8"
                 targetCompatibility = "8"
                 options.annotationProcessorPath = annotationProcessor.get()
@@ -79,7 +78,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 errorprone("com.google.errorprone:error_prone_core:$errorproneVersion")
             }
             val customAnnotationProcessor ${
-                if (GradleVersion.version(testGradleVersion).baseVersion >= GradleVersion.version("8.4")) {
+                if (testGradleVersion >= GradleVersion.version("8.4")) {
                     """= configurations.resolvable("customAnnotationProcessor") {"""
                 } else {
                     """by configurations.registering {
@@ -92,7 +91,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
             val customCompileJava by tasks.creating(JavaCompile::class) {
                 source("src/main/java")
                 classpath = files()
-                destinationDir = file("${'$'}buildDir/classes/custom")
+                destinationDirectory.set(layout.buildDirectory.dir("classes/custom"))
                 options.annotationProcessorPath = customAnnotationProcessor.get()
 
                 options.errorprone {

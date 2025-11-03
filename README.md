@@ -1,8 +1,8 @@
 # gradle-errorprone-plugin
 
-This plugin configures `JavaCompile` tasks to use the [Error Prone compiler].
+This plugin configures `JavaCompile` tasks to use [Error Prone].
 
-[Error Prone compiler]: https://errorprone.info/
+[Error Prone]: https://errorprone.info/
 
 ## Requirements
 
@@ -37,10 +37,11 @@ dependencies {
 }
 ```
 
-**CAUTION:** Using a dynamic or changing version for Error Prone,
-such as `latest.release` or `2.+`,
-means that your build could fail at any time,
-if a new version of Error Prone adds or enables new checks that your code would trigger.
+> [!CAUTION]
+> Using a dynamic or changing version for Error Prone,
+> such as `latest.release` or `2.+`,
+> means that your build could fail at any time,
+> if a new version of Error Prone adds or enables new checks that your code would trigger.
 
 Error Prone can then be [configured](#configuration) on the `JavaCompile` tasks:
 ```kotlin
@@ -100,7 +101,7 @@ tasks.register<JavaCompile>("compileCustom") {
     classpath = configurations["custom"]
     sourceCompatibility = "8"
     targetCompatibility = "8"
-    destinationDir = file("$buildDir/classes/custom")
+    destinationDirectory = file("$buildDir/classes/custom")
 
     // Error Prone must be available in the annotation processor path
     options.annotationProcessorPath = annotationProcessorCustom.get()
@@ -123,7 +124,7 @@ tasks.register("compileCustom", JavaCompile) {
     classpath = configurations.custom
     sourceCompatibility = "8"
     targetCompatibility = "8"
-    destinationDir = file("$buildDir/classes/custom")
+    destinationDirectory = file("$buildDir/classes/custom")
 
     // Error Prone must be available in the annotation processor path
     options.annotationProcessorPath = annotationProcessorCustom
@@ -241,7 +242,12 @@ tasks.compileJava {
 
 </details>
 
+> [!NOTE]
+> These examples use NullAway.
+> Note that I made [a companion plugin][gradle-nullaway-plugin] specifically to surface NullAway options as Gradle DSL properties.
+
 [custom checks]: https://errorprone.info/docs/plugins
+[gradle-nullaway-plugin]: https://github.com/tbroyer/gradle-nullaway-plugin
 
 ## Configuration
 
@@ -264,6 +270,7 @@ _Please note that all properties are [lazy](https://docs.gradle.org/current/user
 | `disableAllChecks`               | Disable all Error Prone checks; maps to `-XepDisableAllChecks`. This will be the first argument, so checks can then be re-enabled on a case-by-case basis. Defaults to `false`.
 | `disableAllWarnings`             | Maps to `-XepDisableAllWarnings` (since ErrorProne 2.4.0). Defaults to `false`.
 | `allErrorsAsWarnings`            | Maps to `-XepAllErrorsAsWarnings`. Defaults to `false`.
+| `allSuggestionsAsWarnings`       | (since ErrorProne 2.20.0) Maps to `-XepAllSuggestionsAsWarnings`. Defaults to `false`.
 | `allDisabledChecksAsWarnings`    | Enables all Error Prone checks, checks that are disabled by default are enabled as warnings; maps to `-XepDisabledChecksAsWarnings`. Defaults to `false`.
 | `disableWarningsInGeneratedCode` | Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`; maps to `-XepDisableWarningsInGeneratedCode`. Defaults to `false`.
 | `ignoreUnknownCheckNames`        | Maps to `-XepIgnoreUnknownCheckNames`. Defaults to `false`.
@@ -290,5 +297,5 @@ _Please note that all properties are [lazy](https://docs.gradle.org/current/user
 | `option(optionName)`              | Enables a boolean check option. Equivalent to `option(checkName, true)`.
 | `option(optionName, value)`       | Adds a check option with a given value. Value can be a boolean or a string, or a provider of string. Equivalent to `checkOptions.put(name, value)`.
 
-A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.  
+A check severity can take values: `DEFAULT`, `OFF`, `WARN`, or `ERROR`.
 Note that the `net.ltgt.gradle.errorprone.CheckSeverity` needs to be `import`ed into your build scripts (see examples above).
