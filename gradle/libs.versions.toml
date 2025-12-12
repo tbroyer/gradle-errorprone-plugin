@@ -15,7 +15,7 @@ ktlint = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlint" }
 [bundles]
 
 [plugins]
-androidLint = "com.android.lint:8.13.1"
+androidLint = "com.android.lint:8.13.2"
 gradlePluginPublish = "com.gradle.plugin-publish:2.0.0"
 nosphereGithubActions = "org.nosphere.gradle.github.actions:1.4.0"
 spotless = "com.diffplug.spotless:8.1.0"
