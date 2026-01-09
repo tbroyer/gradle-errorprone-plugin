@@ -200,6 +200,7 @@ internal class ErrorProneCompilerArgumentProvider(
                     "-XDcompilePolicy=simple",
                     "-XDshould-stop.ifError=FLOW",
                     "-XDshouldStopPolicyIfError=FLOW",
+                    "-XDaddTypeAnnotationsToSymbol=true",
                 )
             }
 
