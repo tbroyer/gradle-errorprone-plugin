@@ -191,15 +191,19 @@ internal class ErrorProneCompilerArgumentProvider(
 
     override fun asArguments(): Iterable<String> =
         when {
-            // should-stop.ifError is for JDK 9+, shouldStopPolicyIfError for JDK 8; it's safe to indiscriminately pass both
             errorproneOptions.isEnabled.getOrElse(
                 false,
             ) -> {
                 listOf(
                     "-Xplugin:ErrorProne $errorproneOptions",
                     "-XDcompilePolicy=simple",
+                    // should-stop.ifError is for JDK 9+, shouldStopPolicyIfError for JDK 8; it's safe to indiscriminately pass both
                     "-XDshould-stop.ifError=FLOW",
                     "-XDshouldStopPolicyIfError=FLOW",
+                    // Error Prone 2.46.0 requires it for JDK 21 (and it helps NullAway too even with previous Error Prone versions)
+                    // It's only useful for JDK 21, but safe to pass to any version.
+                    // See https://github.com/google/error-prone/issues/5426
+                    "-XDaddTypeAnnotationsToSymbol=true",
                 )
             }
 
