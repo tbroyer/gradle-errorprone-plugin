@@ -82,7 +82,6 @@ fun File.prepareBuild(vararg tasks: String): GradleRunner =
 // Based on https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
 val COMPATIBLE_GRADLE_VERSIONS =
     mapOf(
-        JavaVersion.VERSION_16 to GradleVersion.version("7.0"),
         JavaVersion.VERSION_17 to GradleVersion.version("7.3"),
         JavaVersion.VERSION_18 to GradleVersion.version("7.5"),
         JavaVersion.VERSION_19 to GradleVersion.version("7.6"),
@@ -95,5 +94,5 @@ val COMPATIBLE_GRADLE_VERSIONS =
     )
 
 fun assumeCompatibleGradleAndJavaVersions() {
-    assume().that(testGradleVersion >= COMPATIBLE_GRADLE_VERSIONS[testJavaVersion] ?: GradleVersion.version("6.8")).isTrue()
+    assume().that(testGradleVersion >= COMPATIBLE_GRADLE_VERSIONS[testJavaVersion] ?: GradleVersion.version("7.1")).isTrue()
 }

@@ -4,7 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
-import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -20,8 +19,6 @@ class StrongEncapsulationIntegrationTest : AbstractPluginIntegrationTest() {
             )
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
-
-        private val ALL_JVM_ARGS = if (testGradleVersion >= GradleVersion.version("7.1")) "allJvmArgs" else "jvmArgs?"
     }
 
     @BeforeEach
@@ -43,7 +40,7 @@ class StrongEncapsulationIntegrationTest : AbstractPluginIntegrationTest() {
             val displayCompileJavaOptions by tasks.creating {
                 doFirst {
                     println("Fork: ${'$'}{compileJava.options.isFork}")
-                    compileJava.options.forkOptions.$ALL_JVM_ARGS.forEach { arg ->
+                    compileJava.options.forkOptions.allJvmArgs.forEach { arg ->
                         println("JVM Arg: ${'$'}arg")
                     }
                 }

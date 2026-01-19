@@ -46,18 +46,6 @@ class GroovyDslIntegrationTest {
                     """.trimIndent(),
                 )
             }
-        if (testGradleVersion < GradleVersion.version("7.0")) {
-            buildFile.appendText(
-                """
-
-                allprojects {
-                    configurations.all {
-                        attributes.attribute(Attribute.of("org.gradle.jvm.environment", String), "standard-jvm")
-                    }
-                }
-                """.trimIndent(),
-            )
-        }
     }
 
     @Test

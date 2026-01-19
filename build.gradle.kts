@@ -22,7 +22,7 @@ tasks.compileKotlin {
     compilerOptions.freeCompilerArgs.add("-Xjdk-release=1.8")
     compilerOptions.jvmTarget = JvmTarget.JVM_1_8
 
-    // For Gradle 6.8 compatibility. Gradle 6.8 embeds Kotlin 1.4.
+    // For Gradle 7.1 compatibility. Gradle 7.1 embeds Kotlin 1.4.
     // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
     @Suppress("DEPRECATION")
     compilerOptions.apiVersion = KotlinVersion.KOTLIN_1_4

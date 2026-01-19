@@ -8,7 +8,6 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.io.File
 
 class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     companion object {
@@ -22,8 +21,6 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
             )
 
         private fun jvmArg(argPrefix: String) = "$JVM_ARG$argPrefix"
-
-        private val ALL_JVM_ARGS = if (testGradleVersion >= GradleVersion.version("7.1")) "allJvmArgs" else "jvmArgs?"
     }
 
     @BeforeEach
@@ -56,7 +53,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                     doFirst {
                         println("ErrorProne: ${'$'}{if (compileJava.get().options.errorprone.isEnabled.getOrElse(false)) "enabled" else "disabled"}")
                         println("Fork: ${'$'}{compileJava.get().options.isFork}")
-                        compileJava.get().options.forkOptions.$ALL_JVM_ARGS.forEach { arg ->
+                        compileJava.get().options.forkOptions.allJvmArgs.forEach { arg ->
                             println("JVM Arg: ${'$'}arg")
                         }
                     }
@@ -97,14 +94,8 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                         override fun getLanguageVersion(): JavaLanguageVersion = JavaLanguageVersion.of(8)
                         override fun getInstallationPath(): Directory = TODO()
                         override fun getVendor(): String = TODO()
-                        ${
-                if (testGradleVersion >= GradleVersion.version("7.1")) {
-                    """override fun getJavaRuntimeVersion(): String = TODO()
-                   override fun getJvmVersion(): String = TODO()
-                """
-                } else {
-                    ""
-                }}
+                        override fun getJavaRuntimeVersion(): String = TODO()
+                        override fun getJvmVersion(): String = TODO()
                         ${
                 if (testGradleVersion >= GradleVersion.version("8.0")) {
                     "override fun isCurrentJvm() = false"
@@ -238,8 +229,6 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
     @Test
     fun `does not configure forking in Java 16+ VM if current JVM has appropriate JVM args`() {
         assume().withMessage("isJava16Compatible").that(testJavaVersion).isAtLeast(JavaVersion.VERSION_16)
-        // https://docs.gradle.org/current/userguide/compatibility.html#java_runtime
-        assume().that(testGradleVersion).isAtLeast(GradleVersion.version("7.0"))
 
         testProjectDir.resolve("gradle.properties").appendText(
             """

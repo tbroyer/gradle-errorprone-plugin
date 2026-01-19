@@ -1,6 +1,5 @@
 package net.ltgt.gradle.errorprone
 
-import org.gradle.util.GradleVersion
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -34,17 +33,5 @@ abstract class AbstractPluginIntegrationTest {
                     """.trimIndent(),
                 )
             }
-        if (testGradleVersion < GradleVersion.version("7.0")) {
-            buildFile.appendText(
-                """
-
-                allprojects {
-                    configurations.all {
-                        attributes.attribute(Attribute.of("org.gradle.jvm.environment", String::class.java), "standard-jvm")
-                    }
-                }
-                """.trimIndent(),
-            )
-        }
     }
 }

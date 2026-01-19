@@ -36,8 +36,6 @@ class ErrorPronePlugin
 
             internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 11"
 
-            private val HAS_JVM_ARGUMENT_PROVIDERS = GradleVersion.current() >= GradleVersion.version("7.1")
-
             internal val JVM_ARGS_STRONG_ENCAPSULATION =
                 listOf(
                     "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
@@ -60,8 +58,8 @@ class ErrorPronePlugin
         }
 
         override fun apply(project: Project) {
-            if (GradleVersion.current() < GradleVersion.version("6.8")) {
-                throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 6.8")
+            if (GradleVersion.current() < GradleVersion.version("7.1")) {
+                throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 7.1")
             }
 
             val errorproneConfiguration =
@@ -82,16 +80,7 @@ class ErrorPronePlugin
                     .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
 
                 val jvmArgumentProvider = ErrorProneJvmArgumentProvider(this, errorproneOptions)
-                if (HAS_JVM_ARGUMENT_PROVIDERS) {
-                    options.forkOptions.jvmArgumentProviders.add(jvmArgumentProvider)
-                } else {
-                    inputs
-                        .property("errorprone.compilerVersion", providers.provider { jvmArgumentProvider.compilerVersion })
-                        .optional(true)
-                    doFirst("Configure JVM arguments for errorprone") {
-                        options.forkOptions.jvmArgs!!.addAll(jvmArgumentProvider.asArguments())
-                    }
-                }
+                options.forkOptions.jvmArgumentProviders.add(jvmArgumentProvider)
                 doFirst("Configure forking for errorprone") {
                     if (!errorproneOptions.isEnabled.getOrElse(false)) return@doFirst
                     jvmArgumentProvider.compilerVersion?.let {
