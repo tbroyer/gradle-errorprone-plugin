@@ -24,89 +24,85 @@ import javax.inject.Inject
 /**
  * A [Plugin] that configures [JavaCompile] tasks to use the [Error Prone compiler](https://errorprone.info/).
  */
-class ErrorPronePlugin
-    @Inject
-    constructor(
-        private val providers: ProviderFactory,
-    ) : Plugin<Project> {
-        companion object {
-            const val PLUGIN_ID = "net.ltgt.errorprone"
+class ErrorPronePlugin : Plugin<Project> {
+    companion object {
+        const val PLUGIN_ID = "net.ltgt.errorprone"
 
-            const val CONFIGURATION_NAME = "errorprone"
+        const val CONFIGURATION_NAME = "errorprone"
 
-            internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 11"
+        internal const val TOO_OLD_TOOLCHAIN_ERROR_MESSAGE = "Must not enable ErrorProne when compiling with JDK < 11"
 
-            internal val JVM_ARGS_STRONG_ENCAPSULATION =
-                listOf(
-                    "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-                    "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-                    "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-                    "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-                    "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-                    "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-                    "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-                    "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-                )
+        internal val JVM_ARGS_STRONG_ENCAPSULATION =
+            listOf(
+                "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+                "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+            )
 
-            private val CURRENT_JVM_NEEDS_FORKING by lazy {
-                // Needs --add-exports and --add-opens
-                JavaVersion.current() >= JavaVersion.VERSION_16 &&
-                    StrongEncapsulationHelper().needsForking()
-            }
+        private val CURRENT_JVM_NEEDS_FORKING by lazy {
+            // Needs --add-exports and --add-opens
+            JavaVersion.current() >= JavaVersion.VERSION_16 &&
+                StrongEncapsulationHelper().needsForking()
+        }
+    }
+
+    override fun apply(project: Project) {
+        if (GradleVersion.current() < GradleVersion.version("7.1")) {
+            throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 7.1")
         }
 
-        override fun apply(project: Project) {
-            if (GradleVersion.current() < GradleVersion.version("7.1")) {
-                throw UnsupportedOperationException("$PLUGIN_ID requires at least Gradle 7.1")
+        val errorproneConfiguration =
+            project.configurations.register(CONFIGURATION_NAME) {
+                description = "Error Prone dependencies, will be extended by all source sets' annotationProcessor configurations"
+                isVisible = false
+                isCanBeConsumed = false
+                isCanBeResolved = false
+
+                exclude(group = "com.google.errorprone", module = "javac")
             }
 
-            val errorproneConfiguration =
-                project.configurations.register(CONFIGURATION_NAME) {
-                    description = "Error Prone dependencies, will be extended by all source sets' annotationProcessor configurations"
-                    isVisible = false
-                    isCanBeConsumed = false
-                    isCanBeResolved = false
+        project.tasks.withType<JavaCompile>().configureEach {
+            val errorproneOptions =
+                (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
+            options
+                .compilerArgumentProviders
+                .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
 
-                    exclude(group = "com.google.errorprone", module = "javac")
-                }
-
-            project.tasks.withType<JavaCompile>().configureEach {
-                val errorproneOptions =
-                    (options as ExtensionAware).extensions.create(ErrorProneOptions.NAME, ErrorProneOptions::class.java)
-                options
-                    .compilerArgumentProviders
-                    .add(ErrorProneCompilerArgumentProvider(errorproneOptions))
-
-                val jvmArgumentProvider = ErrorProneJvmArgumentProvider(this, errorproneOptions)
-                options.forkOptions.jvmArgumentProviders.add(jvmArgumentProvider)
-                doFirst("Configure forking for errorprone") {
-                    if (!errorproneOptions.enabled.getOrElse(false)) return@doFirst
-                    jvmArgumentProvider.compilerVersion?.let {
-                        if (it < JavaVersion.VERSION_11) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
-                        if ((it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING) &&
-                            !options.isFork
-                        ) {
-                            options.isFork = true
-                        }
+            val jvmArgumentProvider = ErrorProneJvmArgumentProvider(this, errorproneOptions)
+            options.forkOptions.jvmArgumentProviders.add(jvmArgumentProvider)
+            doFirst("Configure forking for errorprone") {
+                if (!errorproneOptions.enabled.getOrElse(false)) return@doFirst
+                jvmArgumentProvider.compilerVersion?.let {
+                    if (it < JavaVersion.VERSION_11) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
+                    if ((it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING) &&
+                        !options.isFork
+                    ) {
+                        options.isFork = true
                     }
                 }
             }
+        }
 
-            project.plugins.withType<JavaBasePlugin> {
-                project.extensions.getByName<SourceSetContainer>("sourceSets").configureEach {
-                    project.configurations.named(annotationProcessorConfigurationName) { extendsFrom(errorproneConfiguration.get()) }
-                    project.tasks.named<JavaCompile>(compileJavaTaskName) {
-                        options.errorprone {
-                            enabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 11 }.orElse(true))
-                            compilingTestOnlyCode.convention(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
-                        }
+        project.plugins.withType<JavaBasePlugin> {
+            project.extensions.getByName<SourceSetContainer>("sourceSets").configureEach {
+                project.configurations.named(annotationProcessorConfigurationName) { extendsFrom(errorproneConfiguration.get()) }
+                project.tasks.named<JavaCompile>(compileJavaTaskName) {
+                    options.errorprone {
+                        enabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 11 }.orElse(true))
+                        compilingTestOnlyCode.convention(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
                     }
                 }
             }
         }
     }
+}
 
 internal class ErrorProneJvmArgumentProvider(
     private val task: JavaCompile,
