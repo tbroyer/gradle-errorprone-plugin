@@ -119,9 +119,6 @@ open class ErrorProneOptions constructor(
         const val NAME = "errorprone"
     }
 
-    @Deprecated("Renamed to enable", replaceWith = ReplaceWith("enable(*checkNames)"), level = DeprecationLevel.ERROR)
-    fun check(vararg checkNames: String) = enable(*checkNames)
-
     /**
      * Adds pairs of check name to severity.
      *
