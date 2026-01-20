@@ -95,7 +95,7 @@ class ErrorProneOptionsTest {
     }
 
     private fun doTestOptions(configure: ErrorProneOptions.() -> Unit) {
-        val options = ErrorProneOptions(objects).apply(configure)
+        val options = objects.newInstance(ErrorProneOptions::class.java).apply(configure)
         val parsedOptions = parseOptions(options)
         assertOptionsEqual(options, parsedOptions)
     }
@@ -171,8 +171,8 @@ class ErrorProneOptionsTest {
         configure: ErrorProneOptions.() -> Unit,
         reference: ErrorProneOptions.() -> Unit,
     ) {
-        val options = ErrorProneOptions(objects).apply(reference)
-        val parsedOptions = parseOptions(ErrorProneOptions(objects).apply(configure))
+        val options = objects.newInstance(ErrorProneOptions::class.java).apply(reference)
+        val parsedOptions = parseOptions(objects.newInstance(ErrorProneOptions::class.java).apply(configure))
         assertOptionsEqual(options, parsedOptions)
     }
 
@@ -195,7 +195,7 @@ class ErrorProneOptionsTest {
         configure: ErrorProneOptions.() -> Unit,
     ) {
         try {
-            ErrorProneOptions(objects).apply(configure).toString()
+            objects.newInstance(ErrorProneOptions::class.java).apply(configure).toString()
             fail("Should have thrown")
         } catch (e: InvalidUserDataException) {
             assertThat(e).hasMessageThat().startsWith("""Error Prone options cannot contain white space: "$argPrefix""")
@@ -205,7 +205,7 @@ class ErrorProneOptionsTest {
     @Test
     fun `rejects colon in check name`() {
         try {
-            ErrorProneOptions(objects).apply({ enable("ArrayEquals:OFF") }).toString()
+            objects.newInstance(ErrorProneOptions::class.java).apply({ enable("ArrayEquals:OFF") }).toString()
             fail("Should have thrown")
         } catch (e: InvalidUserDataException) {
             assertThat(e)
@@ -217,7 +217,7 @@ class ErrorProneOptionsTest {
         // This test asserts that we're not being too restrictive, and only try to fail early.
         try {
             parseOptions(
-                ErrorProneOptions(objects).apply {
+                objects.newInstance(ErrorProneOptions::class.java).apply {
                     ignoreUnknownCheckNames.set(true)
                     errorproneArgs.add("-Xep:Foo:Bar")
                 },

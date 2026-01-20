@@ -4,8 +4,10 @@ package net.ltgt.gradle.errorprone
 
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
@@ -14,9 +16,7 @@ import org.gradle.api.tasks.compile.CompileOptions
 import org.gradle.kotlin.dsl.*
 import org.gradle.process.CommandLineArgumentProvider
 
-open class ErrorProneOptions constructor(
-    objectFactory: ObjectFactory,
-) {
+abstract class ErrorProneOptions {
     /**
      * Allows disabling Error Prone altogether for the task.
      *
@@ -27,51 +27,51 @@ open class ErrorProneOptions constructor(
      * `false` otherwise.
      */
     @get:Input
-    val enabled = objectFactory.property<Boolean>().convention(false)
+    abstract val enabled: Property<Boolean>
 
     /**
      * Disable all Error Prone checks; maps to `-XepDisableAllChecks.
      *
      * This will be the first argument, so checks can then be re-enabled on a case-by-case basis.
      */
-    @get:Input val disableAllChecks = objectFactory.property<Boolean>().convention(false)
+    @get:Input abstract val disableAllChecks: Property<Boolean>
 
     /**
      * Disables all Error Prone warnings; maps to `-XepDisableAllWarnings (since ErrorProne 2.4.0).
      *
      * This will be among the first arguments, so checks can then be re-enabled on a case-by-case basis.
      */
-    @get:Input val disableAllWarnings = objectFactory.property<Boolean>().convention(false)
+    @get:Input abstract val disableAllWarnings: Property<Boolean>
 
     /**
      * Turns all Error Prone errors into warnings; maps to `-XepAllErrorsAsWarnings`.
      *
      * This will be among the first arguments, so checks can then be promoted back to error on a case-by-case basis.
      */
-    @get:Input val allErrorsAsWarnings = objectFactory.property<Boolean>().convention(false)
+    @get:Input abstract val allErrorsAsWarnings: Property<Boolean>
 
     /**
      * Turn all Error Prone suggestions into warnings; maps to `-XepAllSuggestionsAsWarnings`.
      *
      * This will be among the first arguments, so checks can then be demoted back to suggestions on a case-by-case basis.
      */
-    @get:Input val allSuggestionsAsWarnings = objectFactory.property<Boolean>().convention(false)
+    @get:Input abstract val allSuggestionsAsWarnings: Property<Boolean>
 
     /**
      * Enables all Error Prone checks, checks that are disabled by default are enabled as warnings; maps to `-XepAllDisabledChecksAsWarnings`.
      *
      * This will be among the first arguments, so checks can then be disabled again on a case-by-case basis.
      */
-    @get:Input val allDisabledChecksAsWarnings = objectFactory.property<Boolean>().convention(false)
+    @get:Input abstract val allDisabledChecksAsWarnings: Property<Boolean>
 
     /** Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`; maps to `-XepDisableWarningsInGeneratedCode`. */
-    @get:Input val disableWarningsInGeneratedCode = objectFactory.property<Boolean>().convention(false)
+    @get:Input abstract val disableWarningsInGeneratedCode: Property<Boolean>
 
     /** Tells Error Prone to ignore unknown check names in [checks]; maps to `-XepIgnoreUknownCheckNames`. */
-    @get:Input val ignoreUnknownCheckNames = objectFactory.property<Boolean>().convention(false)
+    @get:Input abstract val ignoreUnknownCheckNames: Property<Boolean>
 
     /** Ignores suppression annotations, such as `@SuppressWarnings`; maps to `-XepIgnoreSuppressionAnnotations` (since Error Prone 2.3.3). */
-    @get:Input val ignoreSuppressionAnnotations = objectFactory.property<Boolean>().convention(false)
+    @get:Input abstract val ignoreSuppressionAnnotations: Property<Boolean>
 
     /**
      * Tells Error Prone that the compilation contains only test code; maps to `-XepCompilingTestOnlyCode`.
@@ -79,11 +79,11 @@ open class ErrorProneOptions constructor(
      * Defaults to `true` for a source set inferred as a test source set, `false` otherwise.
      */
     @get:Input
-    val compilingTestOnlyCode = objectFactory.property<Boolean>().convention(false)
+    abstract val compilingTestOnlyCode: Property<Boolean>
 
     /** A regular expression pattern (as a string) of file paths to exclude from Error Prone checking; maps to `-XepExcludedPaths`. */
     @get:Input @get:Optional
-    val excludedPaths = objectFactory.property<String>()
+    abstract val excludedPaths: Property<String>
 
     /**
      * A map of check name to [CheckSeverity], to configure which checks are enabled or disabled, and their severity.
@@ -96,7 +96,7 @@ open class ErrorProneOptions constructor(
      * @see error
      * @see warn
      */
-    @get:Input val checks = objectFactory.mapProperty<String, CheckSeverity>().empty()
+    @get:Input abstract val checks: MapProperty<String, CheckSeverity>
 
     /**
      * A map of [check options](https://errorprone.info/docs/flags#pass-additional-info-to-bugcheckers) to their value.
@@ -107,16 +107,29 @@ open class ErrorProneOptions constructor(
      *
      * @see option
      */
-    @get:Input val checkOptions = objectFactory.mapProperty<String, String>().empty()
+    @get:Input abstract val checkOptions: MapProperty<String, String>
 
     /** Additional arguments passed to Error Prone. */
-    @get:Input val errorproneArgs = objectFactory.listProperty<String>().empty()
+    @get:Input abstract val errorproneArgs: ListProperty<String>
 
     /** A list of [CommandLineArgumentProvider] for additional arguments passed to Error Prone. */
     @get:Nested val errorproneArgumentProviders: MutableList<CommandLineArgumentProvider> = arrayListOf()
 
     companion object {
         const val NAME = "errorprone"
+    }
+
+    init {
+        enabled.convention(false)
+        disableAllChecks.convention(false)
+        disableAllWarnings.convention(false)
+        allErrorsAsWarnings.convention(false)
+        allSuggestionsAsWarnings.convention(false)
+        allDisabledChecksAsWarnings.convention(false)
+        disableWarningsInGeneratedCode.convention(false)
+        ignoreUnknownCheckNames.convention(false)
+        ignoreSuppressionAnnotations.convention(false)
+        compilingTestOnlyCode.convention(false)
     }
 
     /**
