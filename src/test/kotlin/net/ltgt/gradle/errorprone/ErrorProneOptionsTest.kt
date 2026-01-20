@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
@@ -204,26 +205,23 @@ class ErrorProneOptionsTest {
 
     @Test
     fun `rejects colon in check name`() {
-        try {
-            objects.newInstance(ErrorProneOptions::class.java).apply({ enable("ArrayEquals:OFF") }).toString()
-            fail("Should have thrown")
-        } catch (e: InvalidUserDataException) {
-            assertThat(e)
-                .hasMessageThat()
-                .isEqualTo("""Error Prone check name cannot contain a colon (":"): "ArrayEquals:OFF".""")
-        }
+        val exception =
+            assertThrows<InvalidUserDataException> {
+                objects.newInstance(ErrorProneOptions::class.java).apply({ enable("ArrayEquals:OFF") }).toString()
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .isEqualTo("""Error Prone check name cannot contain a colon (":"): "ArrayEquals:OFF".""")
 
         // Won't analyze free-form arguments, but those should be caught (later) by argument parsing
         // This test asserts that we're not being too restrictive, and only try to fail early.
-        try {
+        assertThrows<InvalidCommandLineOptionException> {
             parseOptions(
                 objects.newInstance(ErrorProneOptions::class.java).apply {
                     ignoreUnknownCheckNames.set(true)
                     errorproneArgs.add("-Xep:Foo:Bar")
                 },
             )
-            fail("Should have thrown")
-        } catch (ignore: InvalidCommandLineOptionException) {
         }
     }
 
