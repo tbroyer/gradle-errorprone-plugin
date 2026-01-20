@@ -61,7 +61,7 @@ class ErrorProneOptionsTest {
         doTestOptions { disableWarningsInGeneratedCode.set(true) }
         doTestOptions { ignoreUnknownCheckNames.set(true) }
         doTestOptions { ignoreSuppressionAnnotations.set(true) }
-        doTestOptions { isCompilingTestOnlyCode.set(true) }
+        doTestOptions { compilingTestOnlyCode.set(true) }
         doTestOptions { excludedPaths.set(".*/build/generated/.*") }
         doTestOptions { enable("ArrayEquals") }
         doTestOptions { disable("ArrayEquals") }
@@ -85,7 +85,7 @@ class ErrorProneOptionsTest {
             disableWarningsInGeneratedCode.set(true)
             ignoreUnknownCheckNames.set(true)
             ignoreSuppressionAnnotations.set(true)
-            isCompilingTestOnlyCode.set(true)
+            compilingTestOnlyCode.set(true)
             excludedPaths.set(".*/build/generated/.*")
             enable("BetaApi")
             check("NullAway", CheckSeverity.ERROR)
@@ -137,7 +137,7 @@ class ErrorProneOptionsTest {
     fun `correctly allows lazy configuration`() {
         doTestOptions(
             {
-                check("NullAway", isCompilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
+                check("NullAway", compilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
             },
             {
                 error("NullAway")
@@ -146,11 +146,11 @@ class ErrorProneOptionsTest {
 
         doTestOptions(
             {
-                check("NullAway", isCompilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
-                isCompilingTestOnlyCode.set(providers.provider { true })
+                check("NullAway", compilingTestOnlyCode.map { if (it) CheckSeverity.WARN else CheckSeverity.ERROR })
+                compilingTestOnlyCode.set(providers.provider { true })
             },
             {
-                isCompilingTestOnlyCode.set(true)
+                compilingTestOnlyCode.set(true)
                 warn("NullAway")
             },
         )
@@ -247,7 +247,7 @@ class ErrorProneOptionsTest {
         assertThat(parsedOptions.disableWarningsInGeneratedCode()).isEqualTo(options.disableWarningsInGeneratedCode.get())
         assertThat(parsedOptions.ignoreUnknownChecks()).isEqualTo(options.ignoreUnknownCheckNames.get())
         assertThat(parsedOptions.isIgnoreSuppressionAnnotations).isEqualTo(options.ignoreSuppressionAnnotations.get())
-        assertThat(parsedOptions.isTestOnlyTarget).isEqualTo(options.isCompilingTestOnlyCode.get())
+        assertThat(parsedOptions.isTestOnlyTarget).isEqualTo(options.compilingTestOnlyCode.get())
         assertThat(parsedOptions.excludedPattern?.pattern()).isEqualTo(options.excludedPaths.orNull)
         assertThat(parsedOptions.severityMap).containsExactlyEntriesIn(options.checks.get().mapValues { it.value.toSeverity() })
         assertThat(parsedOptions.flags.flagsMap).containsExactlyEntriesIn(options.checkOptions.get())

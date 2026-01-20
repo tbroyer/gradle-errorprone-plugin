@@ -26,9 +26,8 @@ open class ErrorProneOptions constructor(
      * Defaults to `true` on [tasks for source sets][org.gradle.api.tasks.SourceSet.getCompileJavaTaskName],
      * `false` otherwise.
      */
-    @get:JvmName("getEnabled")
     @get:Input
-    val isEnabled = objectFactory.property<Boolean>().convention(false)
+    val enabled = objectFactory.property<Boolean>().convention(false)
 
     /**
      * Disable all Error Prone checks; maps to `-XepDisableAllChecks.
@@ -79,9 +78,8 @@ open class ErrorProneOptions constructor(
      *
      * Defaults to `true` for a source set inferred as a test source set, `false` otherwise.
      */
-    @get:JvmName("getCompilingTestOnlyCode")
     @get:Input
-    val isCompilingTestOnlyCode = objectFactory.property<Boolean>().convention(false)
+    val compilingTestOnlyCode = objectFactory.property<Boolean>().convention(false)
 
     /** A regular expression pattern (as a string) of file paths to exclude from Error Prone checking; maps to `-XepExcludedPaths`. */
     @get:Input @get:Optional
@@ -263,7 +261,7 @@ open class ErrorProneOptions constructor(
                 booleanOption("-XepDisableWarningsInGeneratedCode", disableWarningsInGeneratedCode),
                 booleanOption("-XepIgnoreUnknownCheckNames", ignoreUnknownCheckNames),
                 booleanOption("-XepIgnoreSuppressionAnnotations", ignoreSuppressionAnnotations),
-                booleanOption("-XepCompilingTestOnlyCode", isCompilingTestOnlyCode),
+                booleanOption("-XepCompilingTestOnlyCode", compilingTestOnlyCode),
                 stringOption("-XepExcludedPaths", excludedPaths),
             ).filterNotNull() +
                 checks.getOrElse(emptyMap()).asSequence().map { (name, severity) ->

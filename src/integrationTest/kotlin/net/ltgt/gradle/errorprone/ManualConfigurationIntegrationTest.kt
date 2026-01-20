@@ -42,7 +42,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
                 options.annotationProcessorPath = annotationProcessor.get()
 
                 options.errorprone {
-                    isEnabled.set(true)
+                    enabled.set(true)
                     disableAllChecks.set(true)
                     error("ArrayEquals")
                 }
@@ -117,7 +117,7 @@ class ManualConfigurationIntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText(
             """
 
-            customCompileJava.options.errorprone.isEnabled.set(true)
+            customCompileJava.options.errorprone.enabled.set(true)
             """.trimIndent(),
         )
 

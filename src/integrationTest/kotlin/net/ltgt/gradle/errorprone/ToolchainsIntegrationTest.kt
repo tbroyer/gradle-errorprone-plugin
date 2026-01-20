@@ -51,7 +51,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                 val displayCompileJavaOptions by registering {
                     finalizedBy(alwaysFail)
                     doFirst {
-                        println("ErrorProne: ${'$'}{if (compileJava.get().options.errorprone.isEnabled.getOrElse(false)) "enabled" else "disabled"}")
+                        println("ErrorProne: ${'$'}{if (compileJava.get().options.errorprone.enabled.getOrElse(false)) "enabled" else "disabled"}")
                         println("Fork: ${'$'}{compileJava.get().options.isFork}")
                         compileJava.get().options.forkOptions.allJvmArgs.forEach { arg ->
                             println("JVM Arg: ${'$'}arg")
@@ -122,7 +122,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText(
             """
 
-            tasks.compileJava { options.errorprone.isEnabled.set(true) }
+            tasks.compileJava { options.errorprone.enabled.set(true) }
             """.trimIndent(),
         )
 
@@ -291,7 +291,7 @@ class ToolchainsIntegrationTest : AbstractPluginIntegrationTest() {
                 errorprone("com.google.errorprone:error_prone_core:${MAX_JDK17_COMPATIBLE_ERRORPRONE_VERSION}")
             }
 
-            tasks.compileJava { options.errorprone.isEnabled.set(false) }
+            tasks.compileJava { options.errorprone.enabled.set(false) }
             """.trimIndent(),
         )
 

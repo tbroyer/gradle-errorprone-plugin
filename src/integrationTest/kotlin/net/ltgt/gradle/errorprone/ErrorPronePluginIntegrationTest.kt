@@ -79,7 +79,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             tasks.withType<JavaCompile>().configureEach {
-                options.errorprone.isEnabled.set(false)
+                options.errorprone.enabled.set(false)
             }
             """.trimIndent(),
         )
@@ -100,7 +100,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
 
             tasks.withType<JavaCompile>().configureEach {
                 options.errorprone {
-                    isEnabled.set(true)
+                    enabled.set(true)
                     disableAllChecks.set(false)
                     disableAllWarnings.set(false)
                     allErrorsAsWarnings.set(false)
@@ -109,7 +109,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
                     disableWarningsInGeneratedCode.set(false)
                     ignoreUnknownCheckNames.set(false)
                     ignoreSuppressionAnnotations.set(false)
-                    isCompilingTestOnlyCode.set(false)
+                    compilingTestOnlyCode.set(false)
                     excludedPaths.set("should.not.match.anything")
 
                     check("Foo" to CheckSeverity.ERROR, "Bar" to CheckSeverity.DEFAULT)
@@ -150,7 +150,7 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
             """
 
             tasks.withType<JavaCompile>().configureEach {
-                options.errorprone.isEnabled.set(
+                options.errorprone.enabled.set(
                     providers.gradleProperty("errorprone-enabled").isPresent())
                 options.errorprone.check("ArrayEquals",
                     providers.gradleProperty("errorprone-check-enabled").map { CheckSeverity.DEFAULT }.orElse(CheckSeverity.OFF))

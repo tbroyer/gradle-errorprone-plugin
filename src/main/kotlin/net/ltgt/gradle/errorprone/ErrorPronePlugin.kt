@@ -82,7 +82,7 @@ class ErrorPronePlugin
                 val jvmArgumentProvider = ErrorProneJvmArgumentProvider(this, errorproneOptions)
                 options.forkOptions.jvmArgumentProviders.add(jvmArgumentProvider)
                 doFirst("Configure forking for errorprone") {
-                    if (!errorproneOptions.isEnabled.getOrElse(false)) return@doFirst
+                    if (!errorproneOptions.enabled.getOrElse(false)) return@doFirst
                     jvmArgumentProvider.compilerVersion?.let {
                         if (it < JavaVersion.VERSION_11) throw UnsupportedOperationException(TOO_OLD_TOOLCHAIN_ERROR_MESSAGE)
                         if ((it == JavaVersion.current() && CURRENT_JVM_NEEDS_FORKING) &&
@@ -99,8 +99,8 @@ class ErrorPronePlugin
                     project.configurations.named(annotationProcessorConfigurationName) { extendsFrom(errorproneConfiguration.get()) }
                     project.tasks.named<JavaCompile>(compileJavaTaskName) {
                         options.errorprone {
-                            isEnabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 11 }.orElse(true))
-                            isCompilingTestOnlyCode.convention(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
+                            enabled.convention(javaCompiler.map { it.metadata.languageVersion.asInt() >= 11 }.orElse(true))
+                            compilingTestOnlyCode.convention(this@configureEach.name.matches(TEST_SOURCE_SET_NAME_REGEX))
                         }
                     }
                 }
@@ -125,7 +125,7 @@ internal class ErrorProneJvmArgumentProvider(
 
     override fun asArguments(): Iterable<String> =
         when {
-            !errorproneOptions.isEnabled.getOrElse(false) -> emptyList()
+            !errorproneOptions.enabled.getOrElse(false) -> emptyList()
             compilerVersion == null -> emptyList()
             compilerVersion!! >= JavaVersion.VERSION_11 -> ErrorPronePlugin.JVM_ARGS_STRONG_ENCAPSULATION
             else -> emptyList()
@@ -141,11 +141,11 @@ internal class ErrorProneCompilerArgumentProvider(
     @Suppress("unused")
     @Nested
     @Optional
-    fun getErrorproneOptions(): ErrorProneOptions? = errorproneOptions.takeIf { it.isEnabled.getOrElse(false) }
+    fun getErrorproneOptions(): ErrorProneOptions? = errorproneOptions.takeIf { it.enabled.getOrElse(false) }
 
     override fun asArguments(): Iterable<String> =
         when {
-            errorproneOptions.isEnabled.getOrElse(
+            errorproneOptions.enabled.getOrElse(
                 false,
             ) -> {
                 listOf(

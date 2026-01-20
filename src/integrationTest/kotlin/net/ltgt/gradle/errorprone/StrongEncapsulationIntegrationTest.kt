@@ -117,7 +117,7 @@ class StrongEncapsulationIntegrationTest : AbstractPluginIntegrationTest() {
         buildFile.appendText(
             """
 
-            compileJava.options.errorprone.isEnabled.set(false)
+            compileJava.options.errorprone.enabled.set(false)
             """.trimIndent(),
         )
 

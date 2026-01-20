@@ -97,22 +97,10 @@ and can also be disabled altogether:
 ```kotlin
 tasks {
     compileTestJava {
-        options.errorprone.isEnabled.set(false)
-    }
-}
-```
-<details>
-<summary>with Groovy DSL</summary>
-
-```gradle
-tasks {
-    compileTestJava {
         options.errorprone.enabled = false
     }
 }
 ```
-
-</details>
 
 Note that this plugin only enables Error Prone on tasks for source sets
 (i.e. `compileJava` for the `main` source set, `compileTestJava` for the `test` source set,
@@ -137,7 +125,7 @@ tasks.register<JavaCompile>("compileCustom") {
     // Error Prone must be available in the annotation processor path
     options.annotationProcessorPath = annotationProcessorCustom.get()
     // Enable Error Prone
-    options.errorprone.isEnabled = true
+    options.errorprone.enabled = true
     // It can then be configured for the task
     options.errorprone.disableWarningsInGeneratedCode = true
 }
@@ -206,7 +194,7 @@ It will then:
 You'll thus have to somehow:
 * put ErrorProne on the processor path of the `JavaCompile` tasks
 * enable ErrorProne on the `JavaCompile` tasks
-* configure `isCompilingTestOnlyCode` for compilation tasks for test variants (this changes the behavior of some checks)
+* configure `compilingTestOnlyCode` for compilation tasks for test variants (this changes the behavior of some checks)
 
 This could (and should) be done by a plugin, so if you have deep knowledge of the [AGP APIs](https://developer.android.com/build/extend-agp) and how to idiomatically integrate Error Prone within Android builds, please make such a plugin and I'll link to it here for others to use.
 
@@ -278,7 +266,7 @@ _Please note that all properties are [lazy](https://docs.gradle.org/current/user
 
 | Property | Description
 | :------- | :----------
-| `isEnabled`                      | (`enabled` with Groovy DSL) Allows disabling Error Prone altogether for the task. Error Prone will still be in the annotation processor path, but `-Xplugin:ErrorProne` won't be passed as a compiler argument. Defaults to `true` for source set tasks, `false` otherwise.
+| `enabled`                        | Allows disabling Error Prone altogether for the task. Error Prone will still be in the annotation processor path, but `-Xplugin:ErrorProne` won't be passed as a compiler argument. Defaults to `true` for source set tasks, `false` otherwise.
 | `disableAllChecks`               | Disable all Error Prone checks; maps to `-XepDisableAllChecks`. This will be the first argument, so checks can then be re-enabled on a case-by-case basis. Defaults to `false`.
 | `disableAllWarnings`             | Maps to `-XepDisableAllWarnings` (since ErrorProne 2.4.0). Defaults to `false`.
 | `allErrorsAsWarnings`            | Maps to `-XepAllErrorsAsWarnings`. Defaults to `false`.
@@ -287,7 +275,7 @@ _Please note that all properties are [lazy](https://docs.gradle.org/current/user
 | `disableWarningsInGeneratedCode` | Disables warnings in classes annotated with `javax.annotation.processing.Generated` or `@javax.annotation.Generated`; maps to `-XepDisableWarningsInGeneratedCode`. Defaults to `false`.
 | `ignoreUnknownCheckNames`        | Maps to `-XepIgnoreUnknownCheckNames`. Defaults to `false`.
 | `ignoreSuppressionAnnotations`   | Maps to `-XepIgnoreSuppressionAnnotations` (since Error Prone 2.3.3). Defaults to `false`.
-| `isCompilingTestOnlyCode`        | (`compilingTestOnlyCode` with Groovy DSL) Maps to `-XepCompilingTestOnlyCode`. Defaults to `false`. (defaults to `true` for a source set inferred as a test source set)
+| `compilingTestOnlyCode`          | Maps to `-XepCompilingTestOnlyCode`. Defaults to `false`. (defaults to `true` for a source set inferred as a test source set)
 | `excludedPaths`                  | A regular expression pattern (as a string) of file paths to exclude from Error Prone checking; maps to `-XepExcludedPaths`. Defaults to `null`.
 | `checks`                         | A map of check name to `CheckSeverity`, to configure which checks are enabled or disabled, and their severity; maps each entry to `-Xep:<key>:<value>`, or `-Xep:<key>` if the value is `CheckSeverity.DEFAULT`. Defaults to an empty map.
 | `checkOptions`                   | A map of check options to their value; maps each entry to `-XepOpt:<key>=<value>`. Use an explicit `"true"` value for a boolean option. Defaults to an empty map.
