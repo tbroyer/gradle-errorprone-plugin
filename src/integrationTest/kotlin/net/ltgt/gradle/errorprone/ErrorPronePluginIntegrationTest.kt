@@ -93,6 +93,53 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
+    fun `does not mess with task avoidance`() {
+        // given
+        buildFile.appendText(
+            """
+
+            tasks.withType<JavaCompile>().configureEach {
+                options.errorprone.isEnabled.set(
+                    providers.gradleProperty("errorprone-enabled").isPresent())
+                options.errorprone.check("ArrayEquals",
+                    providers.gradleProperty("errorprone-check-enabled").map { CheckSeverity.DEFAULT }.orElse(CheckSeverity.OFF))
+            }
+            """.trimIndent(),
+        )
+        testProjectDir.writeFailureSource()
+
+        // when
+        testProjectDir.buildWithArgs("compileJava").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        }
+
+        // when
+        testProjectDir.buildWithArgs("compileJava").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+        }
+
+        // when
+        testProjectDir.buildWithArgs("compileJava", "-Perrorprone-enabled=true").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        }
+
+        // when
+        testProjectDir.buildWithArgs("compileJava", "-Perrorprone-enabled=true").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+        }
+
+        // when
+        testProjectDir.buildWithArgsAndFail("compileJava", "-Perrorprone-enabled=true", "-Perrorprone-check-enabled").also { result ->
+            // then
+            assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.FAILED)
+        }
+    }
+
+    @Test
     fun `with a custom check`() {
         // given
         settingsFile.appendText(
