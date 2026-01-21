@@ -1,21 +1,26 @@
 # Try to maintain entries sorted alphabetically inside each "group".
 [versions]
 errorprone = "2.46.0"
+googleJavaFormat = "1.33.0"
 junitJupiter = "6.0.2"
 ktlint = "1.8.0"
 
 [libraries]
 errorprone-checkApi = { module = "com.google.errorprone:error_prone_check_api", version.ref = "errorprone" }
+errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+nullaway = "com.uber.nullaway:nullaway:0.13.0"
 truth = "com.google.truth:truth:1.4.5"
 
 # Versions used in build script, libraries added here for Dependabot
+google-java-format = { module = "com.google.googlejavaformat:google-java-format", version.ref = "googleJavaFormat" }
 junitJupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref="junitJupiter" }
 ktlint = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlint" }
 
 [bundles]
 
 [plugins]
-androidLint = "com.android.lint:8.13.2"
+errorprone = "net.ltgt.errorprone:4.4.0"
 gradlePluginPublish = "com.gradle.plugin-publish:2.0.0"
 nosphereGithubActions = "org.nosphere.gradle.github.actions:1.4.0"
+nullaway = "net.ltgt.nullaway:2.4.0"
 spotless = "com.diffplug.spotless:8.2.0"

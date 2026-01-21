@@ -4,6 +4,7 @@ import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
 import com.google.errorprone.ErrorProneOptions.Severity
 import com.google.errorprone.InvalidCommandLineOptionException
+import net.ltgt.gradle.errorprone.ErrorPronePlugin.TEST_SOURCE_SET_NAME_REGEX
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ProviderFactory

@@ -1,6 +1,5 @@
 pluginManagement {
     repositories {
-        google()
         gradlePluginPortal()
     }
 }
@@ -11,7 +10,6 @@ dependencyResolutionManagement {
     repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
         mavenCentral()
-        google()
     }
     rulesMode = RulesMode.FAIL_ON_PROJECT_RULES
     components {

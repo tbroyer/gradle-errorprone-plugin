@@ -100,7 +100,34 @@ class BinaryCompatibilityIntegrationTest : AbstractPluginIntegrationTest() {
                 tasks.withType<JavaCompile>().configureEach {
                     options.errorprone {
                         isEnabled.set(true)
+                        disableAllChecks.set(false)
+                        disableAllWarnings.set(false)
+                        allErrorsAsWarnings.set(false)
+                        allSuggestionsAsWarnings.set(false)
+                        allDisabledChecksAsWarnings.set(false)
+                        disableWarningsInGeneratedCode.set(false)
+                        ignoreUnknownCheckNames.set(false)
+                        ignoreSuppressionAnnotations.set(false)
                         isCompilingTestOnlyCode.set(false)
+                        excludedPaths.set("should.not.match.anything")
+
+                        check("Foo" to CheckSeverity.ERROR, "Bar" to CheckSeverity.DEFAULT)
+                        check("Foo", CheckSeverity.WARN)
+                        check("Bar", provider { CheckSeverity.OFF })
+                        enable("Foo", "Bar")
+                        disable("Foo", "Bar")
+                        warn("Foo", "Bar")
+                        error("Foo", "Bar")
+                        checks.empty()
+
+                        option("Foo:Bar")
+                        option("Foo:Bar", false)
+                        option("Foo:Bar", "baz")
+                        option("Foo:Bar", provider { "baz" })
+                        checkOptions.empty()
+
+                        errorproneArgs.empty()
+                        errorproneArgumentProviders.clear()
                     }
                 }
                 """.trimIndent(),
@@ -173,7 +200,34 @@ class BinaryCompatibilityIntegrationTest : AbstractPluginIntegrationTest() {
                                         .getExtensions()
                                         .getByType(ErrorProneOptions.class);
                                 errorproneOptions.getEnabled().set(true);
+                                errorproneOptions.getDisableAllChecks().set(false);
+                                errorproneOptions.getDisableAllWarnings().set(false);
+                                errorproneOptions.getAllErrorsAsWarnings().set(false);
+                                errorproneOptions.getAllSuggestionsAsWarnings().set(false);
+                                errorproneOptions.getAllDisabledChecksAsWarnings().set(false);
+                                errorproneOptions.getDisableWarningsInGeneratedCode().set(false);
+                                errorproneOptions.getIgnoreUnknownCheckNames().set(false);
+                                errorproneOptions.getIgnoreSuppressionAnnotations().set(false);
                                 errorproneOptions.getCompilingTestOnlyCode().set(false);
+                                errorproneOptions.getExcludedPaths().set("should.not.match.anything");
+
+                                errorproneOptions.check(new kotlin.Pair<>("Foo", CheckSeverity.ERROR), new kotlin.Pair<>("Bar", CheckSeverity.DEFAULT));
+                                errorproneOptions.check("Foo", CheckSeverity.WARN);
+                                errorproneOptions.check("Bar", project.provider(() -> CheckSeverity.OFF));
+                                errorproneOptions.enable("Foo", "Bar");
+                                errorproneOptions.disable("Foo", "Bar");
+                                errorproneOptions.warn("Foo", "Bar");
+                                errorproneOptions.error("Foo", "Bar");
+                                errorproneOptions.getChecks().empty();
+
+                                errorproneOptions.option("Foo:Bar");
+                                errorproneOptions.option("Foo:Bar", false);
+                                errorproneOptions.option("Foo:Bar", "baz");
+                                errorproneOptions.option("Foo:Bar", project.provider(() -> "baz"));
+                                errorproneOptions.getCheckOptions().empty();
+
+                                errorproneOptions.getErrorproneArgs().empty();
+                                errorproneOptions.getErrorproneArgumentProviders().clear();
                             });
                   }
                 }

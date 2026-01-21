@@ -5,17 +5,40 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
+    alias(libs.plugins.errorprone)
+    alias(libs.plugins.nullaway)
     alias(libs.plugins.gradlePluginPublish)
     alias(libs.plugins.spotless)
-    alias(libs.plugins.androidLint)
     alias(libs.plugins.nosphereGithubActions)
 }
 
 group = "net.ltgt.gradle"
 
-// Make sure Gradle Module Metadata targets the appropriate JVM version
+dependencies {
+    errorprone(libs.errorprone.core)
+    errorprone(libs.nullaway)
+}
+
+nullaway {
+    annotatedPackages.add("net.ltgt.gradle.errorprone")
+}
+tasks {
+    withType<JavaCompile>().configureEach {
+        options.release = 21
+        options.compilerArgs.addAll(listOf("-Werror", "-Xlint:all"))
+    }
+    javadoc {
+        (options as StandardJavadocDocletOptions).apply {
+            noTimestamp()
+            quiet()
+            addBooleanOption("Xdoclint:-missing", true)
+        }
+    }
+}
+
 tasks.compileJava {
     options.release = 8
+    options.compilerArgs.add("-Xlint:-options")
 }
 tasks.compileKotlin {
     // See https://jakewharton.com/kotlins-jdk-release-compatibility-flag/
@@ -156,6 +179,9 @@ spotless {
     }
     kotlin {
         ktlint(libs.versions.ktlint.get())
+    }
+    java {
+        googleJavaFormat(libs.versions.googleJavaFormat.get())
     }
 }
 
