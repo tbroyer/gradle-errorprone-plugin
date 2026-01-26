@@ -30,7 +30,7 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.jvm.toolchain.JavaCompiler;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.util.GradleVersion;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link Plugin} that configures {@link JavaCompile} tasks to use the <a
@@ -76,6 +76,7 @@ public abstract class ErrorPronePlugin implements Plugin<Project> {
             unused -> configureForJavaPlugin(project, errorproneConfiguration));
   }
 
+  @SuppressWarnings("deprecation") // Configuration.setVisible for backwards-compatibility
   private Provider<Configuration> registerConfiguration(Project project) {
     return project
         .getConfigurations()
@@ -185,8 +186,7 @@ public abstract class ErrorPronePlugin implements Plugin<Project> {
     @SuppressWarnings("unused")
     @Nested
     @Optional
-    @Nullable
-    ErrorProneOptions getErrorproneOptions() {
+    @Nullable ErrorProneOptions getErrorproneOptions() {
       return errorproneOptions.getEnabled().getOrElse(false) ? errorproneOptions : null;
     }
 
@@ -224,8 +224,7 @@ public abstract class ErrorPronePlugin implements Plugin<Project> {
 
     @Input
     @Optional
-    @Nullable
-    JavaVersion getCompilerVersion() {
+    @Nullable JavaVersion getCompilerVersion() {
       JavaCompiler javaCompiler = task.getJavaCompiler().getOrNull();
       if (javaCompiler == null) {
         return isCommandLine(task.getOptions()) ? null : JavaVersion.current();

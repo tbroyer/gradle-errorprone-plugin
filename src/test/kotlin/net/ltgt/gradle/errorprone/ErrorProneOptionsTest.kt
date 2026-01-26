@@ -259,6 +259,5 @@ class ErrorProneOptionsTest {
             CheckSeverity.OFF -> Severity.OFF
             CheckSeverity.WARN -> Severity.WARN
             CheckSeverity.ERROR -> Severity.ERROR
-            else -> throw AssertionError()
         }
 }

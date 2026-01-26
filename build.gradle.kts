@@ -1,3 +1,5 @@
+import net.ltgt.gradle.errorprone.errorprone
+import net.ltgt.gradle.nullaway.nullaway
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -20,12 +22,17 @@ dependencies {
 }
 
 nullaway {
-    annotatedPackages.add("net.ltgt.gradle.errorprone")
+    onlyNullMarked = true
 }
 tasks {
     withType<JavaCompile>().configureEach {
         options.release = 21
         options.compilerArgs.addAll(listOf("-Werror", "-Xlint:all"))
+        options.errorprone {
+            nullaway {
+                isJSpecifyMode = true
+            }
+        }
     }
     javadoc {
         (options as StandardJavadocDocletOptions).apply {
@@ -45,15 +52,16 @@ tasks.compileKotlin {
     compilerOptions.freeCompilerArgs.add("-Xjdk-release=1.8")
     compilerOptions.jvmTarget = JvmTarget.JVM_1_8
 
-    // For Gradle 7.1 compatibility. Gradle 7.1 embeds Kotlin 1.4.
+    // For Gradle 7.1 compatibility. Gradle 7.1 embeds Kotlin 1.4, but 1.8 is the earliest we can target,
+    // and there are enough tests to assert compatibility (particularly given the narrow scope of Kotlin use).
     // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
     @Suppress("DEPRECATION")
-    compilerOptions.apiVersion = KotlinVersion.KOTLIN_1_4
+    compilerOptions.apiVersion = KotlinVersion.KOTLIN_1_8
     @Suppress("DEPRECATION")
-    compilerOptions.languageVersion = KotlinVersion.KOTLIN_1_4
+    compilerOptions.languageVersion = KotlinVersion.KOTLIN_1_8
 
     compilerOptions.allWarningsAsErrors = true
-    // Using Kotlin 1.4 above emits a warning that would then fail the build with allWarningsAsErrors
+    // Using Kotlin 1.8 above emits a warning that would then fail the build with allWarningsAsErrors
     compilerOptions.freeCompilerArgs.add("-Xsuppress-version-warnings")
 }
 
