@@ -93,6 +93,57 @@ class ErrorPronePluginIntegrationTest : AbstractPluginIntegrationTest() {
     }
 
     @Test
+    fun `configuration non-regression test`() {
+        // given
+        buildFile.appendText(
+            """
+
+            tasks.withType<JavaCompile>().configureEach {
+                options.errorprone {
+                    isEnabled.set(true)
+                    disableAllChecks.set(false)
+                    disableAllWarnings.set(false)
+                    allErrorsAsWarnings.set(false)
+                    allSuggestionsAsWarnings.set(false)
+                    allDisabledChecksAsWarnings.set(false)
+                    disableWarningsInGeneratedCode.set(false)
+                    ignoreUnknownCheckNames.set(false)
+                    ignoreSuppressionAnnotations.set(false)
+                    isCompilingTestOnlyCode.set(false)
+                    excludedPaths.set("should.not.match.anything")
+
+                    check("Foo" to CheckSeverity.ERROR, "Bar" to CheckSeverity.DEFAULT)
+                    check("Foo", CheckSeverity.WARN)
+                    check("Bar", provider { CheckSeverity.OFF })
+                    enable("Foo", "Bar")
+                    disable("Foo", "Bar")
+                    warn("Foo", "Bar")
+                    error("Foo", "Bar")
+                    checks.empty()
+
+                    option("Foo:Bar")
+                    option("Foo:Bar", false)
+                    option("Foo:Bar", "baz")
+                    option("Foo:Bar", provider { "baz" })
+                    checkOptions.empty()
+
+                    errorproneArgs.empty()
+                    errorproneArgumentProviders.clear()
+                }
+            }
+            """.trimIndent(),
+        )
+
+        testProjectDir.writeSuccessSource()
+
+        // when
+        val result = testProjectDir.buildWithArgs("compileJava")
+
+        // then
+        assertThat(result.task(":compileJava")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    }
+
+    @Test
     fun `does not mess with task avoidance`() {
         // given
         buildFile.appendText(

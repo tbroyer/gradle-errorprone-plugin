@@ -74,6 +74,9 @@ class GroovyDslIntegrationTest {
         buildFile.appendText(
             """
 
+            import net.ltgt.gradle.errorprone.CheckSeverity
+            import kotlin.Pair
+
             tasks.withType(JavaCompile).configureEach {
                 options.errorprone {
                     // configure with the default values, we only want to check the DSL, not the effects
@@ -88,7 +91,24 @@ class GroovyDslIntegrationTest {
                     ignoreSuppressionAnnotations = false
                     compilingTestOnlyCode = false
                     excludedPaths = "should.not.match.anything"
-                    enable("ArrayEquals")
+
+                    check new Pair("Foo", CheckSeverity.ERROR), new Pair("Bar", CheckSeverity.DEFAULT)
+                    check "Foo", CheckSeverity.WARN
+                    check "Bar", provider { CheckSeverity.OFF }
+                    enable "Foo", "Bar"
+                    disable "Foo", "Bar"
+                    warn "Foo", "Bar"
+                    error "Foo", "Bar"
+                    checks.empty()
+
+                    option "Foo:Bar"
+                    option "Foo:Bar", false
+                    option "Foo:Bar", "baz"
+                    option "Foo:Bar", provider { "baz" }
+                    checkOptions.empty()
+
+                    errorproneArgs.empty()
+                    errorproneArgumentProviders.clear()
                 }
             }
             """.trimIndent(),
