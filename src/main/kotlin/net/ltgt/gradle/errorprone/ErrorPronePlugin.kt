@@ -23,6 +23,7 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.*
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.util.GradleVersion
+import java.io.Serializable
 import javax.inject.Inject
 
 /**
@@ -149,7 +150,12 @@ internal class ErrorProneJvmArgumentProvider(
     private val errorproneOptions: ErrorProneOptions,
     private val javacConfiguration: Provider<out FileCollection>,
 ) : CommandLineArgumentProvider,
-    Named {
+    Named,
+    Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1
+    }
+
     @Internal override fun getName(): String = "errorprone"
 
     @get:Input
@@ -181,7 +187,12 @@ internal class ErrorProneJvmArgumentProvider(
 internal class ErrorProneCompilerArgumentProvider(
     private val errorproneOptions: ErrorProneOptions,
 ) : CommandLineArgumentProvider,
-    Named {
+    Named,
+    Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1
+    }
+
     @Internal override fun getName(): String = "errorprone"
 
     @Suppress("unused")
