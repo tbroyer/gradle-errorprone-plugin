@@ -89,7 +89,7 @@ testing {
         val test by getting(JvmTestSuite::class) {
             dependencies {
                 implementation(project())
-                implementation(libs.checkApi)
+                implementation(libs.errorprone.checkApi)
             }
         }
         register<JvmTestSuite>("integrationTest") {
@@ -122,7 +122,7 @@ testing {
                     val testGradleVersion = project.findProperty("test.gradle-version")
                     testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
 
-                    systemProperty("errorprone.version", libs.versions.get())
+                    systemProperty("errorprone.version", libs.versions.errorprone.get())
                 }
             }
         }
@@ -139,9 +139,9 @@ gradlePlugin {
     vcsUrl.set("https://github.com/tbroyer/gradle-errorprone-plugin")
     plugins {
         register("errorprone") {
-            id = "net.ltgt"
+            id = "net.ltgt.errorprone"
             displayName = "Gradle Error Prone plugin"
-            implementationClass = "net.ltgt.gradlePlugin"
+            implementationClass = "net.ltgt.gradle.errorprone.ErrorPronePlugin"
             description = "Gradle plugin to use Error Prone with the Java compiler"
             tags.addAll("javac", "error-prone")
         }
