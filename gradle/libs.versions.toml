@@ -8,7 +8,7 @@ ktlint = "1.8.0"
 [libraries]
 errorprone-checkApi = { module = "com.google.errorprone:error_prone_check_api", version.ref = "errorprone" }
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
-nullaway = "com.uber.nullaway:nullaway:0.13.0"
+nullaway = "com.uber.nullaway:nullaway:0.13.1"
 truth = "com.google.truth:truth:1.4.5"
 
 # Versions used in build script, libraries added here for Dependabot
@@ -23,4 +23,4 @@ errorprone = "net.ltgt.errorprone:5.0.0"
 gradlePluginPublish = "com.gradle.plugin-publish:2.0.0"
 nosphereGithubActions = "org.nosphere.gradle.github.actions:1.4.0"
 nullaway = "net.ltgt.nullaway:2.4.0"
-spotless = "com.diffplug.spotless:8.2.0"
+spotless = "com.diffplug.spotless:8.2.1"
