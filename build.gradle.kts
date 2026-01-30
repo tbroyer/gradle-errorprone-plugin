@@ -1,5 +1,3 @@
-import net.ltgt.gradle.errorprone.errorprone
-import net.ltgt.gradle.nullaway.nullaway
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -23,16 +21,12 @@ dependencies {
 
 nullaway {
     onlyNullMarked = true
+    jspecifyMode = true
 }
 tasks {
     withType<JavaCompile>().configureEach {
         options.release = 21
         options.compilerArgs.addAll(listOf("-Werror", "-Xlint:all"))
-        options.errorprone {
-            nullaway {
-                isJSpecifyMode = true
-            }
-        }
     }
     javadoc {
         (options as StandardJavadocDocletOptions).apply {
@@ -95,7 +89,7 @@ testing {
         val test by getting(JvmTestSuite::class) {
             dependencies {
                 implementation(project())
-                implementation(libs.errorprone.checkApi)
+                implementation(libs.checkApi)
             }
         }
         register<JvmTestSuite>("integrationTest") {
@@ -128,7 +122,7 @@ testing {
                     val testGradleVersion = project.findProperty("test.gradle-version")
                     testGradleVersion?.also { systemProperty("test.gradle-version", testGradleVersion) }
 
-                    systemProperty("errorprone.version", libs.versions.errorprone.get())
+                    systemProperty("errorprone.version", libs.versions.get())
                 }
             }
         }
@@ -145,9 +139,9 @@ gradlePlugin {
     vcsUrl.set("https://github.com/tbroyer/gradle-errorprone-plugin")
     plugins {
         register("errorprone") {
-            id = "net.ltgt.errorprone"
+            id = "net.ltgt"
             displayName = "Gradle Error Prone plugin"
-            implementationClass = "net.ltgt.gradle.errorprone.ErrorPronePlugin"
+            implementationClass = "net.ltgt.gradlePlugin"
             description = "Gradle plugin to use Error Prone with the Java compiler"
             tags.addAll("javac", "error-prone")
         }
