@@ -96,11 +96,6 @@ testing {
             dependencies {
                 implementation(project()) { because("Test code calls constants") }
                 implementation(gradleTestKit())
-                runtimeOnly(gradleKotlinDsl()) { because("Needed by ErrorPronePlugin, usually provided by Gradle at runtime") }
-            }
-            // associate with main Kotlin compilation to access internal constants
-            kotlin.target.compilations.named(name) {
-                associateWith(kotlin.target.compilations["main"])
             }
             // make plugin-under-test-metadata.properties accessible to TestKit
             gradlePlugin.testSourceSet(sources)
