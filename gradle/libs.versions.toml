@@ -2,7 +2,7 @@
 [versions]
 errorprone = "2.47.0"
 googleJavaFormat = "1.34.1"
-junitJupiter = "6.0.2"
+junitJupiter = "6.0.3"
 ktlint = "1.8.0"
 
 [libraries]
