@@ -1,3 +1,4 @@
+import net.ltgt.gradle.errorprone.errorprone
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
@@ -40,6 +41,11 @@ tasks {
 tasks.compileJava {
     options.release = 8
     options.compilerArgs.add("-Xlint:-options")
+    options.errorprone {
+        // Gradle uses javax.inject annotations in a special way.
+        disable("InjectOnConstructorOfAbstractClass")
+        disable("JavaxInjectOnAbstractMethod")
+    }
 }
 tasks.compileKotlin {
     // See https://jakewharton.com/kotlins-jdk-release-compatibility-flag/

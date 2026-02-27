@@ -149,6 +149,9 @@ public class ErrorPronePluginIntegrationTest extends BasePluginIntegrationTest {
 
                     errorproneArgs.empty()
                     errorproneArgumentProviders.clear()
+
+                    argumentFiles.from("ep_argfile.cfg")
+                    argumentFiles.setFrom()
                 }
             }
         """,
@@ -176,10 +179,16 @@ public class ErrorPronePluginIntegrationTest extends BasePluginIntegrationTest {
                     providers.gradleProperty("errorprone-enabled").isPresent())
                 options.errorprone.check("ArrayEquals",
                     providers.gradleProperty("errorprone-check-enabled").map { CheckSeverity.DEFAULT }.orElse(CheckSeverity.OFF))
+                providers.gradleProperty("errorprone-arg-file").orNull?.let {
+                    options.errorprone.argumentFiles.from(it)
+                }
             }
         """,
         StandardOpenOption.APPEND);
     writeFailureSource();
+    Files.createFile(projectDir.resolve("ep_argfile.cfg"));
+
+    // First with Error Prone disabled, second time is up-to-date
 
     // when
     var result = buildWithArgs("compileJava");
@@ -193,6 +202,24 @@ public class ErrorPronePluginIntegrationTest extends BasePluginIntegrationTest {
     assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
         .isEqualTo(TaskOutcome.UP_TO_DATE);
 
+    // We can reconfigure Error Prone, it doesn't change the outcome as Error Prone is disabled
+
+    // when
+    result = buildWithArgs("compileJava", "-Perrorprone-check-enabled");
+    // then
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.UP_TO_DATE);
+
+    // when
+    result = buildWithArgs("compileJava", "-Perrorprone-arg-file=ep_argfile.cfg");
+    // then
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.UP_TO_DATE);
+
+    // Then enable Error Prone:
+    // Task is now out of date (compilation pass without error as check is disabled)
+    // Second time is up-to-date
+
     // when
     result = buildWithArgs("compileJava", "-Perrorprone-enabled=true");
     // then
@@ -205,10 +232,61 @@ public class ErrorPronePluginIntegrationTest extends BasePluginIntegrationTest {
     assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
         .isEqualTo(TaskOutcome.UP_TO_DATE);
 
+    // Now playing with argument files:
+    // Adding one invalidates the inputs, changing its content too.
+    // Moving the file doesn't though, as only the content matters.
+
+    // when
+    result =
+        buildWithArgs(
+            "compileJava", "-Perrorprone-enabled=true", "-Perrorprone-arg-file=ep_argfile.cfg");
+    // then
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.SUCCESS);
+
+    // when
+    result =
+        buildWithArgs(
+            "compileJava", "-Perrorprone-enabled=true", "-Perrorprone-arg-file=ep_argfile.cfg");
+    // then
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.UP_TO_DATE);
+
+    // when
+    Files.writeString(projectDir.resolve("ep_argfile.cfg"), "-XepCompilingTestOnlyCode");
+    result =
+        buildWithArgs(
+            "compileJava", "-Perrorprone-enabled=true", "-Perrorprone-arg-file=ep_argfile.cfg");
+    // then
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.SUCCESS);
+
+    // when
+    result =
+        buildWithArgs(
+            "compileJava", "-Perrorprone-enabled=true", "-Perrorprone-arg-file=ep_argfile.cfg");
+    // then
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.UP_TO_DATE);
+
+    // when
+    Files.move(projectDir.resolve("ep_argfile.cfg"), projectDir.resolve("epArgs.cfg"));
+    result =
+        buildWithArgs(
+            "compileJava", "-Perrorprone-enabled=true", "-Perrorprone-arg-file=epArgs.cfg");
+    // then
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.UP_TO_DATE);
+
+    // Now enable the check: task is out of date, and now fails
+
     // when
     result =
         buildWithArgsAndFail(
-            "compileJava", "-Perrorprone-enabled=true", "-Perrorprone-check-enabled");
+            "compileJava",
+            "-Perrorprone-enabled=true",
+            "-Perrorprone-arg-file=epArgs.cfg",
+            "-Perrorprone-check-enabled");
     // then
     assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
         .isEqualTo(TaskOutcome.FAILED);

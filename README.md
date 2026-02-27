@@ -267,6 +267,7 @@ _Please note that all properties are [lazy](https://docs.gradle.org/current/user
 | Property | Description
 | :------- | :----------
 | `enabled`                        | Allows disabling Error Prone altogether for the task. Error Prone will still be in the annotation processor path, but `-Xplugin:ErrorProne` won't be passed as a compiler argument. Defaults to `true` for source set tasks, `false` otherwise.
+| `argumentFiles`                  | A configurable file collection of argument files (since Error Prone 2.48.0), so options can be shared between tools (Gradle, IDEs, etc.) Argument files are applied first, before all the other options.
 | `disableAllChecks`               | Disable all Error Prone checks; maps to `-XepDisableAllChecks`. This will be the first argument, so checks can then be re-enabled on a case-by-case basis. Defaults to `false`.
 | `disableAllWarnings`             | Maps to `-XepDisableAllWarnings` (since ErrorProne 2.4.0). Defaults to `false`.
 | `allErrorsAsWarnings`            | Maps to `-XepAllErrorsAsWarnings`. Defaults to `false`.

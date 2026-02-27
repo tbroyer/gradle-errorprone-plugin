@@ -106,6 +106,9 @@ public class GroovyDslIntegrationTest extends BasePluginIntegrationTest {
 
                 errorproneArgs.empty()
                 errorproneArgumentProviders.clear()
+
+                argumentFiles.from("ep_argfile.cfg")
+                argumentFiles.setFrom()
             }
         }
         """,

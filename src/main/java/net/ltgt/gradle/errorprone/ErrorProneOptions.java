@@ -1,21 +1,23 @@
 package net.ltgt.gradle.errorprone;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import javax.inject.Inject;
 import kotlin.DeprecationLevel;
 import org.gradle.api.InvalidUserDataException;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Nested;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.compile.CompileOptions;
 import org.gradle.process.CommandLineArgumentProvider;
+import org.gradle.work.NormalizeLineEndings;
 
 public abstract class ErrorProneOptions {
 
@@ -24,7 +26,14 @@ public abstract class ErrorProneOptions {
   private static final Predicate<String> IS_WHITE_SPACE =
       Pattern.compile("\\p{IsWhite_Space}").asPredicate();
 
+  private final ProjectLayout projectLayout;
   private final List<CommandLineArgumentProvider> errorproneArgumentProviders = new ArrayList<>();
+
+  @NormalizeLineEndings
+  @PathSensitive(PathSensitivity.NONE)
+  @IgnoreEmptyDirectories
+  @InputFiles
+  public abstract ConfigurableFileCollection getArgumentFiles();
 
   /**
    * Allows disabling Error Prone altogether for the task.
@@ -169,7 +178,9 @@ public abstract class ErrorProneOptions {
   }
 
   @SuppressWarnings("this-escape")
-  public ErrorProneOptions() {
+  @Inject
+  public ErrorProneOptions(ProjectLayout projectLayout) {
+    this.projectLayout = projectLayout;
     getEnabled().convention(false);
     getDisableAllChecks().convention(false);
     getDisableAllWarnings().convention(false);
@@ -341,6 +352,20 @@ public abstract class ErrorProneOptions {
   @Override
   public String toString() {
     List<String> options = new ArrayList<>();
+    for (File file : getArgumentFiles()) {
+      String path = file.getAbsolutePath();
+      if (IS_WHITE_SPACE.test(path)) {
+        // Try a path relative to the project
+        path =
+            projectLayout
+                .getProjectDirectory()
+                .getAsFile()
+                .toPath()
+                .relativize(file.toPath())
+                .toString();
+      }
+      options.add("@" + path);
+    }
     maybeAddBooleanOption(options, "-XepDisableAllChecks", getDisableAllChecks());
     maybeAddBooleanOption(options, "-XepDisableAllWarnings", getDisableAllWarnings());
     maybeAddBooleanOption(options, "-XepAllErrorsAsWarnings", getAllErrorsAsWarnings());

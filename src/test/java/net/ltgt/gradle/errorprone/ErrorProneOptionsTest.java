@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.google.errorprone.ErrorProneOptions.Severity;
 import com.google.errorprone.InvalidCommandLineOptionException;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -166,6 +168,36 @@ public class ErrorProneOptionsTest {
         reference -> reference.option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone"));
   }
 
+  @Test
+  public void correctlyConfiguresFromArgumentFiles(@TempDir Path tempDir) throws Exception {
+    var argfile =
+        Files.writeString(
+            Files.createFile(tempDir.resolve("ep_argfile.cfg")),
+            """
+                -Xep:NullAway
+                -XepOpt:NullAway:AnnotatedPackages=net.ltgt.gradle.errorprone
+                """);
+    doTestOptions(
+        options -> options.getArgumentFiles().from(argfile),
+        reference -> {
+          reference.enable("NullAway");
+          reference.option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone");
+        });
+
+    // task options apply after argument files
+    doTestOptions(
+        options -> {
+          options.getDisableAllChecks().set(true);
+          options.enable("BetaApi");
+          options.getArgumentFiles().from(argfile);
+        },
+        reference -> {
+          reference.getDisableAllChecks().set(true);
+          reference.enable("BetaApi");
+          reference.option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone");
+        });
+  }
+
   private void doTestOptions(
       Consumer<ErrorProneOptions> configure, Consumer<ErrorProneOptions> reference) {
     var referenceOptions = objects.newInstance(ErrorProneOptions.class);
@@ -193,6 +225,7 @@ public class ErrorProneOptionsTest {
         "-Xep:Foo -Xep:Bar",
         options ->
             options.getErrorproneArgumentProviders().add(() -> List.of("-Xep:Foo -Xep:Bar")));
+    doTestSpaces("@with spaces", options -> options.getArgumentFiles().from("with spaces"));
   }
 
   private void doTestSpaces(String argPrefix, Consumer<ErrorProneOptions> configure) {
