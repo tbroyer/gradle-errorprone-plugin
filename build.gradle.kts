@@ -1,5 +1,6 @@
 import net.ltgt.gradle.errorprone.errorprone
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.plugin.compatibility.compatibility
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
@@ -145,6 +146,11 @@ gradlePlugin {
             implementationClass = "net.ltgt.gradle.errorprone.ErrorPronePlugin"
             description = "Gradle plugin to use Error Prone with the Java compiler"
             tags.addAll("javac", "error-prone")
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
