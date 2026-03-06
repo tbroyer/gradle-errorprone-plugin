@@ -6,6 +6,12 @@ updates:
       interval: "weekly"
       day: "friday"
     groups:
+      gradle-wrapper:
+        patterns:
+          - "gradle-wrapper"
+        update-types:
+          - "major"
+          - "minor"
       all-minor:
         update-types:
           - "minor"
