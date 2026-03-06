@@ -1,7 +1,7 @@
 # Try to maintain entries sorted alphabetically inside each "group".
 [versions]
 errorprone = "2.48.0"
-googleJavaFormat = "1.34.1"
+googleJavaFormat = "1.35.0"
 junitJupiter = "6.0.3"
 ktlint = "1.8.0"
 
@@ -19,8 +19,8 @@ ktlint = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlint" }
 [bundles]
 
 [plugins]
-errorprone = "net.ltgt.errorprone:5.0.0"
+errorprone = "net.ltgt.errorprone:5.1.0"
 gradlePluginPublish = "com.gradle.plugin-publish:2.1.0"
 nosphereGithubActions = "org.nosphere.gradle.github.actions:1.4.0"
 nullaway = "net.ltgt.nullaway:3.0.0"
-spotless = "com.diffplug.spotless:8.2.1"
+spotless = "com.diffplug.spotless:8.3.0"
