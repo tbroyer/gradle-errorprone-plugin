@@ -5,11 +5,16 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 
 public class ErrorPronePluginIntegrationTest extends BasePluginIntegrationTest {
 
@@ -407,6 +412,58 @@ public class ErrorPronePluginIntegrationTest extends BasePluginIntegrationTest {
     // Check that the second run indeed used ErrorProne.
     // As it didn't fail, it means the rest of the configuration was properly persisted/reloaded.
     assertThat(result.getOutput()).contains("-Xplugin:ErrorProne");
+  }
+
+  // Inspired by
+  // https://docs.gradle.org/current/userguide/build_cache.html#sec:task_output_caching_example
+  @Test
+  @DisabledOnOs(OS.WINDOWS) // See https://github.com/gradle/gradle/issues/12535
+  void isBuildCacheFriendly(@TempDir Path testKitDir, @TempDir Path otherDir) throws Exception {
+    // given
+    Files.writeString(
+        getBuildFile(),
+        """
+
+        tasks.withType<JavaCompile>().configureEach {
+            options.errorprone {
+                argumentFiles.from("ep_argfile.cfg")
+            }
+        }
+        """,
+        StandardOpenOption.APPEND);
+    Files.createFile(projectDir.resolve("ep_argfile.cfg"));
+    writeSuccessSource();
+
+    // Prime the build cache
+    var result =
+        prepareBuild("--build-cache", "compileJava").withTestKitDir(testKitDir.toFile()).build();
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.SUCCESS);
+
+    // Delete the local state
+    prepareBuild("clean").withTestKitDir(testKitDir.toFile()).build();
+
+    // when
+    result =
+        prepareBuild("--build-cache", "compileJava").withTestKitDir(testKitDir.toFile()).build();
+
+    // then
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.FROM_CACHE);
+
+    // Test "relocatability"
+    Files.move(projectDir, otherDir, StandardCopyOption.REPLACE_EXISTING);
+
+    // when
+    result =
+        prepareBuild("--build-cache", "compileJava")
+            .withTestKitDir(testKitDir.toFile())
+            .withProjectDir(otherDir.toFile())
+            .build();
+
+    // then
+    assertThat(requireNonNull(result.task(":compileJava")).getOutcome())
+        .isEqualTo(TaskOutcome.FROM_CACHE);
   }
 
   // Inspired by the tests added in Error Prone's https://github.com/google/error-prone/pull/4618
