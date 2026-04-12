@@ -3,11 +3,14 @@
 errorprone = "2.49.0"
 googleJavaFormat = "1.35.0"
 junitJupiter = "6.0.3"
+kotlinAccessorsGenerator = "0.1.0"
 ktlint = "1.8.0"
 
 [libraries]
 errorprone-checkApi = { module = "com.google.errorprone:error_prone_check_api", version.ref = "errorprone" }
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+kotlinAccessorsGenerator-annotations = { module = "net.ltgt.gradle.kotlin-accessors-generator:annotations", version.ref = "kotlinAccessorsGenerator" }
+kotlinAccessorsGenerator-processor = { module = "net.ltgt.gradle.kotlin-accessors-generator:processor", version.ref = "kotlinAccessorsGenerator" }
 nullaway = "com.uber.nullaway:nullaway:0.13.4"
 truth = "com.google.truth:truth:1.4.5"
 
