@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import kotlin.DeprecationLevel;
+import net.ltgt.gradle.kotlin.accessors.generator.GenerateKotlinAccessors;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ProjectLayout;
@@ -19,6 +20,10 @@ import org.gradle.api.tasks.compile.CompileOptions;
 import org.gradle.process.CommandLineArgumentProvider;
 import org.gradle.work.NormalizeLineEndings;
 
+@GenerateKotlinAccessors(
+    generatedClassName = "ErrorProneOptionsKt",
+    name = ErrorProneOptions.NAME,
+    receivers = CompileOptions.class)
 public abstract class ErrorProneOptions {
 
   public static final String NAME = ErrorPronePlugin.EXTENSION_NAME;
