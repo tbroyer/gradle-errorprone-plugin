@@ -8,7 +8,7 @@ ktlint = "1.8.0"
 [libraries]
 errorprone-checkApi = { module = "com.google.errorprone:error_prone_check_api", version.ref = "errorprone" }
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
-nullaway = "com.uber.nullaway:nullaway:0.13.3"
+nullaway = "com.uber.nullaway:nullaway:0.13.4"
 truth = "com.google.truth:truth:1.4.5"
 
 # Versions used in build script, libraries added here for Dependabot
