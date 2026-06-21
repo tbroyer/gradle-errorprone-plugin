@@ -93,12 +93,13 @@ testing {
             }
         }
 
-        val test by getting(JvmTestSuite::class) {
-            dependencies {
-                implementation(project())
-                implementation(libs.errorprone.checkApi)
+        val test =
+            named<JvmTestSuite>("test") {
+                dependencies {
+                    implementation(project())
+                    implementation(libs.errorprone.checkApi)
+                }
             }
-        }
         register<JvmTestSuite>("integrationTest") {
             dependencies {
                 implementation(project()) { because("Test code calls constants") }
