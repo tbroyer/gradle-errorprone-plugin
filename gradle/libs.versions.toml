@@ -2,7 +2,7 @@
 [versions]
 errorprone = "2.50.0"
 googleJavaFormat = "1.35.0"
-junitJupiter = "6.1.0"
+junitJupiter = "6.1.1"
 ktlint = "1.8.0"
 
 [libraries]
@@ -23,4 +23,4 @@ errorprone = "net.ltgt.errorprone:5.1.0"
 gradlePluginPublish = "com.gradle.plugin-publish:2.1.1"
 nosphereGithubActions = "org.nosphere.gradle.github.actions:1.4.0"
 nullaway = "net.ltgt.nullaway:3.1.0"
-spotless = "com.diffplug.spotless:8.7.0"
+spotless = "com.diffplug.spotless:8.8.0"
