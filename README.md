@@ -7,7 +7,7 @@ This plugin configures `JavaCompile` tasks to use [Error Prone].
 ## Requirements
 
 > [!IMPORTANT]
-> This plugin requires using at least Gradle 6.8 and JDK 11 (for compilation; it's OK to use JDK 8 to run Gradle as long as compilations use at least JDK 11 through [Gradle Java Toolchains][gradle-toolchains]).
+> This plugin requires using at least Gradle 7.1 and JDK 11 (for compilation; it's OK to use JDK 8 to run Gradle as long as compilations use at least JDK 11 through [Gradle Java Toolchains][gradle-toolchains]).
 
 The exact minimum required version of the JDK depends on the version of Error Prone being used (independently of the version of this plugin);
 there's no forward compatibility guarantee though so older versions of Error Prone aren't necessarily compatible with newer versions of the JDK.
