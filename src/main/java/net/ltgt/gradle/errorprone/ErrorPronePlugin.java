@@ -76,7 +76,6 @@ public abstract class ErrorPronePlugin implements Plugin<Project> {
             unused -> configureForJavaPlugin(project, errorproneConfiguration));
   }
 
-  @SuppressWarnings("deprecation") // Configuration.setVisible for backwards-compatibility
   private Provider<Configuration> registerConfiguration(Project project) {
     return project
         .getConfigurations()
@@ -85,7 +84,6 @@ public abstract class ErrorPronePlugin implements Plugin<Project> {
             configuration -> {
               configuration.setDescription(
                   "Error Prone dependencies, will be extended by all source sets' annotationProcessor configurations");
-              configuration.setVisible(false);
               configuration.setCanBeConsumed(false);
               configuration.setCanBeResolved(false);
 
