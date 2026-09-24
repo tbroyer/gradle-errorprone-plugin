@@ -54,15 +54,6 @@ tasks.compileJava {
     }
 }
 
-gradle.taskGraph.whenReady {
-    if (hasTask(":publishPlugins")) {
-        check(cmd("git", "diff", "--quiet", "--exit-code").waitFor() == 0) { "Working tree is dirty" }
-        val process = cmd("git", "describe", "--exact-match")
-        check(process.waitFor() == 0) { "Version is not tagged" }
-        version = process.text.trim().removePrefix("v")
-    }
-}
-
 testing {
     suites {
         withType<JvmTestSuite>().configureEach {
@@ -180,8 +171,3 @@ spotless {
         googleJavaFormat(libs.versions.googleJavaFormat.get())
     }
 }
-
-fun cmd(vararg cmdarray: String) = Runtime.getRuntime().exec(cmdarray, null, rootDir)
-
-val Process.text: String
-    get() = inputStream.bufferedReader().readText()
