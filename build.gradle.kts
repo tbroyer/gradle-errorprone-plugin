@@ -22,8 +22,11 @@ dependencies {
 }
 
 nullaway {
+    error()
     onlyNullMarked = true
     jspecifyMode = true
+    requireExplicitNullMarking { error() }
+    jspecifyUnrecognizedAnnotationLocation { error() }
 }
 tasks {
     withType<JavaCompile>().configureEach {
