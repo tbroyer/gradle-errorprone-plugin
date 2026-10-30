@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import kotlin.Pair;
 import org.gradle.api.InvalidUserDataException;
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.io.TempDir;
+import org.safere.Pattern;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ErrorProneOptionsTest {
