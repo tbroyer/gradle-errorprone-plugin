@@ -135,6 +135,8 @@ public class ErrorPronePluginIntegrationTest extends BasePluginIntegrationTest {
                     ignoreUnknownCheckNames.set(false)
                     ignoreSuppressionAnnotations.set(false)
                     compilingTestOnlyCode.set(false)
+                    printTimings.set(false)
+                    recordTimings.set(false)
                     excludedPaths.set("should.not.match.anything")
 
                     check("Foo" to CheckSeverity.ERROR, "Bar" to CheckSeverity.DEFAULT)

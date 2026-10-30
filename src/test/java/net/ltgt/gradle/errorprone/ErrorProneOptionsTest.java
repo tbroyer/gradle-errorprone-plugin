@@ -63,6 +63,8 @@ public class ErrorProneOptionsTest {
     doTestOptions(options -> options.getIgnoreUnknownCheckNames().set(true));
     doTestOptions(options -> options.getIgnoreSuppressionAnnotations().set(true));
     doTestOptions(options -> options.getCompilingTestOnlyCode().set(true));
+    doTestOptions(options -> options.getPrintTimings().set(true));
+    doTestOptions(options -> options.getRecordTimings().set(true));
     doTestOptions(options -> options.getExcludedPaths().set(".*/build/generated/.*"));
     doTestOptions(options -> options.enable("ArrayEquals"));
     doTestOptions(options -> options.disable("ArrayEquals"));
@@ -88,6 +90,8 @@ public class ErrorProneOptionsTest {
           options.getIgnoreUnknownCheckNames().set(true);
           options.getIgnoreSuppressionAnnotations().set(true);
           options.getCompilingTestOnlyCode().set(true);
+          options.getPrintTimings().set(true);
+          options.getRecordTimings().set(true);
           options.getExcludedPaths().set(".*/build/generated/.*");
           options.enable("ArrayEquals");
           options.check("ArrayEquals", CheckSeverity.ERROR);
@@ -296,6 +300,9 @@ public class ErrorProneOptionsTest {
         .isEqualTo(options.getIgnoreSuppressionAnnotations().get());
     assertThat(parsedOptions.isTestOnlyTarget())
         .isEqualTo(options.getCompilingTestOnlyCode().get());
+    assertThat(parsedOptions.printTimings()).isEqualTo(options.getPrintTimings().get());
+    assertThat(parsedOptions.recordTimings())
+        .isEqualTo(options.getRecordTimings().get() || options.getPrintTimings().get());
     assertThat(
             Optional.ofNullable(parsedOptions.getExcludedPattern())
                 .map(Pattern::pattern)

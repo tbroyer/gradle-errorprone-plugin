@@ -134,6 +134,20 @@ public abstract class ErrorProneOptions {
   public abstract Property<Boolean> getCompilingTestOnlyCode();
 
   /**
+   * Tells Error Prone to record how long each check runs, and print the totals once the compilation
+   * finishes; maps to {@code -XepPrintTimings}.
+   */
+  @Input
+  public abstract Property<Boolean> getPrintTimings();
+
+  /**
+   * Tells Error Prone to record how long each check runs, the timings will have to be extracted by
+   * another compiler plugin; maps to {@code -XepRecordTimings}.
+   */
+  @Input
+  public abstract Property<Boolean> getRecordTimings();
+
+  /**
    * A regular expression pattern (as a string) of file paths to exclude from Error Prone checking;
    * maps to {@code -XepExcludedPaths}.
    */
@@ -199,6 +213,8 @@ public abstract class ErrorProneOptions {
     getDisableWarningsInGeneratedCode().convention(false);
     getIgnoreUnknownCheckNames().convention(false);
     getIgnoreSuppressionAnnotations().convention(false);
+    getPrintTimings().convention(false);
+    getRecordTimings().convention(false);
     getCompilingTestOnlyCode().convention(false);
   }
 
@@ -387,6 +403,8 @@ public abstract class ErrorProneOptions {
     maybeAddBooleanOption(
         options, "-XepIgnoreSuppressionAnnotations", getIgnoreSuppressionAnnotations());
     maybeAddBooleanOption(options, "-XepCompilingTestOnlyCode", getCompilingTestOnlyCode());
+    maybeAddBooleanOption(options, "-XepPrintTimings", getPrintTimings());
+    maybeAddBooleanOption(options, "-XepRecordTimings", getRecordTimings());
     maybeAddStringOption(options, "-XepExcludedPaths", getExcludedPaths());
 
     getChecks()

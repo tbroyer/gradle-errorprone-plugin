@@ -87,6 +87,8 @@ public class GroovyDslIntegrationTest extends BasePluginIntegrationTest {
                 ignoreUnknownCheckNames = false
                 ignoreSuppressionAnnotations = false
                 compilingTestOnlyCode = false
+                printTimings = false
+                recordTimings = false
                 excludedPaths = "should.not.match.anything"
 
                 check new Pair("Foo", CheckSeverity.ERROR), new Pair("Bar", CheckSeverity.DEFAULT)
