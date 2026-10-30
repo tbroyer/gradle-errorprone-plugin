@@ -34,6 +34,10 @@ tasks {
         options.release = 21
         options.compilerArgs.addAll(listOf("-Werror", "-Xlint:all"))
     }
+    validatePlugins {
+        enableStricterValidation = true
+        failOnWarning = true
+    }
     javadoc {
         (options as StandardJavadocDocletOptions).apply {
             noTimestamp()
