@@ -27,7 +27,7 @@ public abstract class BasePluginIntegrationTest {
           .map(JavaVersion::toVersion)
           .orElseGet(JavaVersion::current);
   public static final String testJavaHome =
-      System.getProperty("test.java-home", System.getProperty("java.home"));
+      requireNonNull(System.getProperty("test.java-home", System.getProperty("java.home")));
 
   public static final String errorproneVersion = computeJvmCompatibleErrorProneVersion();
 

@@ -25,6 +25,7 @@ nullaway {
     error()
     onlyNullMarked = true
     jspecifyMode = true
+    jspecifyExperimental = true
     requireExplicitNullMarking { error() }
     jspecifyUnrecognizedAnnotationLocation { error() }
 }
