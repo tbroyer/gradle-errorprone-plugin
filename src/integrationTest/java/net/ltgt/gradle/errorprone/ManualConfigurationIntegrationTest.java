@@ -137,18 +137,18 @@ public class ManualConfigurationIntegrationTest extends BasePluginIntegrationTes
     // language=kts
     return testGradleVersion.compareTo(GradleVersion.version("8.4")) >= 0
         ? """
-          val %1$s = configurations.resolvable("%1$s") {
-              extendsFrom(configurations["errorprone"])
-          }
-          """
+        val %1$s = configurations.resolvable("%1$s") {
+            extendsFrom(configurations["errorprone"])
+        }
+        """
             .formatted(name)
         : """
-          val %s by configurations.registering {
-              isCanBeConsumed = false
-              isCanBeResolved = true
-              extendsFrom(configurations["errorprone"])
-          }
-          """
+        val %s by configurations.registering {
+            isCanBeConsumed = false
+            isCanBeResolved = true
+            extendsFrom(configurations["errorprone"])
+        }
+        """
             .formatted(name);
   }
 }

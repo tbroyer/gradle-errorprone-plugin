@@ -409,11 +409,10 @@ public abstract class ErrorProneOptions {
 
     getChecks()
         .get()
-        .forEach(
-            (name, severity) -> {
-              validateName(name);
-              options.add("-Xep:" + name + severityAsArg(severity));
-            });
+        .forEach((name, severity) -> {
+          validateName(name);
+          options.add("-Xep:" + name + severityAsArg(severity));
+        });
     getCheckOptions().get().forEach((name, value) -> options.add("-XepOpt:" + name + "=" + value));
     options.addAll(getErrorproneArgs().get());
     for (CommandLineArgumentProvider argumentProvider : getErrorproneArgumentProviders()) {

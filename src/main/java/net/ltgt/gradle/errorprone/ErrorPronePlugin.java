@@ -158,9 +158,8 @@ public abstract class ErrorPronePlugin implements Plugin<Project> {
         .getEnabled()
         .convention(
             task.getJavaCompiler()
-                .map(
-                    javaCompile ->
-                        javaCompile.getMetadata().getLanguageVersion().canCompileOrRun(11))
+                .map(javaCompile ->
+                    javaCompile.getMetadata().getLanguageVersion().canCompileOrRun(11))
                 .orElse(true));
     errorproneOptions
         .getCompilingTestOnlyCode()

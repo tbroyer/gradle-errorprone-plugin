@@ -513,9 +513,9 @@ public class ErrorPronePluginIntegrationTest extends BasePluginIntegrationTest {
                 customCheckProjectDir.resolve("src/main/resources/META-INF/services"))
             .resolve("com.google.errorprone.bugpatterns.BugChecker"),
         """
-            com.google.errorprone.sample.CPSChecker
-            com.google.errorprone.sample.EffectivelyFinalChecker
-            """);
+        com.google.errorprone.sample.CPSChecker
+        com.google.errorprone.sample.EffectivelyFinalChecker
+        """);
     var customCheckSourceDir =
         Files.createDirectories(
             customCheckProjectDir.resolve("src/main/java/com/google/errorprone/sample"));

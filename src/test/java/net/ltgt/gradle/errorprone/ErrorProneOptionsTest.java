@@ -79,25 +79,24 @@ public class ErrorProneOptionsTest {
     doTestOptions(options -> options.getCheckOptions().put("Foo", "Bar"));
     doTestOptions(options -> options.getCheckOptions().set(Map.of("Foo", "Bar")));
 
-    doTestOptions(
-        options -> {
-          options.getDisableAllChecks().set(true);
-          options.getDisableAllWarnings().set(true);
-          options.getAllErrorsAsWarnings().set(true);
-          options.getAllSuggestionsAsWarnings().set(true);
-          options.getAllDisabledChecksAsWarnings().set(true);
-          options.getDisableWarningsInGeneratedCode().set(true);
-          options.getIgnoreUnknownCheckNames().set(true);
-          options.getIgnoreSuppressionAnnotations().set(true);
-          options.getCompilingTestOnlyCode().set(true);
-          options.getPrintTimings().set(true);
-          options.getRecordTimings().set(true);
-          options.getExcludedPaths().set(".*/build/generated/.*");
-          options.enable("ArrayEquals");
-          options.check("ArrayEquals", CheckSeverity.ERROR);
-          options.option("Foo");
-          options.option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone");
-        });
+    doTestOptions(options -> {
+      options.getDisableAllChecks().set(true);
+      options.getDisableAllWarnings().set(true);
+      options.getAllErrorsAsWarnings().set(true);
+      options.getAllSuggestionsAsWarnings().set(true);
+      options.getAllDisabledChecksAsWarnings().set(true);
+      options.getDisableWarningsInGeneratedCode().set(true);
+      options.getIgnoreUnknownCheckNames().set(true);
+      options.getIgnoreSuppressionAnnotations().set(true);
+      options.getCompilingTestOnlyCode().set(true);
+      options.getPrintTimings().set(true);
+      options.getRecordTimings().set(true);
+      options.getExcludedPaths().set(".*/build/generated/.*");
+      options.enable("ArrayEquals");
+      options.check("ArrayEquals", CheckSeverity.ERROR);
+      options.option("Foo");
+      options.option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone");
+    });
   }
 
   private void doTestOptions(Consumer<ErrorProneOptions> configure) {
@@ -127,11 +126,10 @@ public class ErrorProneOptionsTest {
         options ->
             options
                 .getErrorproneArgumentProviders()
-                .add(
-                    () ->
-                        List.of(
-                            "-Xep:NullAway:ERROR",
-                            "-XepOpt:NullAway:AnnotatedPackages=net.ltgt.gradle.errorprone")),
+                .add(() ->
+                    List.of(
+                        "-Xep:NullAway:ERROR",
+                        "-XepOpt:NullAway:AnnotatedPackages=net.ltgt.gradle.errorprone")),
         reference -> {
           reference.check("NullAway", CheckSeverity.ERROR);
           reference.option("NullAway:AnnotatedPackages", "net.ltgt.gradle.errorprone");
@@ -178,9 +176,9 @@ public class ErrorProneOptionsTest {
         Files.writeString(
             Files.createFile(tempDir.resolve("ep_argfile.cfg")),
             """
-                -Xep:NullAway
-                -XepOpt:NullAway:AnnotatedPackages=net.ltgt.gradle.errorprone
-                """);
+            -Xep:NullAway
+            -XepOpt:NullAway:AnnotatedPackages=net.ltgt.gradle.errorprone
+            """);
     doTestOptions(
         options -> options.getArgumentFiles().from(argfile),
         reference -> {
