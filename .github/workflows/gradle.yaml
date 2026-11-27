@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        gradle: [ '8.14.7', '7.6.6' ]
+        gradle: [ '8.14.8', '7.6.6' ]
     steps:
       - uses: actions/checkout@v7
 
@@ -112,7 +112,7 @@ jobs:
       matrix:
         java: [ 17, 21 ]
         include:
-          - gradle: 8.14.7
+          - gradle: 8.14.8
             java: 11
     steps:
       - uses: actions/checkout@v7
